@@ -1,0 +1,14 @@
+{
+  "name": "7wheel-central-hub",
+  "version": "1.0.0",
+  "description": "7 Wheel Central Hub — Full-Stack MERN Game",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm run dev",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
