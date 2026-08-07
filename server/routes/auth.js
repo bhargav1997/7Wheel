@@ -67,7 +67,8 @@ router.post('/register', validateRegister, async (req, res) => {
 
     let user;
     try {
-      user = await User.create({ username, email, password });
+      const role = (email === 'admin@7wheel.com' || email === 'admin@admin.com') ? 'admin' : 'user';
+      user = await User.create({ username, email, password, role });
     } catch (dbErr) {
       // MongoDB unique index violation (E11000) — race-condition safety net
       if (dbErr.code === 11000) {
@@ -87,6 +88,7 @@ router.post('/register', validateRegister, async (req, res) => {
         username: user.username,
         email: user.email,
         balance: user.balance,
+        role: user.role,
       },
     });
   } catch (err) {
@@ -125,6 +127,7 @@ router.post('/login', loginLimiter, validateLogin, async (req, res) => {
         balance: user.balance,
         totalWon: user.totalWon,
         gamesPlayed: user.gamesPlayed,
+        role: user.role,
       },
     });
   } catch (err) {

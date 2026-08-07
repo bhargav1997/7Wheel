@@ -33,6 +33,7 @@ const gameRoundSchema = new mongoose.Schema(
     },
     totalPot: { type: Number, default: 0 },
     hadWinners: { type: Boolean, default: false },
+    platformEarnings: { type: Number, default: 0 },
     startedAt: { type: Date },
     bettingStartedAt: { type: Date },
     endedAt: { type: Date },

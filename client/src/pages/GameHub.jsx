@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Users, Coins, Activity } from 'lucide-react';
+import { Users, Coins, Activity, Trophy } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Wheel from '../components/Wheel';
 import BettingBoard from '../components/BettingBoard';
@@ -127,6 +127,8 @@ const GameHub = () => {
             Connecting to game server… please wait.
           </motion.div>
         )}
+
+
 
         {/* Stats row */}
         <motion.div

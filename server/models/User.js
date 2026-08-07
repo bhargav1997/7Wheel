@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema(
     },
     balance: {
       type: Number,
-      default: 100,
+      default: 5,
       min: [0, 'Balance cannot be negative'],
     },
     totalWon: {
@@ -40,6 +40,11 @@ const userSchema = new mongoose.Schema(
     gamesPlayed: {
       type: Number,
       default: 0,
+    },
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user',
     },
   },
   { timestamps: true }

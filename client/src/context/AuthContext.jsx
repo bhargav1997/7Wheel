@@ -24,6 +24,10 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [showAdminStats, setShowAdminStats] = useState(false);
+
   // On mount: verify stored token
   useEffect(() => {
     const verify = async () => {
@@ -52,7 +56,7 @@ export const AuthProvider = ({ children }) => {
     const { data } = await axios.post('/api/auth/register', { username, email, password });
     persistToken(data.token);
     setUser(data.user);
-    toast.success(`Welcome to the Hub, ${data.user.username}! 🎰`);
+    toast.success(`Welcome to the Hub, ${data.user.username}!`);
     return data;
   }, [persistToken]);
 
@@ -60,7 +64,7 @@ export const AuthProvider = ({ children }) => {
     const { data } = await axios.post('/api/auth/login', { email, password });
     persistToken(data.token);
     setUser(data.user);
-    toast.success(`Welcome back, ${data.user.username}! 🎰`);
+    toast.success(`Welcome back, ${data.user.username}!`);
     return data;
   }, [persistToken]);
 
@@ -69,15 +73,43 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     setUser(null);
     delete axios.defaults.headers.common['Authorization'];
-    toast('Logged out. Come back soon! 👋');
+    toast('Logged out. Come back soon.');
   }, []);
 
   const updateBalance = useCallback((newBalance) => {
     setUser((prev) => prev ? { ...prev, balance: newBalance } : prev);
   }, []);
 
+  const deposit = useCallback(async ({ amount, paymentMethod, paymentDetails }) => {
+    const { data } = await axios.post('/api/wallet/deposit', { amount, paymentMethod, paymentDetails });
+    updateBalance(data.balance);
+    return data;
+  }, [updateBalance]);
+
+  const withdraw = useCallback(async ({ amount, payoutMethod, payoutDetails }) => {
+    const { data } = await axios.post('/api/wallet/withdraw', { amount, payoutMethod, payoutDetails });
+    updateBalance(data.balance);
+    return data;
+  }, [updateBalance]);
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, register, login, logout, updateBalance }}>
+    <AuthContext.Provider value={{
+      user,
+      token,
+      loading,
+      register,
+      login,
+      logout,
+      updateBalance,
+      deposit,
+      withdraw,
+      showDepositModal,
+      setShowDepositModal,
+      showWithdrawModal,
+      setShowWithdrawModal,
+      showAdminStats,
+      setShowAdminStats,
+    }}>
       {children}
     </AuthContext.Provider>
   );

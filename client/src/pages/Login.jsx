@@ -152,7 +152,7 @@ const Login = () => {
 
         {/* Decorative credits note */}
         <p className="text-center text-xs text-slate-600 mt-6">
-          New accounts start with 100 free credits 🎰
+          New accounts start with 5 free credits 🎰
         </p>
       </motion.div>
     </div>

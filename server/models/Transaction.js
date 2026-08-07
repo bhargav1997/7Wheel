@@ -14,7 +14,7 @@ const transactionSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ['DEPOSIT', 'BET_PLACED', 'BET_WON', 'REFUND'],
+      enum: ['DEPOSIT', 'BET_PLACED', 'BET_WON', 'REFUND', 'WITHDRAWAL'],
       required: true,
     },
     roundId: {

@@ -123,7 +123,7 @@ const Register = () => {
   };
 
   const perks = [
-    '100 free starting credits',
+    '5 free starting credits',
     'Real-time multiplayer rounds',
     'Secure & private account',
   ];

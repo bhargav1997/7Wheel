@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Wallet, LogOut, Wifi, WifiOff, ChevronDown, TrendingUp } from 'lucide-react';
+import { Wallet, LogOut, Wifi, WifiOff, ChevronDown, TrendingUp, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, setShowDepositModal, setShowWithdrawModal, setShowAdminStats } = useAuth();
   const { connected, gameState } = useSocket();
   const [showMenu, setShowMenu] = useState(false);
 
@@ -65,18 +65,34 @@ const Navbar = () => {
           </div>
 
           {/* Balance */}
-          <motion.div
-            key={user?.balance}
-            initial={{ scale: 1.15, color: '#fcd34d' }}
-            animate={{ scale: 1, color: '#e2e8f0' }}
-            transition={{ duration: 0.4 }}
-            className="flex items-center gap-2 bg-casino-muted border border-casino-border rounded-xl px-3 py-1.5"
-          >
-            <Wallet size={14} className="text-gold-400" />
-            <span className="font-display font-bold text-sm tabular-nums">
-              ${user?.balance?.toFixed(2) ?? '0.00'}
-            </span>
-          </motion.div>
+          <div className="flex items-center gap-0">
+            <motion.div
+              key={user?.balance}
+              initial={{ scale: 1.15, color: '#fcd34d' }}
+              animate={{ scale: 1, color: '#e2e8f0' }}
+              transition={{ duration: 0.4 }}
+              className="flex items-center gap-2 bg-casino-muted border border-casino-border rounded-l-xl rounded-r-none px-3 py-1.5 border-r-0"
+            >
+              <Wallet size={14} className="text-gold-400" />
+              <span className="font-display font-bold text-sm tabular-nums">
+                ${user?.balance?.toFixed(2) ?? '0.00'}
+              </span>
+            </motion.div>
+            <button
+              onClick={() => setShowDepositModal(true)}
+              className="px-2.5 py-1.5 bg-brand-gradient border border-brand-500 hover:opacity-90 rounded-none text-white font-bold text-sm flex items-center justify-center transition-all border-r-0"
+              title="Add Credits"
+            >
+              +
+            </button>
+            <button
+              onClick={() => setShowWithdrawModal(true)}
+              className="px-2.5 py-1.5 bg-gradient-to-r from-emerald-600 to-emerald-500 border border-emerald-500 hover:opacity-90 rounded-r-xl text-white font-bold text-sm flex items-center justify-center transition-all"
+              title="Withdraw"
+            >
+              −
+            </button>
+          </div>
 
           {/* User menu */}
           <div className="relative">
@@ -115,11 +131,23 @@ const Navbar = () => {
                       <TrendingUp size={12} />
                       <span>Games: {user?.gamesPlayed ?? 0}</span>
                     </div>
+                    {user?.role === 'admin' && (
+                      <button
+                        onClick={() => {
+                          setShowAdminStats(true);
+                          setShowMenu(false);
+                        }}
+                        className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-sm text-brand-400 hover:bg-brand-500/10 transition-colors text-left font-semibold"
+                      >
+                        <Shield size={14} />
+                        Admin Panel
+                      </button>
+                    )}
                     <button
                       id="logout-btn"
                       onClick={() => { logout(); setShowMenu(false); }}
                       className="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-sm
-                                 text-red-400 hover:bg-red-500/10 transition-colors text-left"
+                                 text-red-400 hover:bg-red-500/10 transition-colors text-left font-medium"
                     >
                       <LogOut size={14} />
                       Logout

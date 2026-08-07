@@ -5,6 +5,11 @@ import { SocketProvider } from './context/SocketContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import GameHub from './pages/GameHub';
+import Landing from './pages/Landing';
+import PrivacyTerms from './pages/PrivacyTerms';
+import DepositModal from './components/DepositModal';
+import WithdrawModal from './components/WithdrawModal';
+import AdminStatsModal from './components/AdminStatsModal';
 
 // Protected route guard
 const ProtectedRoute = ({ children }) => {
@@ -27,17 +32,21 @@ const ProtectedRoute = ({ children }) => {
   return user ? children : <Navigate to="/login" replace />;
 };
 
-// Public-only route (redirect logged-in users to hub)
+// Public-only route (redirect logged-in users to play)
 const PublicRoute = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) return null;
-  return user ? <Navigate to="/" replace /> : children;
+  return user ? <Navigate to="/play" replace /> : children;
 };
 
 const AppRoutes = () => (
   <Routes>
     <Route
       path="/"
+      element={<Landing />}
+    />
+    <Route
+      path="/play"
       element={
         <ProtectedRoute>
           <SocketProvider>
@@ -54,7 +63,11 @@ const AppRoutes = () => (
       path="/register"
       element={<PublicRoute><Register /></PublicRoute>}
     />
-    <Route path="*" element={<Navigate to="/" replace />} />
+    <Route
+      path="/privacy-terms"
+      element={<PrivacyTerms />}
+    />
+    <Route path="*" element={<Navigate to="/play" replace />} />
   </Routes>
 );
 
@@ -76,6 +89,9 @@ const App = () => (
         }}
       />
       <AppRoutes />
+      <DepositModal />
+      <WithdrawModal />
+      <AdminStatsModal />
     </AuthProvider>
   </BrowserRouter>
 );

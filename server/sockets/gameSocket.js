@@ -50,20 +50,22 @@ const getCategory = (num) => {
 const buildPublicState = () => ({
   status: gameState.status,
   roundNumber: gameState.roundNumber,
-  playerCount: Object.keys(gameState.playerSockets).length,
+  playerCount: Object.values(gameState.playerSockets).filter((p) => p.role !== 'admin').length,
   bettorCount: gameState.bets.length,
   pot: gameState.pot,
   timeLeft: gameState.timeLeft,
   result: gameState.result,
   winningCategory: gameState.winningCategory,
   winners: gameState.winners,
-  // Players list (no bet choices exposed)
-  players: Object.values(gameState.playerSockets).map((p) => ({
-    username: p.username,
-    hasBet: p.hasBet,
-    balance: p.balance,
-    totalWon: p.totalWon || 0,
-  })),
+  // Players list (no bet choices exposed, excluding admins)
+  players: Object.values(gameState.playerSockets)
+    .filter((p) => p.role !== 'admin')
+    .map((p) => ({
+      username: p.username,
+      hasBet: p.hasBet,
+      balance: p.balance,
+      totalWon: p.totalWon || 0,
+    })),
 });
 
 /**
@@ -79,48 +81,64 @@ const broadcastState = (io) => {
 const computePayouts = (bets, result) => {
   const winningCategory = getCategory(result);
   const totalPot = bets.reduce((sum, b) => sum + b.amount, 0);
+
+  // Platform commission fee of 3.5% (2.0% service fee + 1.5% support fee)
+  const platformFee = parseFloat((totalPot * 0.035).toFixed(2));
+  const distributablePool = totalPot - platformFee;
+
+  // Filter winning wagers
   const winningBets = bets.filter((b) => b.choice === winningCategory);
-  const totalWinnerStake = winningBets.reduce((sum, b) => sum + b.amount, 0);
+  const totalWinningBets = winningBets.reduce((sum, b) => sum + b.amount, 0);
 
   const payouts = [];
 
-  if (winningBets.length === 0) {
-    // No winners — refund 90% to all players proportionally
+  if (totalWinningBets > 0) {
+    // Winners present, split the remaining pool proportionally based on bet sizes
+    bets.forEach((bet) => {
+      if (bet.choice === winningCategory) {
+        const share = bet.amount / totalWinningBets;
+        const payoutAmount = parseFloat((share * distributablePool).toFixed(2));
+        payouts.push({
+          userId: bet.userId,
+          username: bet.username,
+          won: true,
+          payout: payoutAmount,
+          refund: 0,
+        });
+      } else {
+        payouts.push({
+          userId: bet.userId,
+          username: bet.username,
+          won: false,
+          payout: 0,
+          refund: 0,
+        });
+      }
+    });
+  } else {
+    // No winners, house retains 100% of wagers
     bets.forEach((bet) => {
       payouts.push({
         userId: bet.userId,
         username: bet.username,
-        refund: parseFloat((bet.amount * 0.9).toFixed(2)),
         won: false,
         payout: 0,
+        refund: 0,
       });
     });
-    return { payouts, winningCategory, totalPot, hadWinners: false };
   }
 
-  // Winners split total pot proportionally by their individual stake
-  bets.forEach((bet) => {
-    if (bet.choice === winningCategory) {
-      const share = (bet.amount / totalWinnerStake) * totalPot;
-      payouts.push({
-        userId: bet.userId,
-        username: bet.username,
-        won: true,
-        payout: parseFloat(share.toFixed(2)),
-        refund: 0,
-      });
-    } else {
-      payouts.push({
-        userId: bet.userId,
-        username: bet.username,
-        won: false,
-        payout: 0,
-        refund: 0,
-      });
-    }
-  });
+  // Calculate actual platform earnings for this round
+  const totalDistributed = payouts.reduce((sum, p) => sum + p.payout, 0);
+  const platformEarnings = parseFloat((totalPot - totalDistributed).toFixed(2));
 
-  return { payouts, winningCategory, totalPot, hadWinners: true };
+  return {
+    payouts,
+    winningCategory,
+    totalPot,
+    hadWinners: totalWinningBets > 0,
+    platformEarnings,
+  };
 };
 
 // ─────────────────────────────────────────────
@@ -176,15 +194,17 @@ const resolveRound = async (io, result) => {
   gameState.status = 'RESULT';
   gameState.result = result;
 
-  const { payouts, winningCategory, totalPot, hadWinners } = computePayouts(
+  const { payouts, winningCategory, totalPot, hadWinners, platformEarnings } = computePayouts(
     gameState.bets,
     result
   );
 
   gameState.winningCategory = winningCategory;
-  gameState.winners = payouts.filter((p) => p.won || p.refund > 0);
+  gameState.winners = payouts;
 
-  // Apply payouts to DB
+
+
+  // Apply standard payouts to DB
   for (const payout of payouts) {
     const credit = payout.won ? payout.payout : payout.refund;
     if (credit > 0) {
@@ -228,6 +248,7 @@ const resolveRound = async (io, result) => {
     winningCategory,
     totalPot,
     hadWinners,
+    platformEarnings,
     bets: gameState.bets.map((b) => {
       const p = payouts.find((pay) => pay.userId === b.userId);
       return {
@@ -250,9 +271,6 @@ const returnToWaiting = async (io) => {
   gameState.status = 'WAITING_FOR_PLAYERS';
   gameState.bets = [];
   gameState.pot = 0;
-  gameState.result = null;
-  gameState.winningCategory = null;
-  gameState.winners = [];
   gameState.timeLeft = 0;
   gameState.currentRoundId = null;
 
@@ -312,6 +330,7 @@ const initGameSocket = (io) => {
           username: user.username,
           balance: user.balance,
           totalWon: user.totalWon || 0,
+          role: user.role,
           hasBet: false,
         };
 
@@ -326,6 +345,15 @@ const initGameSocket = (io) => {
         // Notify others of new player
         broadcastState(io);
 
+        // If we now have >= 4 players connected and >= 2 have already placed bets, start the timer
+        if (
+          gameState.status === 'WAITING_FOR_PLAYERS' &&
+          Object.keys(gameState.playerSockets).length >= 4 &&
+          gameState.bets.length >= 2
+        ) {
+          await startBettingPhase(io);
+        }
+
         console.log(`👤 ${user.username} joined lobby (${Object.keys(gameState.playerSockets).length} total)`);
       } catch (err) {
         console.error('joinLobby error:', err.message);
@@ -337,12 +365,18 @@ const initGameSocket = (io) => {
     // ── placeBet ───────────────────────────────
     socket.on('placeBet', async ({ token, amount, choice }) => {
       try {
-        if (gameState.status !== 'WAITING_FOR_PLAYERS') {
+        if (gameState.status !== 'WAITING_FOR_PLAYERS' && gameState.status !== 'BETTING') {
           return socket.emit('betError', { message: 'Betting is closed for this round' });
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const userId = decoded.id;
+
+        // Prevent admins from betting
+        const userObj = await User.findById(userId);
+        if (userObj && userObj.role === 'admin') {
+          return socket.emit('betError', { message: 'Administrators cannot place wagers' });
+        }
 
         // Check if already bet this round
         const alreadyBet = gameState.bets.find((b) => b.userId === userId);
@@ -403,6 +437,8 @@ const initGameSocket = (io) => {
 
         gameState.pot += betAmount;
 
+
+
         // Mark player as having bet
         if (gameState.playerSockets[socket.id]) {
           gameState.playerSockets[socket.id].hasBet = true;
@@ -422,19 +458,26 @@ const initGameSocket = (io) => {
         // Trigger condition check
         const totalPlayers = Object.keys(gameState.playerSockets).length;
         const bettors = gameState.bets.length;
-        if (bettors >= totalPlayers && totalPlayers >= 4) {
-          // If all connected players have bet (and we have at least 4), spin instantly
-          if (gameState.currentRoundId) {
-            await GameRound.findByIdAndUpdate(gameState.currentRoundId, {
-              status: 'SPINNING',
-            });
+
+        if (totalPlayers >= 4) {
+          if (gameState.status === 'WAITING_FOR_PLAYERS') {
+            if (bettors >= 2) {
+              // 4+ connected and 2+ have bet -> start the 30-second countdown
+              await startBettingPhase(io);
+            }
+          } else if (gameState.status === 'BETTING') {
+            if (bettors >= totalPlayers) {
+              // All connected players have bet -> spin instantly!
+              if (gameState.currentRoundId) {
+                await GameRound.findByIdAndUpdate(gameState.currentRoundId, {
+                  status: 'SPINNING',
+                });
+              }
+              clearInterval(bettingCountdown);
+              bettingCountdown = null;
+              await spinWheel(io);
+            }
           }
-          clearInterval(bettingCountdown);
-          bettingCountdown = null;
-          await spinWheel(io);
-        } else if (bettors >= 4) {
-          // Lock inputs and start the 30-second countdown
-          await startBettingPhase(io);
         }
       } catch (err) {
         console.error('placeBet error:', err);
@@ -449,9 +492,45 @@ const initGameSocket = (io) => {
         console.log(`👋 ${player.username} left lobby`);
         delete gameState.playerSockets[socket.id];
         broadcastState(io);
+
+        // Check if this disconnection means all remaining players have bet
+        if (gameState.status === 'BETTING') {
+          const totalPlayers = Object.keys(gameState.playerSockets).length;
+          const bettors = gameState.bets.length;
+          if (totalPlayers >= 4 && bettors >= totalPlayers) {
+            clearInterval(bettingCountdown);
+            bettingCountdown = null;
+            spinWheel(io);
+          }
+        }
       }
     });
   });
+
+  // Load last round from DB when starting up
+  const initLastRoundState = async () => {
+    try {
+      // Load last completed round
+      const lastRound = await GameRound.findOne({ status: 'RESULT' }).sort({ roundNumber: -1 });
+      if (lastRound) {
+        gameState.roundNumber = lastRound.roundNumber;
+        gameState.result = lastRound.result;
+        gameState.winningCategory = lastRound.winningCategory;
+        // Keep the historic winners list structure
+        gameState.winners = lastRound.bets.map((b) => ({
+          userId: b.userId.toString(),
+          username: b.username,
+          won: b.won,
+          payout: b.payout,
+          refund: 0,
+        }));
+        console.log(`Loaded last completed round #${gameState.roundNumber} from DB.`);
+      }
+    } catch (err) {
+      console.error('Failed to load last round state:', err);
+    }
+  };
+  initLastRoundState();
 };
 
 module.exports = initGameSocket;

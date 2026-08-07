@@ -59,7 +59,7 @@ const BettingBoard = () => {
     }
   }, [status]);
 
-  const isBettingActive = status === 'WAITING_FOR_PLAYERS';
+  const isBettingActive = status === 'WAITING_FOR_PLAYERS' || status === 'BETTING';
   const isCountdownActive = status === 'BETTING';
   const alreadyBet     = !!myBet;
   const canBet         = isBettingActive && !alreadyBet && !submitting;
@@ -127,7 +127,7 @@ const BettingBoard = () => {
               </div>
               <div>
                 <p className="text-xs text-slate-500">Time remaining</p>
-                <p className="font-semibold text-white">Bets are Locked!</p>
+                <p className="font-semibold text-white">Place your bet!</p>
               </div>
             </div>
             <div className="text-right">
