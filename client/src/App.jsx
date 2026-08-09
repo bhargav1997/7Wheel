@@ -4,11 +4,13 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import GameHub from './pages/GameHub';
 import Landing from './pages/Landing';
 import PrivacyTerms from './pages/PrivacyTerms';
-import DepositModal from './components/DepositModal';
-import WithdrawModal from './components/WithdrawModal';
+import Profile from './pages/Profile';
+import BuyCreditsModal from './components/BuyCreditsModal';
 import AdminStatsModal from './components/AdminStatsModal';
 
 // Protected route guard
@@ -64,8 +66,24 @@ const AppRoutes = () => (
       element={<PublicRoute><Register /></PublicRoute>}
     />
     <Route
+      path="/forgot-password"
+      element={<PublicRoute><ForgotPassword /></PublicRoute>}
+    />
+    <Route
+      path="/reset-password/:token"
+      element={<PublicRoute><ResetPassword /></PublicRoute>}
+    />
+    <Route
       path="/privacy-terms"
       element={<PrivacyTerms />}
+    />
+    <Route
+      path="/profile"
+      element={
+        <ProtectedRoute>
+          <Profile />
+        </ProtectedRoute>
+      }
     />
     <Route path="*" element={<Navigate to="/play" replace />} />
   </Routes>
@@ -89,8 +107,7 @@ const App = () => (
         }}
       />
       <AppRoutes />
-      <DepositModal />
-      <WithdrawModal />
+      <BuyCreditsModal />
       <AdminStatsModal />
     </AuthProvider>
   </BrowserRouter>

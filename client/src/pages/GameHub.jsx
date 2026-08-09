@@ -56,7 +56,7 @@ const GameHub = () => {
                     <p className="text-slate-400 text-sm">Congratulations on your victory!</p>
                   </div>
                   <div className="text-4xl font-display font-black text-gold-400">
-                    +${myResult.payout.toFixed(2)}
+                    +{Math.round(myResult.payout).toLocaleString()} 🪙
                   </div>
                 </>
               ) : myResult.refund > 0 ? (
@@ -69,7 +69,7 @@ const GameHub = () => {
                     <p className="text-slate-400 text-sm">No winners. 90% stake returned.</p>
                   </div>
                   <div className="text-4xl font-display font-black text-slate-300">
-                    +${myResult.refund.toFixed(2)}
+                    +{Math.round(myResult.refund).toLocaleString()} 🪙
                   </div>
                 </>
               ) : (
@@ -145,8 +145,8 @@ const GameHub = () => {
           />
           <StatCard
             icon={Coins}
-            label="Current Pot"
-            value={`$${pot.toFixed(2)}`}
+            label="Credits in Pot"
+            value={`${Math.round(pot).toLocaleString()} 🪙`}
             color="bg-gold-gradient"
           />
           <StatCard

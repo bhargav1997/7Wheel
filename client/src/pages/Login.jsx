@@ -20,7 +20,7 @@ const Login = () => {
     setLoading(true);
     try {
       await login(form);
-      navigate('/');
+      navigate('/play');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');
     } finally {
@@ -80,9 +80,17 @@ const Login = () => {
 
             {/* Password */}
             <div>
-              <label htmlFor="login-password" className="block text-sm font-medium text-slate-300 mb-2">
-                Password
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="login-password" className="block text-sm font-medium text-slate-300">
+                  Password
+                </label>
+                <Link
+                  to="/forgot-password"
+                  className="text-xs text-brand-400 hover:text-brand-300 transition-colors font-medium"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <div className="relative">
                 <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
                 <input

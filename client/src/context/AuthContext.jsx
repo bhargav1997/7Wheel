@@ -15,7 +15,6 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(() => localStorage.getItem('7wheel_token'));
   const [loading, setLoading] = useState(true);
 
-  // Attach token to all axios requests
   useEffect(() => {
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -24,11 +23,20 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
-  const [showDepositModal, setShowDepositModal] = useState(false);
-  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [showBuyCreditsModal, setShowBuyCreditsModal] = useState(false);
   const [showAdminStats, setShowAdminStats] = useState(false);
 
-  // On mount: verify stored token
+  const refreshUser = useCallback(async () => {
+    if (!token) return null;
+    try {
+      const { data } = await axios.get('/api/auth/me');
+      setUser(data.user);
+      return data.user;
+    } catch {
+      return null;
+    }
+  }, [token]);
+
   useEffect(() => {
     const verify = async () => {
       if (!token) { setLoading(false); return; }
@@ -52,11 +60,15 @@ export const AuthProvider = ({ children }) => {
     axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
   }, []);
 
-  const register = useCallback(async ({ username, email, password }) => {
-    const { data } = await axios.post('/api/auth/register', { username, email, password });
+  const register = useCallback(async ({ username, email, password, inviteCode }) => {
+    const { data } = await axios.post('/api/auth/register', { username, email, password, inviteCode });
     persistToken(data.token);
     setUser(data.user);
-    toast.success(`Welcome to the Hub, ${data.user.username}!`);
+    if (data.referralBonusApplied) {
+      toast.success(`Welcome, ${data.user.username}! You got 100 + 50 bonus credits for using an invite code!`);
+    } else {
+      toast.success(`Welcome to 7 Wheel, ${data.user.username}! You got 100 free credits!`);
+    }
     return data;
   }, [persistToken]);
 
@@ -80,17 +92,33 @@ export const AuthProvider = ({ children }) => {
     setUser((prev) => prev ? { ...prev, balance: newBalance } : prev);
   }, []);
 
-  const deposit = useCallback(async ({ amount, paymentMethod, paymentDetails }) => {
-    const { data } = await axios.post('/api/wallet/deposit', { amount, paymentMethod, paymentDetails });
+  const purchaseCredits = useCallback(async ({ packId, paymentMethod, paymentDetails }) => {
+    const { data } = await axios.post('/api/wallet/purchase-credits', { packId, paymentMethod, paymentDetails });
     updateBalance(data.balance);
     return data;
   }, [updateBalance]);
 
-  const withdraw = useCallback(async ({ amount, payoutMethod, payoutDetails }) => {
-    const { data } = await axios.post('/api/wallet/withdraw', { amount, payoutMethod, payoutDetails });
-    updateBalance(data.balance);
-    return data;
-  }, [updateBalance]);
+  /**
+   * Delete the authenticated user's account permanently.
+   * Requires password confirmation.
+   * NOTE: We explicitly pass the Authorization header here because
+   *       axios.delete with a body config can miss defaults in some versions.
+   */
+  const deleteAccount = useCallback(async (password) => {
+    const storedToken = localStorage.getItem('7wheel_token');
+    await axios.delete('/api/auth/account', {
+      data: { password },
+      headers: {
+        Authorization: `Bearer ${storedToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    // Clear local session after successful deletion
+    localStorage.removeItem('7wheel_token');
+    setToken(null);
+    setUser(null);
+    delete axios.defaults.headers.common['Authorization'];
+  }, []);
 
   return (
     <AuthContext.Provider value={{
@@ -101,12 +129,11 @@ export const AuthProvider = ({ children }) => {
       login,
       logout,
       updateBalance,
-      deposit,
-      withdraw,
-      showDepositModal,
-      setShowDepositModal,
-      showWithdrawModal,
-      setShowWithdrawModal,
+      purchaseCredits,
+      deleteAccount,
+      refreshUser,
+      showBuyCreditsModal,
+      setShowBuyCreditsModal,
       showAdminStats,
       setShowAdminStats,
     }}>

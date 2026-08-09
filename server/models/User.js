@@ -26,8 +26,12 @@ const userSchema = new mongoose.Schema(
     },
     balance: {
       type: Number,
-      default: 5,
+      default: 100,  // 100 free credits on signup
       min: [0, 'Balance cannot be negative'],
+    },
+    creditsEarned: {
+      type: Number,
+      default: 0, // lifetime credits purchased (for VIP tier logic)
     },
     totalWon: {
       type: Number,
@@ -45,6 +49,29 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ['user', 'admin'],
       default: 'user',
+    },
+    resetPasswordToken: {
+      type: String,
+      default: null,
+    },
+    resetPasswordExpires: {
+      type: Date,
+      default: null,
+    },
+    // ── Referral system ─────────────────────────
+    referralCode: {
+      type: String,
+      unique: true,
+      sparse: true, // allows null for existing users without breaking unique index
+    },
+    referredBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
+    referralCount: {
+      type: Number,
+      default: 0, // how many users this user has referred
     },
   },
   { timestamps: true }

@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Mail, Lock, UserPlus, AlertCircle, CheckCircle, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { User, Mail, Lock, UserPlus, AlertCircle, CheckCircle, Eye, EyeOff, ShieldCheck, Ticket } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 // ─────────────────────────────────────────────
@@ -77,7 +77,7 @@ const Register = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({ username: '', email: '', password: '' });
+  const [form, setForm] = useState({ username: '', email: '', password: '', inviteCode: '' });
   const [touched, setTouched] = useState({ username: false, email: false, password: false });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -113,8 +113,8 @@ const Register = () => {
     setServerError('');
     setLoading(true);
     try {
-      await register(form);
-      navigate('/');
+      await register(form); // includes inviteCode
+      navigate('/play');
     } catch (err) {
       setServerError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
@@ -123,9 +123,9 @@ const Register = () => {
   };
 
   const perks = [
-    '5 free starting credits',
+    '100 free credits on signup',
+    'Invite friends · earn 50 credits each',
     'Real-time multiplayer rounds',
-    'Secure & private account',
   ];
 
   return (
@@ -345,6 +345,34 @@ const Register = () => {
                   </div>
                 </motion.div>
               )}
+            </div>
+
+            {/* Invite Code (optional) */}
+            <div>
+              <label htmlFor="reg-invite" className="block text-sm font-medium text-slate-300 mb-2">
+                Invite Code
+                <span className="ml-2 text-[10px] font-normal text-slate-500 bg-casino-muted border border-casino-border rounded px-1.5 py-0.5">
+                  Optional
+                </span>
+              </label>
+              <div className="relative">
+                <Ticket size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+                <input
+                  id="reg-invite"
+                  name="inviteCode"
+                  type="text"
+                  autoComplete="off"
+                  value={form.inviteCode}
+                  onChange={handleChange}
+                  className="input-field pl-11 uppercase tracking-widest font-mono"
+                  placeholder="e.g. A3F7B2C1"
+                  maxLength={8}
+                />
+              </div>
+              <p className="text-xs text-slate-600 mt-1 flex items-center gap-1">
+                <CheckCircle size={10} className="text-emerald-500" />
+                You and your friend both get +50 bonus credits!
+              </p>
             </div>
 
             {/* Server error */}

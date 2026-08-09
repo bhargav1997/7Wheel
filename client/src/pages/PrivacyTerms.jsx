@@ -38,13 +38,24 @@ const PrivacyTerms = () => {
             </p>
           </div>
 
-          {/* Legal Alert banner to protect platform */}
+          {/* Social Casino Disclaimer — Legal Shield */}
+          <div className="flex gap-3 p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-xl text-emerald-400 text-xs leading-relaxed">
+            <span className="text-xl flex-shrink-0">🎮</span>
+            <div className="space-y-1">
+              <strong className="font-bold text-sm">Social Entertainment Platform — Not Gambling</strong>
+              <p>
+                7 Wheel is a <strong>social entertainment platform</strong>. Virtual credits used in gameplay have <strong>no real-world monetary value</strong>. Credits cannot be withdrawn, redeemed, or exchanged for cash, prizes, or any item of real-world value. By participating, you acknowledge this is a game of entertainment and skill-based prediction, not a gambling product.
+              </p>
+            </div>
+          </div>
+
+          {/* Legal Alert banner */}
           <div className="flex gap-3 p-4 bg-amber-500/5 border border-amber-500/10 rounded-xl text-amber-400 text-xs leading-relaxed">
             <AlertTriangle size={18} className="flex-shrink-0 mt-0.5" />
             <div className="space-y-1">
               <strong className="font-bold">Important Liability Disclaimer</strong>
               <p>
-                7 Wheel operates a simulated multiplayer probability game. By registering and playing, you acknowledge that wagers carry inherent risk of loss, outcomes are generated using random server-side seeds, and the platform holds no liability for credits lost during game rounds.
+                7 Wheel operates a simulated multiplayer prediction game using virtual credits. By registering and playing, you acknowledge that virtual wagers carry inherent risk of credit loss, outcomes are generated using random server-side seeds, and the platform holds no liability for credits lost during game rounds. No real money is risked at any time.
               </p>
             </div>
           </div>
@@ -58,7 +69,7 @@ const PrivacyTerms = () => {
               </h3>
               <div className="text-xs text-slate-400 space-y-2.5 leading-relaxed">
                 <p>
-                  You must be at least 18 years of age (or the legal age of majority in your jurisdiction) to open an account or place bets. It is your sole responsibility to ensure that your participation in simulated wagers is legal within the region you reside.
+                  You must be at least 18 years of age (or the legal age of majority in your jurisdiction) to open an account or use virtual credits. It is your sole responsibility to ensure that your participation in this entertainment platform is permitted within your region.
                 </p>
                 <p>
                   We reserve the right to audit accounts, restrict access, or ban users suspected of exploiting game bugs, attempting multiple session entries from duplicate IPs, or creating bot accounts.
@@ -74,10 +85,13 @@ const PrivacyTerms = () => {
               </h3>
               <div className="text-xs text-slate-400 space-y-2.5 leading-relaxed">
                 <p>
-                  <strong>Dynamic Pool Splits (Pari-Mutuel):</strong> Payout values are dynamic rather than fixed. On each round, the platform takes a flat <strong>3.5% commission fee</strong> (2.0% service fee + 1.5% support fee) off the total wagers placed. The remaining 96.5% of the pot is distributed proportionally among the winning players based on their bet sizes.
+                  <strong>Credit Packs:</strong> Credits are virtual entertainment tokens purchased for use within the 7 Wheel platform only. Credits have no monetary value and <strong>cannot be withdrawn, redeemed, or converted to cash or prizes</strong> under any circumstances. All credit pack purchases are final and non-refundable.
                 </p>
                 <p>
-                  <strong>No-Winner Rounds:</strong> In the event that a round is resolved and no player has placed a bet on the winning outcome, 100% of the wagers placed during that round are retained by the house. No refunds or reversals are offered.
+                  <strong>Dynamic Pool Splits (Pari-Mutuel):</strong> On each round, the platform takes a flat <strong>3.5% commission fee</strong> (2.0% service fee + 1.5% support fee) off the total virtual credits wagered. The remaining 96.5% is distributed proportionally among winning players based on their bet sizes.
+                </p>
+                <p>
+                  <strong>No-Winner Rounds:</strong> In the event that a round is resolved and no player placed a bet on the winning outcome, 100% of the credits wagered during that round are retained by the house.
                 </p>
               </div>
             </div>

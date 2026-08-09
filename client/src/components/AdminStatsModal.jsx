@@ -62,29 +62,43 @@ const AdminStatsModal = () => {
               {/* Main Margin Card */}
               <div className="bg-gradient-to-r from-purple-950/20 via-indigo-950/20 to-purple-950/20 border border-brand-500/30 rounded-2xl p-5 text-center relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-0.5 bg-brand-gradient opacity-80" />
-                <p className="text-[10px] text-brand-400 uppercase tracking-widest font-black">Net Platform Winnings</p>
+                <p className="text-[10px] text-brand-400 uppercase tracking-widest font-black">Platform Credit Earnings (Credits)</p>
                 <h4 className="font-display font-black text-4xl mt-1 tracking-tight bg-gradient-to-r from-gold-300 via-amber-400 to-gold-300 bg-clip-text text-transparent drop-shadow-md">
-                  ${stats.platformEarnings.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {Math.round(stats.platformEarnings).toLocaleString()} 🪙
                 </h4>
                 <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
-                  Calculated dynamically from the house edge commission (3.5%) + wagers retained from rounds with no winners.
+                  Commission (3.5% edge) + credits retained from no-winner rounds.
                 </p>
               </div>
 
               {/* Aggregates grid */}
               <div className="grid grid-cols-2 gap-4">
-                {/* Total Deposited */}
+                {/* Real Revenue */}
                 <div className="bg-[#111118] border border-casino-border rounded-xl p-4 space-y-1">
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Total Deposited</span>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Real Revenue (USD)</span>
+                  <p className="font-display font-bold text-emerald-400 text-lg">
+                    ${stats.totalRevenue?.toFixed(2) ?? '0.00'}
+                  </p>
+                </div>
+                {/* Credits Sold */}
+                <div className="bg-[#111118] border border-casino-border rounded-xl p-4 space-y-1">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Credits Sold</span>
                   <p className="font-display font-bold text-white text-lg">
-                    ${stats.totalDeposited.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {(stats.totalCreditsSold ?? 0).toLocaleString()} 🪙
                   </p>
                 </div>
                 {/* Total Wagered */}
                 <div className="bg-[#111118] border border-casino-border rounded-xl p-4 space-y-1">
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Total Wagered</span>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Credits Wagered</span>
                   <p className="font-display font-bold text-white text-lg">
-                    ${stats.totalWagered.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {Math.round(stats.totalWagered ?? 0).toLocaleString()} 🪙
+                  </p>
+                </div>
+                {/* Total Users */}
+                <div className="bg-[#111118] border border-casino-border rounded-xl p-4 space-y-1">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Total Users</span>
+                  <p className="font-display font-bold text-white text-lg">
+                    {stats.totalUsers ?? 0}
                   </p>
                 </div>
               </div>
