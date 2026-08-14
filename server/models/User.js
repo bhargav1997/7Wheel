@@ -73,6 +73,32 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0, // how many users this user has referred
     },
+    // ── Daily Streak system ──────────────────────
+    loginStreak: {
+      type: Number,
+      default: 0,
+    },
+    longestStreak: {
+      type: Number,
+      default: 0,
+    },
+    lastLoginAt: {
+      type: Date,
+      default: null,
+    },
+    // ── Loot Crate Gacha system ─────────────────
+    lastLootCrateClaim: {
+      type: Date,
+      default: null,
+    },
+    lootCrateStreak: {
+      type: Number,
+      default: 0,
+    },
+    lootCratePity: {
+      type: Number,
+      default: 0, // resets to 0 on Legendary drop; at 10 guarantees Legendary
+    },
   },
   { timestamps: true }
 );

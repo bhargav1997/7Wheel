@@ -67,8 +67,8 @@ const BettingBoard = () => {
   const handleSubmit = async () => {
     if (!selectedChoice || !canBet) return;
     const amount = parseFloat(betAmount);
-    if (isNaN(amount) || amount < 1) {
-      setBetError('Minimum bet is $1');
+    if (isNaN(amount) || amount < 10) {
+      setBetError('Minimum bet is 10 credits');
       return;
     }
     setSubmitting(true);
@@ -98,7 +98,7 @@ const BettingBoard = () => {
             </div>
             <div className="text-right">
               <p className="text-xs text-slate-500">Total Pot</p>
-              <p className="font-display font-bold text-gold-400 text-lg">${pot.toFixed(2)}</p>
+              <p className="font-display font-bold text-gold-400 text-lg">{Math.round(pot).toLocaleString()} 🪙</p>
             </div>
           </div>
         )}
@@ -132,7 +132,7 @@ const BettingBoard = () => {
             </div>
             <div className="text-right">
               <p className="text-xs text-slate-500">Total Pot</p>
-              <p className="font-display font-bold text-gold-400 text-lg">${pot.toFixed(2)}</p>
+              <p className="font-display font-bold text-gold-400 text-lg">{Math.round(pot).toLocaleString()} 🪙</p>
               <p className="text-xs text-slate-500">{bettorCount} / {playerCount} bet</p>
             </div>
           </div>
@@ -215,10 +215,10 @@ const BettingBoard = () => {
         >
           <div>
             <label htmlFor="bet-amount" className="block text-xs text-slate-400 mb-2">
-              Bet Amount ($1 minimum)
+              Bet Amount (10 credits minimum)
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gold-400 font-bold">$</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gold-400 font-bold">🪙</span>
               <input
                 id="bet-amount"
                 type="number"
@@ -232,15 +232,15 @@ const BettingBoard = () => {
               />
             </div>
             {/* Quick amounts */}
-            <div className="flex gap-2 mt-2">
-              {[5, 10, 25, 50, 100].map((v) => (
+            <div className="flex gap-1.5 mt-2 flex-wrap">
+              {[10, 25, 50, 100, 250].map((v) => (
                 <button
                   key={v}
                   onClick={() => setBetAmount(String(v))}
-                  className="flex-1 text-xs py-1.5 rounded-lg bg-casino-muted border border-casino-border
+                  className="flex-1 min-w-[2.5rem] text-xs py-1.5 rounded-lg bg-casino-muted border border-casino-border
                              text-slate-400 hover:text-white hover:border-brand-500 transition-colors"
                 >
-                  ${v}
+                  {v}
                 </button>
               ))}
             </div>
@@ -282,7 +282,7 @@ const BettingBoard = () => {
               <>
                 <Coins size={16} />
                 Place Bet
-                {selectedChoice && betAmount && ` — $${betAmount}`}
+                {selectedChoice && betAmount && ` — ${betAmount} 🪙`}
               </>
             )}
           </motion.button>
@@ -303,7 +303,7 @@ const BettingBoard = () => {
             <div>
               <p className="font-semibold text-white">Bet Placed!</p>
               <p className="text-sm text-slate-400">
-                ${myBet.amount} on{' '}
+                {myBet.amount.toLocaleString()} 🪙 on{' '}
                 <span className="font-semibold text-emerald-400">
                   {myBet.choice.replace('_', ' ')}
                 </span>

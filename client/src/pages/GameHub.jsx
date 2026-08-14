@@ -1,11 +1,18 @@
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Coins, Activity, Trophy } from 'lucide-react';
+import { Users, Coins, Activity, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Wheel from '../components/Wheel';
 import BettingBoard from '../components/BettingBoard';
 import Leaderboard from '../components/Leaderboard';
+import DailyStreakModal from '../components/DailyStreakModal';
+import RoundHistory from '../components/RoundHistory';
+import { useSounds } from '../hooks/useSounds';
+import { useGameToasts } from '../hooks/useGameToasts.jsx';
 import { useSocket } from '../context/SocketContext';
 import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
 
 const StatCard = ({ icon: Icon, label, value, color }) => (
   <div className="card p-4 flex items-center gap-3">
@@ -21,15 +28,73 @@ const StatCard = ({ icon: Icon, label, value, color }) => (
 
 const GameHub = () => {
   const { gameState, connected, isKicked } = useSocket();
-  const { user } = useAuth();
+  const { user, updateBalance } = useAuth();
+  const navigate = useNavigate();
   const { playerCount, pot, bettorCount, roundNumber, status, winners } = gameState;
+  const { soundEnabled, toggleSound, playWin, playLose, playSpin, playStreak } = useSounds();
+
+  const [showStreak, setShowStreak] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [loginStreak, setLoginStreak] = useState(user?.loginStreak ?? 0);
+  const prevStatusRef = useRef(null);
+
+  // Poll streak on mount to know current count
+  useEffect(() => {
+    const fetchStreak = async () => {
+      try {
+        const { data } = await axios.get('/api/rewards/streak');
+        setLoginStreak(data.currentStreak);
+        // Auto-open streak modal if user can claim AND hasn't been shown this session
+        const shownKey = '7wheel_streak_shown';
+        if (data.canClaim && !sessionStorage.getItem(shownKey)) {
+          sessionStorage.setItem(shownKey, '1');
+          setTimeout(() => setShowStreak(true), 1200);
+        }
+      } catch {}
+    };
+    fetchStreak();
+  }, []);
+
+  // Game toasts (win/lose/refund/spinning)
+  useGameToasts({ gameState, user });
+  useEffect(() => {
+    const prev = prevStatusRef.current;
+    const cur = status;
+    if (prev === cur) return;
+    prevStatusRef.current = cur;
+
+    if (cur === 'SPINNING') playSpin();
+    if (cur === 'RESULT') {
+      const myResult = winners?.find((w) => w.username === user?.username);
+      if (myResult?.won) playWin();
+      else if (myResult && !myResult.won && myResult.payout === 0) playLose();
+    }
+  }, [status, winners, user, playWin, playLose, playSpin]);
 
   // Check if current user bet in this round to display win/loss/refund result
   const myResult = winners?.find((w) => w.username === user?.username);
 
   return (
     <div className="min-h-screen flex flex-col relative z-10">
-      <Navbar />
+      <Navbar
+        onOpenStreak={() => setShowStreak(true)}
+        onOpenHistory={() => setShowHistory(true)}
+        soundEnabled={soundEnabled}
+        onToggleSound={toggleSound}
+        loginStreak={loginStreak}
+      />
+
+      {/* Daily Streak Modal */}
+      <DailyStreakModal
+        open={showStreak}
+        onClose={() => setShowStreak(false)}
+      />
+
+      {/* Round History Panel */}
+      <RoundHistory
+        open={showHistory}
+        onClose={() => setShowHistory(false)}
+      />
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 relative">
         {/* Win/Lose/Refund Result overlay */}
@@ -130,12 +195,12 @@ const GameHub = () => {
 
 
 
-        {/* Stats row */}
+        {/* Stats row — 2 col on mobile, 3 col on sm+ */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid grid-cols-3 gap-3 mb-6"
+          className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 mb-5"
         >
           <StatCard
             icon={Users}
@@ -157,37 +222,37 @@ const GameHub = () => {
           />
         </motion.div>
 
-        {/* Main game layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left: Wheel (takes 2 cols on lg) */}
+        {/* Main game layout — stacks vertically on mobile, 3-col grid on lg */}
+        <div className="flex flex-col lg:grid lg:grid-cols-3 gap-4 lg:gap-6">
+          {/* Wheel — full width on mobile, 2 cols on lg */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.15 }}
-            className="lg:col-span-2 card p-6 flex flex-col items-center justify-center min-h-[480px]"
+            className="lg:col-span-2 card p-4 sm:p-6 flex flex-col items-center justify-center min-h-[340px] sm:min-h-[480px]"
           >
-            <h2 className="font-display font-bold text-xl text-white mb-6 w-full text-left">
+            <h2 className="font-display font-bold text-lg sm:text-xl text-white mb-4 sm:mb-6 w-full text-left">
               The Wheel
             </h2>
             <Wheel />
           </motion.div>
 
-          {/* Right: Betting + Leaderboard */}
+          {/* Betting + Leaderboard */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
+            initial={{ opacity: 0, x: 0 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
             className="space-y-4"
           >
             <div>
-              <h2 className="font-display font-bold text-xl text-white mb-4">
+              <h2 className="font-display font-bold text-lg sm:text-xl text-white mb-3 sm:mb-4">
                 Betting Board
               </h2>
               <BettingBoard />
             </div>
 
             <div>
-              <h2 className="font-display font-bold text-xl text-white mb-4">
+              <h2 className="font-display font-bold text-lg sm:text-xl text-white mb-3 sm:mb-4">
                 Leaderboard
               </h2>
               <Leaderboard />
@@ -230,6 +295,54 @@ const GameHub = () => {
             </p>
           </motion.div>
         )}
+
+        {/* ── More Games ───────────────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="mt-6"
+        >
+          <h3 className="font-display font-bold text-white mb-3 flex items-center gap-2">
+            <Zap size={16} className="text-brand-400" />
+            More Games
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Flip or Flop */}
+            <button
+              onClick={() => navigate('/flip-or-flop')}
+              className="card p-4 text-left border border-casino-border hover:border-brand-500/60 hover:bg-brand-500/5 transition-all group"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-600 to-purple-600 flex items-center justify-center text-xl">
+                  🪙
+                </div>
+                <div>
+                  <p className="font-bold text-white text-sm group-hover:text-brand-300 transition-colors">Flip or Flop</p>
+                  <p className="text-[11px] text-slate-500">Rapid 5s binary bet</p>
+                </div>
+              </div>
+              <p className="text-xs text-slate-400">Pick FLIP (1-6) or FLOP (7-12) · Up to 3× streak multiplier</p>
+            </button>
+
+            {/* Slot Machine */}
+            <button
+              onClick={() => navigate('/slots')}
+              className="card p-4 text-left border border-casino-border hover:border-purple-500/60 hover:bg-purple-500/5 transition-all group"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center text-xl">
+                  🎰
+                </div>
+                <div>
+                  <p className="font-bold text-white text-sm group-hover:text-purple-300 transition-colors">Slot Machine</p>
+                  <p className="text-[11px] text-slate-500">3-Reel classic slots</p>
+                </div>
+              </div>
+              <p className="text-xs text-slate-400">Solo play · 7️⃣7️⃣7️⃣ = 50× jackpot · Wild symbols</p>
+            </button>
+          </div>
+        </motion.div>
       </main>
     </div>
   );

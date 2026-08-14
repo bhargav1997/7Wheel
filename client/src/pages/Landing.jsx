@@ -58,6 +58,15 @@ const Landing = () => {
           </div>
 
           <div className="flex items-center gap-4">
+            <a
+              href="https://shadow-breach.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:flex items-center gap-1 text-xs text-purple-400 font-semibold hover:text-purple-300 transition-colors bg-purple-500/10 border border-purple-500/20 px-3 py-1.5 rounded-lg"
+            >
+              <Sparkles size={12} />
+              Try Shadow Breach
+            </a>
             <Link to="/privacy-terms" className="hidden sm:block text-xs text-slate-400 hover:text-white transition-colors">
               Fair Play Rules
             </Link>

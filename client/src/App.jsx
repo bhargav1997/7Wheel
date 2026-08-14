@@ -7,6 +7,8 @@ import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import GameHub from './pages/GameHub';
+import FlipOrFlop from './pages/FlipOrFlop';
+import SlotMachine from './pages/SlotMachine';
 import Landing from './pages/Landing';
 import PrivacyTerms from './pages/PrivacyTerms';
 import Profile from './pages/Profile';
@@ -54,6 +56,24 @@ const AppRoutes = () => (
           <SocketProvider>
             <GameHub />
           </SocketProvider>
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/flip-or-flop"
+      element={
+        <ProtectedRoute>
+          <SocketProvider>
+            <FlipOrFlop />
+          </SocketProvider>
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/slots"
+      element={
+        <ProtectedRoute>
+          <SlotMachine />
         </ProtectedRoute>
       }
     />

@@ -6,7 +6,14 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 const walletRoutes = require('./routes/wallet');
+const rewardsRoutes = require('./routes/rewards');
+const betsRoutes = require('./routes/bets');
+const leaderboardRoutes = require('./routes/leaderboard');
+const lootCratesRoutes = require('./routes/lootCrates');
+const jackpotRoutes = require('./routes/jackpot');
+const slotsRoutes = require('./routes/slots');
 const initGameSocket = require('./sockets/gameSocket');
+const { initFlipOrFlopSocket } = require('./sockets/flipOrFlopSocket');
 
 // ─────────────────────────────────────────────
 // Bootstrap
@@ -41,6 +48,12 @@ app.use(express.json());
 // ─────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
 app.use('/api/wallet', walletRoutes);
+app.use('/api/rewards', rewardsRoutes);
+app.use('/api/bets', betsRoutes);
+app.use('/api/leaderboard', leaderboardRoutes);
+app.use('/api/loot-crates', lootCratesRoutes);
+app.use('/api/jackpot', jackpotRoutes);
+app.use('/api/slots', slotsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -48,9 +61,10 @@ app.get('/api/health', (req, res) => {
 });
 
 // ─────────────────────────────────────────────
-// Socket.io Game Engine
+// Socket.io Game Engines
 // ─────────────────────────────────────────────
 initGameSocket(io);
+initFlipOrFlopSocket(io);
 
 // ─────────────────────────────────────────────
 // Start Server
