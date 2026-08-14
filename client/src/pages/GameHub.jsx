@@ -307,7 +307,7 @@ const GameHub = () => {
             <Zap size={16} className="text-brand-400" />
             More Games
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {/* Flip or Flop */}
             <button
               onClick={() => navigate('/flip-or-flop')}
@@ -340,6 +340,91 @@ const GameHub = () => {
                 </div>
               </div>
               <p className="text-xs text-slate-400">Solo play · 7️⃣7️⃣7️⃣ = 50× jackpot · Wild symbols</p>
+            </button>
+
+            {/* Mines Sweeper */}
+            <button
+              onClick={() => navigate('/mines')}
+              className="card p-4 text-left border border-casino-border hover:border-emerald-500/60 hover:bg-emerald-500/5 transition-all group"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center text-xl">
+                  💣
+                </div>
+                <div>
+                  <p className="font-bold text-white text-sm group-hover:text-emerald-300 transition-colors">Mines Sweeper</p>
+                  <p className="text-[11px] text-slate-500">5x5 Grid sweeper</p>
+                </div>
+              </div>
+              <p className="text-xs text-slate-400">Uncover Gems 💎 · Avoid Mines 💣 · Instant cashout</p>
+            </button>
+
+            {/* Crash / Rocket */}
+            <button
+              onClick={() => navigate('/crash')}
+              className="card p-4 text-left border border-casino-border hover:border-purple-500/60 hover:bg-purple-500/5 transition-all group"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 via-brand-500 to-pink-600 flex items-center justify-center text-xl shadow-md">
+                  🚀
+                </div>
+                <div>
+                  <p className="font-bold text-white text-sm group-hover:text-purple-300 transition-colors">Crash Rocket</p>
+                  <p className="text-[11px] text-slate-500">Live 100x+ multiplayer</p>
+                </div>
+              </div>
+              <p className="text-xs text-slate-400">Multiplier climbs live 📈 · Cash out before crash!</p>
+            </button>
+
+            {/* European Roulette */}
+            <button
+              onClick={() => navigate('/roulette')}
+              className="card p-4 text-left border border-casino-border hover:border-amber-500/60 hover:bg-amber-500/5 transition-all group"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-600 via-yellow-500 to-red-600 flex items-center justify-center text-xl shadow-md">
+                  🎡
+                </div>
+                <div>
+                  <p className="font-bold text-white text-sm group-hover:text-amber-300 transition-colors">Roulette</p>
+                  <p className="text-[11px] text-slate-500">Single-zero wheel</p>
+                </div>
+              </div>
+              <p className="text-xs text-slate-400">36x Straight up · Red/Black · Dozens · Felt table</p>
+            </button>
+
+            {/* Blackjack 21 */}
+            <button
+              onClick={() => navigate('/blackjack')}
+              className="card p-4 text-left border border-casino-border hover:border-emerald-500/60 hover:bg-emerald-500/5 transition-all group"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 via-teal-500 to-blue-600 flex items-center justify-center text-xl shadow-md">
+                  🃏
+                </div>
+                <div>
+                  <p className="font-bold text-white text-sm group-hover:text-emerald-300 transition-colors">Blackjack 21</p>
+                  <p className="text-[11px] text-slate-500">Classic table game</p>
+                </div>
+              </div>
+              <p className="text-xs text-slate-400">3:2 Natural Blackjack · Hit, Stand, Double Down</p>
+            </button>
+
+            {/* Plinko Pyramid */}
+            <button
+              onClick={() => navigate('/plinko')}
+              className="card p-4 text-left border border-casino-border hover:border-purple-500/60 hover:bg-purple-500/5 transition-all group"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 via-pink-500 to-amber-500 flex items-center justify-center text-xl shadow-md">
+                  🪜
+                </div>
+                <div>
+                  <p className="font-bold text-white text-sm group-hover:text-purple-300 transition-colors">Plinko Pyramid</p>
+                  <p className="text-[11px] text-slate-500">Up to 1000x multiplier</p>
+                </div>
+              </div>
+              <p className="text-xs text-slate-400">Peg bounces · Low/Medium/High risk · 8-16 rows</p>
             </button>
           </div>
         </motion.div>

@@ -9,6 +9,11 @@ import ResetPassword from './pages/ResetPassword';
 import GameHub from './pages/GameHub';
 import FlipOrFlop from './pages/FlipOrFlop';
 import SlotMachine from './pages/SlotMachine';
+import Mines from './pages/Mines';
+import Crash from './pages/Crash';
+import Roulette from './pages/Roulette';
+import Blackjack from './pages/Blackjack';
+import Plinko from './pages/Plinko';
 import Landing from './pages/Landing';
 import PrivacyTerms from './pages/PrivacyTerms';
 import Profile from './pages/Profile';
@@ -74,6 +79,48 @@ const AppRoutes = () => (
       element={
         <ProtectedRoute>
           <SlotMachine />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/mines"
+      element={
+        <ProtectedRoute>
+          <Mines />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/crash"
+      element={
+        <ProtectedRoute>
+          <SocketProvider>
+            <Crash />
+          </SocketProvider>
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/roulette"
+      element={
+        <ProtectedRoute>
+          <Roulette />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/blackjack"
+      element={
+        <ProtectedRoute>
+          <Blackjack />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/plinko"
+      element={
+        <ProtectedRoute>
+          <Plinko />
         </ProtectedRoute>
       }
     />

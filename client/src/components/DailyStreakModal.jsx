@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Flame, Gift, X, Clock, CheckCircle, Loader2 } from 'lucide-react';
 import axios from 'axios';
@@ -74,11 +75,13 @@ export default function DailyStreakModal({ open, onClose }) {
     }
   };
 
-  return (
+  if (!open) return null;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[100] overflow-y-auto"
+          className="fixed inset-0 z-[99999] overflow-y-auto"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -217,6 +220,7 @@ export default function DailyStreakModal({ open, onClose }) {
           </div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

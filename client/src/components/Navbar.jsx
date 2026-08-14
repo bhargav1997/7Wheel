@@ -1,19 +1,28 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Zap, ChevronDown, Shield, Settings, History, Volume2, VolumeX, Flame, Gift, Dices, Disc, Gem } from 'lucide-react';
+import { Zap, ChevronDown, Shield, Settings, History, Volume2, VolumeX, Flame, Gift, Dices, Disc, Gem, Bomb, Rocket, Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 import LootCrateModal from './LootCrateModal';
+import DailyStreakModal from './DailyStreakModal';
+import RoundHistory from './RoundHistory';
 
 const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, loginStreak }) => {
   const location = useLocation();
   const { user, setShowBuyCreditsModal, setShowAdminStats } = useAuth();
   const [showMenu, setShowMenu] = useState(false);
   const [showCrateModal, setShowCrateModal] = useState(false);
+  const [showStreakModal, setShowStreakModal] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
 
   const isFlipPage  = location.pathname === '/flip-or-flop';
   const isSlotsPage = location.pathname === '/slots';
+  const isMinesPage = location.pathname === '/mines';
+  const isCrashPage = location.pathname === '/crash';
+  const isRoulettePage = location.pathname === '/roulette';
+  const isBlackjackPage = location.pathname === '/blackjack';
+  const isPlinkoPage = location.pathname === '/plinko';
   const isWheelPage = location.pathname === '/play' || location.pathname === '/';
 
   return (
@@ -69,6 +78,66 @@ const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, logi
             >
               <Gem size={13} />
               <span>Slots</span>
+            </Link>
+
+            <Link
+              to="/mines"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                isMinesPage
+                  ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20 font-extrabold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              }`}
+            >
+              <Bomb size={13} />
+              <span>Mines</span>
+            </Link>
+
+            <Link
+              to="/crash"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                isCrashPage
+                  ? 'bg-purple-500 text-white shadow-md shadow-purple-500/20 font-extrabold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              }`}
+            >
+              <Rocket size={13} />
+              <span>Crash</span>
+            </Link>
+
+            <Link
+              to="/roulette"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                isRoulettePage
+                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-extrabold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              }`}
+            >
+              <Disc size={13} />
+              <span>Roulette</span>
+            </Link>
+
+            <Link
+              to="/blackjack"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                isBlackjackPage
+                  ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20 font-extrabold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              }`}
+            >
+              <Layers size={13} />
+              <span>Blackjack</span>
+            </Link>
+
+            <Link
+              to="/plinko"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                isPlinkoPage
+                  ? 'bg-purple-500 text-white shadow-md shadow-purple-500/20 font-extrabold'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              }`}
+            >
+              <Dices size={13} />
+              <span>Plinko</span>
             </Link>
           </nav>
         </div>
@@ -148,7 +217,7 @@ const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, logi
                     </Link>
 
                     <button
-                      onClick={() => { onOpenStreak?.(); setShowMenu(false); }}
+                      onClick={() => { setShowStreakModal(true); onOpenStreak?.(); setShowMenu(false); }}
                       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-amber-400 hover:bg-amber-500/10 transition-colors text-left font-semibold"
                     >
                       <Flame size={14} />
@@ -157,7 +226,7 @@ const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, logi
                     </button>
 
                     <button
-                      onClick={() => { onOpenHistory?.(); setShowMenu(false); }}
+                      onClick={() => { setShowHistoryModal(true); onOpenHistory?.(); setShowMenu(false); }}
                       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition-colors text-left"
                     >
                       <History size={14} className="text-slate-400" />
@@ -201,6 +270,8 @@ const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, logi
       </div>
 
       <LootCrateModal isOpen={showCrateModal} onClose={() => setShowCrateModal(false)} />
+      <DailyStreakModal open={showStreakModal} onClose={() => setShowStreakModal(false)} />
+      <RoundHistory open={showHistoryModal} onClose={() => setShowHistoryModal(false)} />
     </header>
   );
 };

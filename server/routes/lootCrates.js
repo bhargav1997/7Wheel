@@ -95,7 +95,7 @@ router.post('/claim', verifyJWT, async (req, res) => {
 
     const updatedStreak = (user.lootCrateStreak || 0) + 1;
 
-    user.credits = (user.credits || 0) + creditsAwarded;
+    user.balance = (user.balance || 0) + creditsAwarded;
     user.lastLootCrateClaim = now;
     user.lootCrateStreak = updatedStreak;
     user.lootCratePity = pity;
@@ -105,7 +105,7 @@ router.post('/claim', verifyJWT, async (req, res) => {
       userId: user._id,
       type: 'REWARD',
       amount: creditsAwarded,
-      balanceAfter: user.credits,
+      balanceAfter: user.balance,
       description: `Daily Loot Crate Claim (${rarity} Drop +${creditsAwarded} 🪙)`,
     });
 
@@ -113,7 +113,7 @@ router.post('/claim', verifyJWT, async (req, res) => {
       rarity,
       items,
       creditsAwarded,
-      newBalance: user.credits,
+      newBalance: user.balance,
       streak: updatedStreak,
       pity,
     });

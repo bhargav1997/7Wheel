@@ -12,8 +12,14 @@ const leaderboardRoutes = require('./routes/leaderboard');
 const lootCratesRoutes = require('./routes/lootCrates');
 const jackpotRoutes = require('./routes/jackpot');
 const slotsRoutes = require('./routes/slots');
+const minesRoutes = require('./routes/mines');
+const rouletteRoutes = require('./routes/roulette');
+const blackjackRoutes = require('./routes/blackjack');
+const plinkoRoutes = require('./routes/plinko');
+const healthRoutes = require('./routes/health');
 const initGameSocket = require('./sockets/gameSocket');
 const { initFlipOrFlopSocket } = require('./sockets/flipOrFlopSocket');
+const { initCrashSocket } = require('./sockets/crashSocket');
 
 // ─────────────────────────────────────────────
 // Bootstrap
@@ -54,17 +60,18 @@ app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/loot-crates', lootCratesRoutes);
 app.use('/api/jackpot', jackpotRoutes);
 app.use('/api/slots', slotsRoutes);
-
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
+app.use('/api/mines', minesRoutes);
+app.use('/api/roulette', rouletteRoutes);
+app.use('/api/blackjack', blackjackRoutes);
+app.use('/api/plinko', plinkoRoutes);
+app.use('/api/health', healthRoutes);
 
 // ─────────────────────────────────────────────
 // Socket.io Game Engines
 // ─────────────────────────────────────────────
 initGameSocket(io);
 initFlipOrFlopSocket(io);
+initCrashSocket(io);
 
 // ─────────────────────────────────────────────
 // Start Server

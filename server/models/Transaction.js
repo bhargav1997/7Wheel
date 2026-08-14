@@ -15,7 +15,7 @@ const transactionSchema = new mongoose.Schema(
     type: {
       type: String,
       // WITHDRAWAL removed — credits have no real-world cash value
-      enum: ['CREDIT_PURCHASE', 'BONUS_CREDITS', 'BET_PLACED', 'BET_WON', 'REFUND'],
+      enum: ['CREDIT_PURCHASE', 'BONUS_CREDITS', 'BET_PLACED', 'BET_WON', 'REFUND', 'REWARD'],
       required: true,
     },
     packId: {

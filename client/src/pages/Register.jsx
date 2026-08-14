@@ -1,12 +1,9 @@
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Mail, Lock, UserPlus, AlertCircle, CheckCircle, Eye, EyeOff, ShieldCheck, Ticket } from 'lucide-react';
+import { User, Mail, Lock, UserPlus, AlertCircle, CheckCircle, Eye, EyeOff, ShieldCheck, Ticket, ArrowLeft, Coins, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-// ─────────────────────────────────────────────
-// Client-side validation mirrors (server is authoritative)
-// ─────────────────────────────────────────────
 const USERNAME_REGEX = /^[a-zA-Z0-9_]+$/;
 const RESERVED_NAMES = new Set([
   'admin', 'administrator', 'root', 'system', 'support',
@@ -24,7 +21,7 @@ const validateUsername = (v) => {
   if (v.includes('__')) return 'No consecutive underscores';
   if (/^\d+$/.test(v)) return 'Cannot be only numbers';
   if (RESERVED_NAMES.has(v.toLowerCase())) return `"${v}" is a reserved name`;
-  return null; // null = valid
+  return null;
 };
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -70,9 +67,6 @@ const PasswordRule = ({ met, label }) => (
   </div>
 );
 
-// ─────────────────────────────────────────────
-// Register page
-// ─────────────────────────────────────────────
 const Register = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -91,7 +85,6 @@ const Register = () => {
   const handleBlur = (e) =>
     setTouched((t) => ({ ...t, [e.target.name]: true }));
 
-  // Live field errors
   const usernameErr  = useMemo(() => validateUsername(form.username),  [form.username]);
   const emailErr     = useMemo(() => validateEmail(form.email),        [form.email]);
   const passwordStrength = useMemo(() => getPasswordStrength(form.password), [form.password]);
@@ -113,7 +106,7 @@ const Register = () => {
     setServerError('');
     setLoading(true);
     try {
-      await register(form); // includes inviteCode
+      await register(form);
       navigate('/play');
     } catch (err) {
       setServerError(err.response?.data?.message || 'Registration failed. Please try again.');
@@ -124,57 +117,71 @@ const Register = () => {
 
   const perks = [
     '100 free credits on signup',
-    'Invite friends · earn 50 credits each',
+    'Invite friends · earn +50 credits each',
     'Real-time multiplayer rounds',
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative z-10">
+    <div className="min-h-screen bg-[#05050a] text-slate-100 flex flex-col items-center justify-center p-4 relative overflow-hidden font-sans">
+      {/* Ambient background glows */}
+      <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full bg-brand-600/10 blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-purple-500/5 blur-[140px] pointer-events-none" />
+
+      {/* Top Floating Header Bar */}
+      <header className="absolute top-6 left-6 right-6 z-20 flex items-center justify-between max-w-5xl mx-auto w-full">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-xs font-extrabold text-slate-300 hover:text-white bg-slate-900/80 border border-slate-800 hover:border-brand-500/50 px-4 py-2.5 rounded-2xl transition-all shadow-xl backdrop-blur-md group"
+        >
+          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform text-brand-400" />
+          <span>Back to Home</span>
+        </Link>
+
+        <div className="hidden sm:flex items-center gap-1.5 text-xs text-emerald-400 font-extrabold bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-1.5 rounded-xl">
+          <Sparkles size={14} />
+          <span>100 🪙 Bonus Included</span>
+        </div>
+      </header>
+
+      {/* Main Form Container */}
       <motion.div
-        initial={{ opacity: 0, y: 24 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        transition={{ duration: 0.4 }}
+        className="w-full max-w-md relative z-10 pt-16 sm:pt-0"
       >
-        {/* Logo */}
-        <div className="text-center mb-8">
+        {/* Logo & Header Title */}
+        <div className="text-center mb-6 space-y-2">
           <motion.div
-            initial={{ scale: 0.5, opacity: 0 }}
+            initial={{ scale: 0.6, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: 'spring', delay: 0.1 }}
-            className="inline-flex w-20 h-20 rounded-2xl bg-brand-gradient items-center
-                       justify-center text-4xl font-black text-white mb-4 glow-brand
-                       animate-float shadow-2xl"
+            transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+            className="inline-flex w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-500 via-purple-600 to-pink-600 items-center justify-center text-3xl font-black text-white glow-brand shadow-2xl shadow-brand-500/30 border border-white/10"
           >
             7
           </motion.div>
-          <h1 className="font-display font-black text-4xl text-white mb-1">Join the Hub</h1>
-          <p className="text-slate-400">Create your free account</p>
+          <h1 className="font-display font-black text-3xl text-white tracking-tight">
+            Join the Hub
+          </h1>
+          <p className="text-xs font-medium text-slate-400">Create your account and claim 100 🪙 Free Credits</p>
         </div>
 
-        {/* Perks */}
-        <div className="flex justify-center gap-4 mb-6 flex-wrap">
-          {perks.map((perk, i) => (
-            <motion.div
-              key={perk}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + i * 0.05 }}
-              className="flex items-center gap-1.5 text-xs text-emerald-400"
-            >
-              <CheckCircle size={12} />
-              {perk}
-            </motion.div>
+        {/* Perks Bar */}
+        <div className="flex justify-center gap-3 mb-4 flex-wrap">
+          {perks.map((perk) => (
+            <span key={perk} className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg">
+              <CheckCircle size={11} /> {perk}
+            </span>
           ))}
         </div>
 
         {/* Card */}
-        <div className="card p-8 shadow-2xl shadow-black/50">
-          <form onSubmit={handleSubmit} className="space-y-5" id="register-form" noValidate>
+        <div className="card p-7 md:p-8 border-2 border-slate-800/90 bg-slate-950/80 backdrop-blur-2xl rounded-3xl shadow-2xl space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4" id="register-form" noValidate>
 
             {/* Username */}
-            <div>
-              <label htmlFor="reg-username" className="block text-sm font-medium text-slate-300 mb-2">
+            <div className="space-y-1">
+              <label htmlFor="reg-username" className="block text-xs font-extrabold text-slate-300">
                 Username
               </label>
               <div className="relative">
@@ -188,42 +195,15 @@ const Register = () => {
                   value={form.username}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  className={`input-field pl-11 pr-10 ${
-                    touched.username && usernameErr
-                      ? 'border-red-500 focus:ring-red-500'
-                      : touched.username && usernameErr === null
-                      ? 'border-emerald-500 focus:ring-emerald-500'
-                      : ''
-                  }`}
+                  className="input-field pl-11 text-xs py-3 bg-slate-900/90 border-slate-800 focus:border-brand-500 rounded-xl"
                   placeholder="coolplayer99"
                 />
-                {touched.username && (
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                    {usernameErr === null
-                      ? <CheckCircle size={15} className="text-emerald-400" />
-                      : <AlertCircle size={15} className="text-red-400" />
-                    }
-                  </div>
-                )}
               </div>
-              <AnimatePresence>
-                {touched.username && usernameErr && (
-                  <motion.p
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="text-red-400 text-xs mt-1.5 flex items-center gap-1"
-                  >
-                    <AlertCircle size={11} /> {usernameErr}
-                  </motion.p>
-                )}
-              </AnimatePresence>
-              <p className="text-xs text-slate-600 mt-1">3–20 chars · letters, numbers, underscores</p>
             </div>
 
             {/* Email */}
-            <div>
-              <label htmlFor="reg-email" className="block text-sm font-medium text-slate-300 mb-2">
+            <div className="space-y-1">
+              <label htmlFor="reg-email" className="block text-xs font-extrabold text-slate-300">
                 Email Address
               </label>
               <div className="relative">
@@ -237,42 +217,15 @@ const Register = () => {
                   value={form.email}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  className={`input-field pl-11 pr-10 ${
-                    touched.email && emailErr
-                      ? 'border-red-500 focus:ring-red-500'
-                      : touched.email && emailErr === null
-                      ? 'border-emerald-500 focus:ring-emerald-500'
-                      : ''
-                  }`}
+                  className="input-field pl-11 text-xs py-3 bg-slate-900/90 border-slate-800 focus:border-brand-500 rounded-xl"
                   placeholder="you@example.com"
                 />
-                {touched.email && (
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                    {emailErr === null
-                      ? <CheckCircle size={15} className="text-emerald-400" />
-                      : <AlertCircle size={15} className="text-red-400" />
-                    }
-                  </div>
-                )}
               </div>
-              <AnimatePresence>
-                {touched.email && emailErr && (
-                  <motion.p
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="text-red-400 text-xs mt-1.5 flex items-center gap-1"
-                  >
-                    <AlertCircle size={11} /> {emailErr}
-                  </motion.p>
-                )}
-              </AnimatePresence>
-              <p className="text-xs text-slate-600 mt-1">Temporary and disposable emails are not allowed</p>
             </div>
 
             {/* Password */}
-            <div>
-              <label htmlFor="reg-password" className="block text-sm font-medium text-slate-300 mb-2">
+            <div className="space-y-1">
+              <label htmlFor="reg-password" className="block text-xs font-extrabold text-slate-300">
                 Password
               </label>
               <div className="relative">
@@ -286,144 +239,66 @@ const Register = () => {
                   value={form.password}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  className="input-field pl-11 pr-11"
+                  className="input-field pl-11 pr-11 text-xs py-3 bg-slate-900/90 border-slate-800 focus:border-brand-500 rounded-xl"
                   placeholder="Min. 8 characters"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500
-                             hover:text-slate-300 transition-colors"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
 
-              {/* Password strength bar */}
+              {/* Password strength checklist */}
               {form.password && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="mt-2 space-y-2"
-                >
-                  <div className="flex gap-1">
-                    {[1, 2, 3, 4, 5, 6].map((i) => (
-                      <div
-                        key={i}
-                        className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-                          i <= passwordStrength.score
-                            ? passwordStrength.color
-                            : 'bg-casino-muted'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className={`text-xs font-medium ${
-                      passwordStrength.score <= 2 ? 'text-red-400' :
-                      passwordStrength.score <= 3 ? 'text-yellow-400' :
-                      passwordStrength.score <= 4 ? 'text-blue-400' : 'text-emerald-400'
-                    }`}>
-                      {passwordStrength.label}
-                    </span>
-                    {passwordStrength.score >= 5 && (
-                      <span className="flex items-center gap-1 text-xs text-emerald-400">
-                        <ShieldCheck size={11} /> Secure
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Requirement checklist */}
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 pt-1">
+                <div className="mt-2 space-y-1.5 p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                     <PasswordRule met={passwordStrength.checks?.length}    label="8+ characters" />
                     <PasswordRule met={passwordStrength.checks?.uppercase}  label="Uppercase letter" />
                     <PasswordRule met={passwordStrength.checks?.lowercase}  label="Lowercase letter" />
                     <PasswordRule met={passwordStrength.checks?.number}     label="Number (0-9)" />
                     <PasswordRule met={passwordStrength.checks?.special}    label="Special char (!@#…)" />
-                    <PasswordRule met={passwordStrength.checks?.long}       label="12+ chars (bonus)" />
                   </div>
-                </motion.div>
+                </div>
               )}
             </div>
 
-            {/* Invite Code (optional) */}
-            <div>
-              <label htmlFor="reg-invite" className="block text-sm font-medium text-slate-300 mb-2">
-                Invite Code
-                <span className="ml-2 text-[10px] font-normal text-slate-500 bg-casino-muted border border-casino-border rounded px-1.5 py-0.5">
-                  Optional
-                </span>
-              </label>
-              <div className="relative">
-                <Ticket size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
-                <input
-                  id="reg-invite"
-                  name="inviteCode"
-                  type="text"
-                  autoComplete="off"
-                  value={form.inviteCode}
-                  onChange={handleChange}
-                  className="input-field pl-11 uppercase tracking-widest font-mono"
-                  placeholder="e.g. A3F7B2C1"
-                  maxLength={8}
-                />
+            {/* Server Error */}
+            {serverError && (
+              <div className="flex items-center gap-2 text-red-400 text-xs bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+                <AlertCircle size={14} className="flex-shrink-0" />
+                {serverError}
               </div>
-              <p className="text-xs text-slate-600 mt-1 flex items-center gap-1">
-                <CheckCircle size={10} className="text-emerald-500" />
-                You and your friend both get +50 bonus credits!
-              </p>
-            </div>
+            )}
 
-            {/* Server error */}
-            <AnimatePresence>
-              {serverError && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="flex items-center gap-2 text-red-400 text-sm bg-red-500/10
-                             border border-red-500/20 rounded-xl px-4 py-3"
-                >
-                  <AlertCircle size={14} className="flex-shrink-0" />
-                  {serverError}
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Submit */}
+            {/* Submit Button */}
             <button
               id="register-submit-btn"
               type="submit"
               disabled={loading || !isFormValid}
-              className="btn-primary w-full flex items-center justify-center gap-2 text-base"
+              className="btn-primary w-full py-3.5 rounded-xl font-display font-black text-sm uppercase tracking-wider bg-gradient-to-r from-purple-600 via-brand-500 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-xl shadow-brand-500/30 border border-brand-400/40 flex items-center justify-center gap-2 disabled:opacity-40"
             >
               {loading ? (
-                <>
-                  <motion.div
-                    className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-                  />
-                  Creating account…
-                </>
+                <span>Creating Account…</span>
               ) : (
                 <>
-                  <UserPlus size={18} />
-                  Create Account
+                  <UserPlus size={16} />
+                  Create Account & Claim 100 🪙
                 </>
               )}
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-slate-400">
-              Already have an account?{' '}
+          <div className="pt-2 border-t border-slate-800/80 text-center">
+            <p className="text-xs text-slate-400 font-medium">
+              Already registered?{' '}
               <Link
                 to="/login"
-                className="text-brand-400 font-semibold hover:text-brand-300 transition-colors"
+                className="text-brand-400 font-extrabold hover:text-brand-300 transition-colors ml-1"
               >
-                Sign in
+                Sign In here
               </Link>
             </p>
           </div>
