@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
 import { useSounds } from '../hooks/useSounds';
+import BuyCreditsModal from '../components/BuyCreditsModal';
+import InsufficientCreditsModal from '../components/InsufficientCreditsModal';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
@@ -140,15 +142,46 @@ export default function Blackjack() {
   const [showPaytable, setShowPaytable] = useState(false);
   const [showWinConfetti, setShowWinConfetti] = useState(false);
   const [loadingAction, setLoadingAction] = useState(false);
+  const [showInsufficientModal, setShowInsufficientModal] = useState(false);
+  const [showBuyModal, setShowBuyModal] = useState(false);
 
   const balance = user?.balance ?? 0;
+
+  // Beginner strategy advice generator
+  const getProTip = () => {
+    if (!playerEval || gameState !== 'IN_PROGRESS') return null;
+    const score = playerEval.total;
+
+    if (score <= 11) {
+      return {
+        text: "💡 Beginner Tip: Safe to HIT! You cannot bust on scores 11 or lower.",
+        color: "border-cyan-500/40 bg-cyan-500/10 text-cyan-300"
+      };
+    }
+    if (score === 21) {
+      return {
+        text: "🔥 Perfect 21! Click STAND to finish your hand.",
+        color: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
+      };
+    }
+    if (score >= 17) {
+      return {
+        text: "✅ Strong Score! You have a high risk of busting if you Hit. STAND recommended.",
+        color: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
+      };
+    }
+    return {
+      text: "⚠️ Caution Zone (12-16): High bust risk. Hit if Dealer has 7+, Stand if Dealer has 2-6.",
+      color: "border-amber-500/40 bg-amber-500/10 text-amber-300"
+    };
+  };
 
   // Deal / Start new hand
   const handleDeal = async () => {
     if (gameState === 'IN_PROGRESS' || loadingAction) return;
     const bet = parseInt(betAmount, 10);
-    if (isNaN(bet) || bet < 10) { toast.error('Minimum bet is 10 credits'); return; }
-    if (bet > balance) { toast.error('Insufficient balance'); return; }
+    if (isNaN(bet) || bet < 1) { toast.error('Minimum bet is 1 credit'); return; }
+    if (bet > balance) { setShowInsufficientModal(true); return; }
 
     playClick();
     setLoadingAction(true);
@@ -432,6 +465,17 @@ export default function Blackjack() {
           </div>
         </div>
 
+        {/* Live Beginner Strategy Pro Tip Banner */}
+        {gameState === 'IN_PROGRESS' && getProTip() && (
+          <motion.div
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`p-3 rounded-2xl border text-xs font-bold flex items-center gap-2 justify-center shadow-lg ${getProTip().color}`}
+          >
+            <span>{getProTip().text}</span>
+          </motion.div>
+        )}
+
         {/* Action Controls & Wager Bar */}
         <div className="card p-5 border border-slate-800 bg-slate-950/80 backdrop-blur-xl rounded-3xl space-y-4 shadow-xl">
           
@@ -444,10 +488,13 @@ export default function Blackjack() {
                   disabled={loadingAction}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
-                  className="py-3.5 px-4 rounded-2xl font-display font-black text-sm bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2"
+                  className="py-3.5 px-4 rounded-2xl font-display font-black text-sm bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-lg shadow-cyan-500/20 flex flex-col items-center justify-center gap-0.5"
                 >
-                  <Plus size={18} />
-                  HIT
+                  <div className="flex items-center gap-1.5">
+                    <Plus size={16} />
+                    <span>HIT</span>
+                  </div>
+                  <span className="text-[10px] text-cyan-200 font-normal">Take 1 More Card</span>
                 </motion.button>
 
                 <motion.button
@@ -455,10 +502,13 @@ export default function Blackjack() {
                   disabled={loadingAction}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
-                  className="py-3.5 px-4 rounded-2xl font-display font-black text-sm bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
+                  className="py-3.5 px-4 rounded-2xl font-display font-black text-sm bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg shadow-emerald-500/20 flex flex-col items-center justify-center gap-0.5"
                 >
-                  <Hand size={18} />
-                  STAND
+                  <div className="flex items-center gap-1.5">
+                    <Hand size={16} />
+                    <span>STAND</span>
+                  </div>
+                  <span className="text-[10px] text-emerald-200 font-normal">Keep Hand & Finish</span>
                 </motion.button>
 
                 <motion.button
@@ -466,19 +516,25 @@ export default function Blackjack() {
                   disabled={playerCards.length !== 2 || loadingAction || balance < parseInt(betAmount, 10)}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
-                  className="py-3.5 px-4 rounded-2xl font-display font-black text-sm bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 disabled:opacity-40"
+                  className="py-3.5 px-4 rounded-2xl font-display font-black text-sm bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 shadow-lg shadow-amber-500/20 flex flex-col items-center justify-center gap-0.5 disabled:opacity-40"
                 >
-                  <Layers size={18} />
-                  DOUBLE DOWN
+                  <div className="flex items-center gap-1.5">
+                    <Layers size={16} />
+                    <span>DOUBLE DOWN</span>
+                  </div>
+                  <span className="text-[10px] text-slate-900 font-medium">2× Bet + 1 Final Card</span>
                 </motion.button>
 
                 <button
                   onClick={handleDeal}
                   disabled={loadingAction}
-                  className="py-3.5 px-4 rounded-2xl font-display font-bold text-xs bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition-all flex items-center justify-center gap-1.5"
+                  className="py-3.5 px-4 rounded-2xl font-display font-bold text-xs bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition-all flex flex-col items-center justify-center gap-0.5"
                 >
-                  <RotateCcw size={15} />
-                  Forfeit / Reset
+                  <div className="flex items-center gap-1">
+                    <RotateCcw size={14} />
+                    <span>FORFEIT</span>
+                  </div>
+                  <span className="text-[10px] text-slate-500">Reset Hand</span>
                 </button>
               </>
             ) : (
@@ -504,7 +560,7 @@ export default function Blackjack() {
                 <div className="flex items-center gap-1 mt-0.5">
                   <input
                     type="number"
-                    min="10"
+                    min="1"
                     value={betAmount}
                     onChange={(e) => setBetAmount(e.target.value)}
                     disabled={gameState === 'IN_PROGRESS'}
@@ -539,7 +595,7 @@ export default function Blackjack() {
               </button>
               <button
                 onClick={() => { playClick(); setBetAmount(String(balance)); }}
-                disabled={gameState === 'IN_PROGRESS' || balance < 10}
+                disabled={gameState === 'IN_PROGRESS' || balance < 1}
                 className="text-xs font-extrabold px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/30 hover:border-red-500 text-red-400 transition-all disabled:opacity-40"
               >
                 MAX
@@ -576,28 +632,56 @@ export default function Blackjack() {
                 </button>
               </div>
 
-              <div className="space-y-2 text-xs text-slate-300">
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800">
-                  <span>Natural Blackjack (Ace + 10-value)</span>
-                  <span className="font-black text-yellow-400">3:2 (2.5×)</span>
+              <div className="space-y-3 text-xs text-slate-300">
+                <div className="p-3 rounded-2xl bg-brand-500/10 border border-brand-500/30 text-brand-300 space-y-1">
+                  <p className="font-bold flex items-center gap-1.5 text-white">
+                    🎯 Objective of Blackjack:
+                  </p>
+                  <p className="text-[11px] leading-relaxed text-slate-300">
+                    Get your hand total as close to <strong>21</strong> as possible without exceeding 21 (Busting). Beat the House Dealer's final score to win!
+                  </p>
                 </div>
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800">
-                  <span>Standard Hand Win</span>
-                  <span className="font-black text-yellow-400">1:1 (2×)</span>
+
+                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                  <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                    <span className="font-bold text-white block">🂡 Ace (A):</span>
+                    <span className="text-slate-400">Counts as 1 or 11 automatically</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                    <span className="font-bold text-white block">🂫 J, Q, K, 10:</span>
+                    <span className="text-slate-400">Every face card is worth 10</span>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800">
-                  <span>Double Down</span>
-                  <span className="font-black text-yellow-400">Doubles wager for 1 final card</span>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                    <span>👑 Natural Blackjack (Ace + 10 on deal)</span>
+                    <span className="font-black text-yellow-400">3:2 Payout (2.5×)</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                    <span>🎉 Standard Hand Win</span>
+                    <span className="font-black text-yellow-400">1:1 Payout (2.0×)</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                    <span>⚡ Double Down</span>
+                    <span className="font-black text-yellow-400">Double wager for 1 final card</span>
+                  </div>
                 </div>
               </div>
 
               <div className="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400 text-center">
-                🛡️ House Dealer stands on soft 17. 52-card deck shuffled cryptographically.
+                🛡️ House Dealer hits on 16 or lower and stands on soft 17. 52-card deck shuffled cryptographically.
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
+      <InsufficientCreditsModal
+        open={showInsufficientModal}
+        onClose={() => setShowInsufficientModal(false)}
+        onOpenBuyCredits={() => setShowBuyModal(true)}
+      />
+      <BuyCreditsModal isOpen={showBuyModal} onClose={() => setShowBuyModal(false)} />
     </div>
   );
 }

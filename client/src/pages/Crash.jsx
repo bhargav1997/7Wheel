@@ -250,7 +250,7 @@ export default function Crash() {
   const handlePlaceBet = () => {
     if (gameState.status !== 'COUNTDOWN' || myBet) return;
     const amount = parseInt(betAmount, 10);
-    if (isNaN(amount) || amount < 10) { toast.error('Minimum bet is 10 credits'); return; }
+    if (isNaN(amount) || amount < 1) { toast.error('Minimum bet is 1 credit'); return; }
     if (amount > balance) { toast.error('Insufficient balance'); return; }
 
     const token = localStorage.getItem('7wheel_token');
@@ -434,7 +434,7 @@ export default function Crash() {
                 <label className="text-xs text-slate-400 font-bold">Bet Amount (🪙)</label>
                 <input
                   type="number"
-                  min="10"
+                  min="1"
                   value={betAmount}
                   onChange={(e) => setBetAmount(e.target.value)}
                   disabled={!canBet}

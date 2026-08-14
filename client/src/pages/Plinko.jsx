@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
 import { useSounds } from '../hooks/useSounds';
+import BuyCreditsModal from '../components/BuyCreditsModal';
+import InsufficientCreditsModal from '../components/InsufficientCreditsModal';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
@@ -309,6 +311,8 @@ export default function Plinko() {
   const [lastWin, setLastWin] = useState(null);
   const [showPaytable, setShowPaytable] = useState(false);
   const [showWinConfetti, setShowWinConfetti] = useState(false);
+  const [showInsufficientModal, setShowInsufficientModal] = useState(false);
+  const [showBuyModal, setShowBuyModal] = useState(false);
   const [history, setHistory] = useState([1.1, 0.6, 4.0, 11, 0.3, 2.0, 33]);
 
   const balance = user?.balance ?? 0;
@@ -317,8 +321,8 @@ export default function Plinko() {
   // Trigger 1 Ball Drop
   const handleDropBall = async () => {
     const bet = parseInt(betAmount, 10);
-    if (isNaN(bet) || bet < 10) { toast.error('Minimum bet is 10 credits'); return; }
-    if (bet > balance) { toast.error('Insufficient balance'); return; }
+    if (isNaN(bet) || bet < 1) { toast.error('Minimum bet is 1 credit'); return; }
+    if (bet > balance) { setShowInsufficientModal(true); return; }
 
     try {
       const token = localStorage.getItem('7wheel_token');
@@ -489,7 +493,7 @@ export default function Plinko() {
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
-                    min="10"
+                    min="1"
                     value={betAmount}
                     onChange={(e) => setBetAmount(e.target.value)}
                     className="input-field flex-1 text-sm font-black text-center py-2 bg-slate-900 border border-slate-800 focus:border-brand-500 rounded-xl text-white"
@@ -526,7 +530,7 @@ export default function Plinko() {
               <div className="space-y-2 pt-2">
                 <motion.button
                   onClick={handleDropBall}
-                  disabled={balance < 10}
+                  disabled={balance < 1}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
                   className="w-full py-4 rounded-2xl font-display font-black text-lg tracking-wider bg-gradient-to-r from-purple-600 via-brand-500 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-xl shadow-brand-500/30 border border-brand-400/40 flex items-center justify-center gap-2 uppercase transition-all"
@@ -649,6 +653,12 @@ export default function Plinko() {
           </motion.div>
         )}
       </AnimatePresence>
+      <InsufficientCreditsModal
+        open={showInsufficientModal}
+        onClose={() => setShowInsufficientModal(false)}
+        onOpenBuyCredits={() => setShowBuyModal(true)}
+      />
+      <BuyCreditsModal isOpen={showBuyModal} onClose={() => setShowBuyModal(false)} />
     </div>
   );
 }

@@ -78,8 +78,8 @@ router.post('/spin', verifyJWT, async (req, res) => {
     const { betAmount } = req.body;
     const bet = parseInt(betAmount, 10);
 
-    if (isNaN(bet) || bet < 10) {
-      return res.status(400).json({ message: 'Minimum bet is 10 credits.' });
+    if (isNaN(bet) || bet < 1) {
+      return res.status(400).json({ message: 'Minimum bet is 1 credit.' });
     }
 
     // Fetch fresh balance

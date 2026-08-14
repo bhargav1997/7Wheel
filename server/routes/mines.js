@@ -37,8 +37,8 @@ router.post('/start', verifyJWT, async (req, res) => {
     const bet = parseInt(betAmount, 10);
     const mines = parseInt(mineCount, 10);
 
-    if (isNaN(bet) || bet < 10) {
-      return res.status(400).json({ message: 'Minimum bet is 10 credits.' });
+    if (isNaN(bet) || bet < 1) {
+      return res.status(400).json({ message: 'Minimum bet is 1 credit.' });
     }
 
     if (isNaN(mines) || mines < 1 || mines > 24) {

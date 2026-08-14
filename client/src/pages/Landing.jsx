@@ -87,6 +87,14 @@ const GAMES_LIST = [
 const Landing = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [showTopBanner, setShowTopBanner] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowTopBanner(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Simulated live win feed
   const [recentWins, setRecentWins] = useState([
@@ -128,18 +136,31 @@ const Landing = () => {
       <div className="absolute top-[30%] right-[-10%] w-[600px] h-[600px] rounded-full bg-purple-600/10 blur-[150px] pointer-events-none" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[700px] h-[700px] rounded-full bg-amber-500/5 blur-[150px] pointer-events-none" />
 
-      {/* Prominent Disclaimer Notice Banner */}
-      <div className="bg-gradient-to-r from-purple-950 via-slate-900 to-purple-950 border-b border-purple-500/30 py-2 px-4 text-center text-xs font-bold text-slate-300 flex items-center justify-center gap-2">
-        <Gamepad2 size={15} className="text-cyan-400 shrink-0" />
-        <span>🎮 <strong>SOCIAL GAMING PLATFORM:</strong> Played strictly with virtual game credits (🪙) for fun & entertainment only. No real money gambling or cash payouts.</span>
-      </div>
+      {/* Prominent Disclaimer Notice Banner — Auto disappears after 2 seconds */}
+      <AnimatePresence>
+        {showTopBanner && (
+          <motion.div
+            initial={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.5 }}
+            className="bg-gradient-to-r from-purple-950 via-slate-900 to-purple-950 border-b border-purple-500/30 py-2 px-4 text-center text-xs font-bold text-slate-300 flex items-center justify-center gap-2 overflow-hidden"
+          >
+            <Gamepad2 size={15} className="text-cyan-400 shrink-0" />
+            <span>🎮 <strong>SOCIAL GAMING PLATFORM:</strong> Played strictly with virtual game credits (🪙) for fun & entertainment only. No real money gambling or cash payouts.</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Sticky Header */}
-      <header className="sticky top-0 z-50 border-b border-slate-800/80 bg-[#05050a]/90 backdrop-blur-2xl">
+      <header className="sticky py-2 top-0 z-50 border-b border-slate-800/80 bg-[#05050a]/90 backdrop-blur-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between">
           
           {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
+          <Link
+            to="/"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="flex items-center gap-3 group"
+          >
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-brand-500 via-purple-600 to-pink-600 flex items-center justify-center text-xl font-black text-white shadow-lg shadow-brand-500/30 group-hover:scale-105 transition-transform">
               7
             </div>
@@ -383,7 +404,7 @@ const Landing = () => {
             <span className="font-display font-black text-xs uppercase tracking-widest text-white">LIVE PAYOUT FEED (VIRTUAL 🪙)</span>
           </div>
 
-          <div className="flex items-center gap-3 overflow-x-auto w-full md:w-auto">
+          <div className="flex items-center gap-3 overflow-x-auto no-scrollbar w-full md:w-auto">
             <AnimatePresence initial={false}>
               {recentWins.map((win) => (
                 <motion.div

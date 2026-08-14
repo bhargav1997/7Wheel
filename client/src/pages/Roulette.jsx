@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
 import { useSounds } from '../hooks/useSounds';
+import BuyCreditsModal from '../components/BuyCreditsModal';
+import InsufficientCreditsModal from '../components/InsufficientCreditsModal';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
@@ -218,6 +220,8 @@ export default function Roulette() {
   const [wheelRotation, setWheelRotation] = useState(0);
   const [showPaytable, setShowPaytable] = useState(false);
   const [showWinConfetti, setShowWinConfetti] = useState(false);
+  const [showInsufficientModal, setShowInsufficientModal] = useState(false);
+  const [showBuyModal, setShowBuyModal] = useState(false);
   const [history, setHistory] = useState([17, 0, 32, 15, 23, 10, 5, 24, 16]);
 
   const balance = user?.balance ?? 0;
@@ -275,7 +279,7 @@ export default function Roulette() {
   // Trigger Spin
   const handleSpin = async () => {
     if (spinning || placedBets.length === 0) return;
-    if (totalWager > balance) { toast.error('Insufficient balance for total wager'); return; }
+    if (totalWager > balance) { setShowInsufficientModal(true); return; }
 
     playSpin();
     setSpinning(true);
@@ -700,6 +704,12 @@ export default function Roulette() {
           </motion.div>
         )}
       </AnimatePresence>
+      <InsufficientCreditsModal
+        open={showInsufficientModal}
+        onClose={() => setShowInsufficientModal(false)}
+        onOpenBuyCredits={() => setShowBuyModal(true)}
+      />
+      <BuyCreditsModal isOpen={showBuyModal} onClose={() => setShowBuyModal(false)} />
     </div>
   );
 }

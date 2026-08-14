@@ -7,10 +7,11 @@ import { useSocket } from '../context/SocketContext';
 import LootCrateModal from './LootCrateModal';
 import DailyStreakModal from './DailyStreakModal';
 import RoundHistory from './RoundHistory';
+import BuyCreditsModal from './BuyCreditsModal';
 
 const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, loginStreak }) => {
   const location = useLocation();
-  const { user, setShowBuyCreditsModal, setShowAdminStats } = useAuth();
+  const { user, showBuyCreditsModal, setShowBuyCreditsModal, setShowAdminStats } = useAuth();
   const [showMenu, setShowMenu] = useState(false);
   const [showCrateModal, setShowCrateModal] = useState(false);
   const [showStreakModal, setShowStreakModal] = useState(false);
@@ -272,6 +273,7 @@ const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, logi
       <LootCrateModal isOpen={showCrateModal} onClose={() => setShowCrateModal(false)} />
       <DailyStreakModal open={showStreakModal} onClose={() => setShowStreakModal(false)} />
       <RoundHistory open={showHistoryModal} onClose={() => setShowHistoryModal(false)} />
+      <BuyCreditsModal isOpen={showBuyCreditsModal} onClose={() => setShowBuyCreditsModal(false)} />
     </header>
   );
 };

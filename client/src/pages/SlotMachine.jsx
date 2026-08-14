@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
 import { useSounds } from '../hooks/useSounds';
+import BuyCreditsModal from '../components/BuyCreditsModal';
+import InsufficientCreditsModal from '../components/InsufficientCreditsModal';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
@@ -207,24 +209,30 @@ export default function SlotMachine() {
   const [recentWins, setRecentWins] = useState([]);
   const [pendingReels, setPendingReels] = useState(null);
   const [handlePulled, setHandlePulled] = useState(false);
+  const [showInsufficientModal, setShowInsufficientModal] = useState(false);
+  const [showBuyModal, setShowBuyModal] = useState(false);
 
   const pendingReelsRef = useRef(null);
   const autoSpinRef = useRef(autoSpinCount);
   autoSpinRef.current = autoSpinCount;
+  const spinningRef = useRef(spinning);
+  spinningRef.current = spinning;
 
   const balance = user?.balance ?? 0;
+  const balanceRef = useRef(balance);
+  balanceRef.current = balance;
 
   // Spin Action
   const handleSpin = useCallback(async () => {
-    if (spinning) return;
+    if (spinningRef.current) return;
     const bet = parseInt(betAmount, 10);
-    if (isNaN(bet) || bet < 10) {
-      toast.error('Minimum bet is 10 credits');
+    if (isNaN(bet) || bet < 1) {
+      toast.error('Minimum bet is 1 credit');
       setAutoSpinCount(0);
       return;
     }
-    if (bet > balance) {
-      toast.error('Insufficient balance');
+    if (bet > balanceRef.current) {
+      setShowInsufficientModal(true);
       setAutoSpinCount(0);
       return;
     }
@@ -233,7 +241,9 @@ export default function SlotMachine() {
     setHandlePulled(true);
     setTimeout(() => setHandlePulled(false), 400);
 
+    spinningRef.current = true;
     setSpinning(true);
+    setStoppedCount(0);
     setResult(null);
     setPendingReels(null);
 
@@ -251,11 +261,15 @@ export default function SlotMachine() {
       pendingReelsRef.current = nextData;
       setPendingReels(nextData);
     } catch (err) {
+      spinningRef.current = false;
       setSpinning(false);
       setAutoSpinCount(0);
       toast.error(err.response?.data?.message || 'Spin failed. Try again.');
     }
-  }, [spinning, betAmount, balance, playSpin, updateBalance]);
+  }, [betAmount, playSpin, updateBalance]);
+
+  const handleSpinRef = useRef(handleSpin);
+  handleSpinRef.current = handleSpin;
 
   // Handle individual reel stops
   const handleReelStop = useCallback(() => {
@@ -305,7 +319,7 @@ export default function SlotMachine() {
             const nextCount = c - 1;
             if (nextCount > 0) {
               setTimeout(() => {
-                handleSpin();
+                handleSpinRef.current?.();
               }, 600);
             }
             return nextCount;
@@ -314,18 +328,14 @@ export default function SlotMachine() {
       }
       return next;
     });
-  }, [playWin, playLose, handleSpin]);
-
-  // Trigger spin when autoSpin starts
-  useEffect(() => {
-    if (autoSpinCount > 0 && !spinning && !result) {
-      handleSpin();
-    }
-  }, [autoSpinCount]);
+  }, [playWin, playLose]);
 
   const startAutoSpin = (count) => {
     playClick();
     setAutoSpinCount(count);
+    if (!spinningRef.current) {
+      handleSpin();
+    }
   };
 
   const stopAutoSpin = () => {
@@ -554,7 +564,7 @@ export default function SlotMachine() {
               <div className="flex items-center gap-1 mt-0.5">
                 <input
                   type="number"
-                  min="10"
+                  min="1"
                   value={betAmount}
                   onChange={(e) => setBetAmount(e.target.value)}
                   disabled={spinning || autoSpinCount > 0}
@@ -590,7 +600,7 @@ export default function SlotMachine() {
             </button>
             <button
               onClick={() => { playClick(); setBetAmount(String(balance)); }}
-              disabled={spinning || autoSpinCount > 0 || balance < 10}
+              disabled={spinning || autoSpinCount > 0 || balance < 1}
               className="text-xs font-extrabold px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/30 hover:border-red-500 text-red-400 transition-all disabled:opacity-40"
             >
               MAX
@@ -704,6 +714,12 @@ export default function SlotMachine() {
           </motion.div>
         )}
       </AnimatePresence>
+      <InsufficientCreditsModal
+        open={showInsufficientModal}
+        onClose={() => setShowInsufficientModal(false)}
+        onOpenBuyCredits={() => setShowBuyModal(true)}
+      />
+      <BuyCreditsModal isOpen={showBuyModal} onClose={() => setShowBuyModal(false)} />
     </div>
   );
 }

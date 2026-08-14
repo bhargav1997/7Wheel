@@ -65,8 +65,8 @@ router.post('/spin', verifyJWT, async (req, res) => {
       totalBet += amt;
     }
 
-    if (totalBet < 10) {
-      return res.status(400).json({ message: 'Minimum total wager is 10 credits.' });
+    if (totalBet < 1) {
+      return res.status(400).json({ message: 'Minimum bet is 1 credit.' });
     }
 
     const userId = req.user._id.toString();

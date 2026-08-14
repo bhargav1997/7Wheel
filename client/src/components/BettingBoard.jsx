@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingDown, Hash, TrendingUp, AlertCircle, CheckCircle, Clock, Users, Coins } from 'lucide-react';
 import { useSocket } from '../context/SocketContext';
+import { useAuth } from '../context/AuthContext';
 
 const BET_OPTIONS = [
   {
@@ -42,8 +43,10 @@ const BET_OPTIONS = [
   },
 ];
 
-const BettingBoard = () => {
+const BettingBoard = ({ onInsufficientCredits }) => {
   const { gameState, myBet, betError, setBetError, placeBet } = useSocket();
+  const { user } = useAuth();
+  const balance = user?.balance ?? 0;
   const { status, timeLeft, pot, bettorCount, playerCount } = gameState;
 
   const [selectedChoice, setSelectedChoice] = useState(null);
@@ -67,8 +70,12 @@ const BettingBoard = () => {
   const handleSubmit = async () => {
     if (!selectedChoice || !canBet) return;
     const amount = parseFloat(betAmount);
-    if (isNaN(amount) || amount < 10) {
-      setBetError('Minimum bet is 10 credits');
+    if (isNaN(amount) || amount < 1) {
+      setBetError('Minimum bet is 1 credit');
+      return;
+    }
+    if (amount > balance) {
+      onInsufficientCredits?.();
       return;
     }
     setSubmitting(true);

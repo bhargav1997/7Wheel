@@ -6,6 +6,8 @@ import Navbar from '../components/Navbar';
 import { useSocket } from '../context/SocketContext';
 import { useAuth } from '../context/AuthContext';
 import { useSounds } from '../hooks/useSounds';
+import BuyCreditsModal from '../components/BuyCreditsModal';
+import InsufficientCreditsModal from '../components/InsufficientCreditsModal';
 import toast from 'react-hot-toast';
 
 // ── Particle Canvas Overlay ──────────────────────────────────────────────────
@@ -108,6 +110,8 @@ export default function FlipOrFlop() {
   const [showRules, setShowRules] = useState(false);
   const [roundStartMsg, setRoundStartMsg] = useState(null);
   const [showWinConfetti, setShowWinConfetti] = useState(false);
+  const [showInsufficientModal, setShowInsufficientModal] = useState(false);
+  const [showBuyModal, setShowBuyModal] = useState(false);
   
   const toastedRoundRef = useRef(null);
   const spinningSoundRef = useRef(false);
@@ -204,12 +208,12 @@ export default function FlipOrFlop() {
   const handlePlaceBet = (choice) => {
     if ((gameState.status !== 'WAITING' && gameState.status !== 'BETTING') || myBet) return;
     const amount = parseInt(betAmount, 10);
-    if (isNaN(amount) || amount < 10) {
-      toast.error('Minimum bet is 10 credits');
+    if (isNaN(amount) || amount < 1) {
+      toast.error('Minimum bet is 1 credit');
       return;
     }
     if (amount > balance) {
-      toast.error('Insufficient balance');
+      setShowInsufficientModal(true);
       return;
     }
     const token = localStorage.getItem('7wheel_token');
@@ -573,7 +577,7 @@ export default function FlipOrFlop() {
               <div className="flex items-center gap-1 mt-0.5">
                 <input
                   type="number"
-                  min="10"
+                  min="1"
                   value={betAmount}
                   onChange={(e) => setBetAmount(e.target.value)}
                   disabled={!canBet}
@@ -608,7 +612,7 @@ export default function FlipOrFlop() {
             </button>
             <button
               onClick={() => { playClick(); setBetAmount(String(balance)); }}
-              disabled={!canBet || balance < 10}
+              disabled={!canBet || balance < 1}
               className="text-xs font-extrabold px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/30 hover:border-red-500 text-red-400 transition-all disabled:opacity-40"
             >
               MAX
@@ -648,6 +652,13 @@ export default function FlipOrFlop() {
           </motion.div>
         )}
       </main>
+
+      <InsufficientCreditsModal
+        open={showInsufficientModal}
+        onClose={() => setShowInsufficientModal(false)}
+        onOpenBuyCredits={() => setShowBuyModal(true)}
+      />
+      <BuyCreditsModal isOpen={showBuyModal} onClose={() => setShowBuyModal(false)} />
     </div>
   );
 }

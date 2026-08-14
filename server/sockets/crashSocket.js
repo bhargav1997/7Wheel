@@ -210,8 +210,8 @@ const initCrashSocket = (io) => {
         }
 
         const betAmount = parseInt(amount, 10);
-        if (isNaN(betAmount) || betAmount < 10) {
-          return socket.emit('crash:error', 'Minimum bet is 10 credits!');
+        if (isNaN(betAmount) || betAmount < 1) {
+          return socket.emit('crash:error', 'Minimum bet is 1 credit!');
         }
 
         const decoded = verifyToken(token);

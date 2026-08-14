@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
 import { useSounds } from '../hooks/useSounds';
+import BuyCreditsModal from '../components/BuyCreditsModal';
+import InsufficientCreditsModal from '../components/InsufficientCreditsModal';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
@@ -99,15 +101,26 @@ export default function Mines() {
   const [showPaytable, setShowPaytable] = useState(false);
   const [showWinConfetti, setShowWinConfetti] = useState(false);
   const [loadingAction, setLoadingAction] = useState(false);
+  const [showInsufficientModal, setShowInsufficientModal] = useState(false);
+  const [showBuyModal, setShowBuyModal] = useState(false);
+  const [showStreakModal, setShowStreakModal] = useState(false);
 
   const balance = user?.balance ?? 0;
+
+  // Calculate 1st tile multiplier preview based on mine count
+  const getStartingMultiplier = (mines) => {
+    const safeCount = 25 - mines;
+    const prob = safeCount / 25;
+    const raw = (1 / prob) * 0.97;
+    return Math.max(1.01, parseFloat(raw.toFixed(2)));
+  };
 
   // Start new Mines game
   const handleStartGame = async () => {
     if (gameState === 'IN_PROGRESS') return;
     const bet = parseInt(betAmount, 10);
-    if (isNaN(bet) || bet < 10) { toast.error('Minimum bet is 10 credits'); return; }
-    if (bet > balance) { toast.error('Insufficient balance'); return; }
+    if (isNaN(bet) || bet < 1) { toast.error('Minimum bet is 1 credit'); return; }
+    if (bet > balance) { setShowInsufficientModal(true); return; }
 
     playClick();
     setLoadingAction(true);
@@ -276,7 +289,9 @@ export default function Mines() {
                   <span className="flex items-center gap-1.5 text-slate-300">
                     <Bomb size={14} className="text-red-400" /> Mine Count
                   </span>
-                  <span className="text-emerald-400 font-mono font-extrabold">{mineCount} Mines</span>
+                  <span className="text-emerald-400 font-mono font-extrabold">
+                    {mineCount} {mineCount === 1 ? 'Mine' : 'Mines'} ({getStartingMultiplier(mineCount)}× 1st Gem)
+                  </span>
                 </label>
 
                 <div className="grid grid-cols-5 gap-1.5">
@@ -305,7 +320,7 @@ export default function Mines() {
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
-                    min="10"
+                    min="1"
                     value={betAmount}
                     onChange={(e) => setBetAmount(e.target.value)}
                     disabled={gameState === 'IN_PROGRESS'}
@@ -316,7 +331,7 @@ export default function Mines() {
 
                 {/* Quick Bet Buttons */}
                 <div className="flex items-center gap-1.5 pt-1">
-                  {[10, 25, 50, 100, 250].map((v) => (
+                  {[1, 5, 10, 25, 50, 100].map((v) => (
                     <button
                       key={v}
                       onClick={() => { playClick(); setBetAmount(String(v)); }}
@@ -331,11 +346,18 @@ export default function Mines() {
                     </button>
                   ))}
                   <button
-                    onClick={() => { playClick(); setBetAmount(String(Math.floor(balance / 2))); }}
-                    disabled={gameState === 'IN_PROGRESS' || balance < 20}
+                    onClick={() => { playClick(); setBetAmount(String(Math.max(1, Math.floor(balance / 2)))); }}
+                    disabled={gameState === 'IN_PROGRESS' || balance < 2}
                     className="py-1.5 px-2 rounded-lg text-xs font-bold bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:border-amber-500 transition-all disabled:opacity-40"
                   >
                     ½
+                  </button>
+                  <button
+                    onClick={() => { playClick(); setBetAmount(String(Math.floor(balance))); }}
+                    disabled={gameState === 'IN_PROGRESS' || balance < 1}
+                    className="py-1.5 px-2 rounded-lg text-xs font-bold bg-red-500/10 border border-red-500/30 text-red-400 hover:border-red-500 transition-all disabled:opacity-40"
+                  >
+                    MAX
                   </button>
                 </div>
               </div>
@@ -371,7 +393,7 @@ export default function Mines() {
                 ) : (
                   <motion.button
                     onClick={handleStartGame}
-                    disabled={loadingAction || balance < 10}
+                    disabled={loadingAction || balance < 1}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.97 }}
                     className="w-full py-4 rounded-2xl font-display font-black text-lg tracking-wider bg-gradient-to-r from-purple-600 via-brand-500 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-xl shadow-brand-500/30 border border-brand-400/40 flex items-center justify-center gap-2 uppercase transition-all"
@@ -535,6 +557,13 @@ export default function Mines() {
           </motion.div>
         )}
       </AnimatePresence>
+      <InsufficientCreditsModal
+        open={showInsufficientModal}
+        onClose={() => setShowInsufficientModal(false)}
+        onOpenBuyCredits={() => setShowBuyModal(true)}
+        onOpenDailyStreak={() => setShowStreakModal(true)}
+      />
+      <BuyCreditsModal isOpen={showBuyModal} onClose={() => setShowBuyModal(false)} />
     </div>
   );
 }
