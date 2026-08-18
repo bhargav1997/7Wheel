@@ -64,7 +64,7 @@ const AdminStatsModal = () => {
                 <div className="absolute top-0 left-0 w-full h-0.5 bg-brand-gradient opacity-80" />
                 <p className="text-[10px] text-brand-400 uppercase tracking-widest font-black">Platform Credit Earnings (Credits)</p>
                 <h4 className="font-display font-black text-4xl mt-1 tracking-tight bg-gradient-to-r from-gold-300 via-amber-400 to-gold-300 bg-clip-text text-transparent drop-shadow-md">
-                  {Math.round(stats.platformEarnings).toLocaleString()} 🪙
+                  {Math.round(stats.platformEarnings).toLocaleString()} Credits
                 </h4>
                 <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
                   Commission (3.5% edge) + credits retained from no-winner rounds.
@@ -84,14 +84,14 @@ const AdminStatsModal = () => {
                 <div className="bg-[#111118] border border-casino-border rounded-xl p-4 space-y-1">
                   <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Credits Sold</span>
                   <p className="font-display font-bold text-white text-lg">
-                    {(stats.totalCreditsSold ?? 0).toLocaleString()} 🪙
+                    {(stats.totalCreditsSold ?? 0).toLocaleString()} Credits
                   </p>
                 </div>
                 {/* Total Wagered */}
                 <div className="bg-[#111118] border border-casino-border rounded-xl p-4 space-y-1">
                   <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Credits Wagered</span>
                   <p className="font-display font-bold text-white text-lg">
-                    {Math.round(stats.totalWagered ?? 0).toLocaleString()} 🪙
+                    {Math.round(stats.totalWagered ?? 0).toLocaleString()} Credits
                   </p>
                 </div>
                 {/* Total Users */}

@@ -139,7 +139,7 @@ const Register = () => {
 
         <div className="hidden sm:flex items-center gap-1.5 text-xs text-emerald-400 font-extrabold bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-1.5 rounded-xl">
           <Sparkles size={14} />
-          <span>100 🪙 Bonus Included</span>
+          <span>100 Credits Bonus Included</span>
         </div>
       </header>
 
@@ -163,7 +163,7 @@ const Register = () => {
           <h1 className="font-display font-black text-3xl text-white tracking-tight">
             Join the Hub
           </h1>
-          <p className="text-xs font-medium text-slate-400">Create your account and claim 100 🪙 Free Credits</p>
+          <p className="text-xs font-medium text-slate-400">Create your account and claim 100 Free Credits</p>
         </div>
 
         {/* Perks Bar */}
@@ -285,7 +285,7 @@ const Register = () => {
               ) : (
                 <>
                   <UserPlus size={16} />
-                  Create Account & Claim 100 🪙
+                  Create Account & Claim 100 Credits
                 </>
               )}
             </button>

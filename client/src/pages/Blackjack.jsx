@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Coins, HelpCircle, X, Zap, Volume2, VolumeX, ShieldAlert, Sparkles, Trophy, Play, Plus, Hand, Layers, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Coins, HelpCircle, X, Zap, Volume2, VolumeX, ShieldAlert, Sparkles, Trophy, Play, Plus, Hand, Layers, RotateCcw, Award } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
@@ -145,6 +145,18 @@ export default function Blackjack() {
   const [showInsufficientModal, setShowInsufficientModal] = useState(false);
   const [showBuyModal, setShowBuyModal] = useState(false);
 
+  const [bjGamesPlayed, setBjGamesPlayed] = useState(() => {
+    return parseInt(localStorage.getItem('7wheel_bj_games_played') || '0', 10);
+  });
+
+  const recordGameFinished = () => {
+    setBjGamesPlayed((prev) => {
+      const next = prev + 1;
+      localStorage.setItem('7wheel_bj_games_played', String(next));
+      return next;
+    });
+  };
+
   const balance = user?.balance ?? 0;
 
   // Beginner strategy advice generator
@@ -154,24 +166,24 @@ export default function Blackjack() {
 
     if (score <= 11) {
       return {
-        text: "💡 Beginner Tip: Safe to HIT! You cannot bust on scores 11 or lower.",
+        text: "Beginner Tip: Safe to HIT! You cannot bust on scores 11 or lower.",
         color: "border-cyan-500/40 bg-cyan-500/10 text-cyan-300"
       };
     }
     if (score === 21) {
       return {
-        text: "🔥 Perfect 21! Click STAND to finish your hand.",
+        text: "Perfect 21! Click STAND to finish your hand.",
         color: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
       };
     }
     if (score >= 17) {
       return {
-        text: "✅ Strong Score! You have a high risk of busting if you Hit. STAND recommended.",
+        text: "Strong Score! You have a high risk of busting if you Hit. STAND recommended.",
         color: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
       };
     }
     return {
-      text: "⚠️ Caution Zone (12-16): High bust risk. Hit if Dealer has 7+, Stand if Dealer has 2-6.",
+      text: "Caution Zone (12-16): High bust risk. Hit if Dealer has 7+, Stand if Dealer has 2-6.",
       color: "border-amber-500/40 bg-amber-500/10 text-amber-300"
     };
   };
@@ -204,10 +216,12 @@ export default function Blackjack() {
         setShowWinConfetti(true);
         setPayout(data.payout);
         updateBalance(data.balanceAfter);
-        toast.success(`👑 NATURAL BLACKJACK! Won +${data.payout.toLocaleString()} 🪙!`, { icon: '🏆', duration: 4000 });
+        recordGameFinished();
+        toast.success(`NATURAL BLACKJACK! Won +${data.payout.toLocaleString()} Credits!`, { duration: 4000 });
       } else if (data.status === 'PUSH') {
         setPayout(data.payout);
         updateBalance(data.balanceAfter);
+        recordGameFinished();
         toast('Push / Tie — Wager returned!');
       } else {
         updateBalance(data.balanceAfter);
@@ -239,7 +253,8 @@ export default function Blackjack() {
         playLose();
         setDealerCards(data.dealerCards);
         setDealerEval(data.dealerEval);
-        toast.error('💥 BUST! Total exceeded 21.');
+        recordGameFinished();
+        toast.error('BUST! Total exceeded 21.');
       } else {
         playStreak();
       }
@@ -271,12 +286,15 @@ export default function Blackjack() {
         playWin();
         setShowWinConfetti(true);
         updateBalance(data.balanceAfter);
-        toast.success(`🎉 Won +${data.payout.toLocaleString()} 🪙!`, { icon: '🏆', duration: 3500 });
+        recordGameFinished();
+        toast.success(`Won +${data.payout.toLocaleString()} Credits!`, { duration: 3500 });
       } else if (data.status === 'PUSH') {
         updateBalance(data.balanceAfter);
+        recordGameFinished();
         toast('Push / Tie — Wager returned!');
       } else {
         playLose();
+        recordGameFinished();
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Stand failed.');
@@ -311,7 +329,7 @@ export default function Blackjack() {
         playWin();
         setShowWinConfetti(true);
         updateBalance(data.balanceAfter);
-        toast.success(`🚀 Double Down WIN! Won +${data.payout.toLocaleString()} 🪙!`, { icon: '🏆', duration: 4000 });
+        toast.success(`Double Down WIN! Won +${data.payout.toLocaleString()} Credits!`, { duration: 4000 });
       } else if (data.status === 'PUSH') {
         updateBalance(data.balanceAfter);
         toast('Push / Tie — Doubled wager returned!');
@@ -410,8 +428,8 @@ export default function Blackjack() {
                     <>
                       <Trophy size={22} className="text-yellow-400 animate-bounce" />
                       <div>
-                        <span className="text-xs uppercase font-extrabold tracking-widest text-emerald-400 block">👑 NATURAL BLACKJACK!</span>
-                        <span className="text-2xl font-black text-white">+{payout.toLocaleString()} 🪙</span>
+                        <span className="text-xs uppercase font-extrabold tracking-widest text-emerald-400 block">NATURAL BLACKJACK!</span>
+                        <span className="text-2xl font-black text-white">+{payout.toLocaleString()} Credits</span>
                       </div>
                     </>
                   )}
@@ -420,19 +438,19 @@ export default function Blackjack() {
                     <>
                       <Trophy size={22} className="text-yellow-400 animate-bounce" />
                       <div>
-                        <span className="text-xs uppercase font-extrabold tracking-widest text-emerald-400 block">🎉 YOU WON THE HAND!</span>
-                        <span className="text-2xl font-black text-white">+{payout.toLocaleString()} 🪙</span>
+                        <span className="text-xs uppercase font-extrabold tracking-widest text-emerald-400 block">YOU WON THE HAND!</span>
+                        <span className="text-2xl font-black text-white">+{payout.toLocaleString()} Credits</span>
                       </div>
                     </>
                   )}
 
                   {gameState === 'PUSH' && (
-                    <span className="text-sm font-extrabold text-amber-300">PUSH / TIE — Wager returned ({payout} 🪙)</span>
+                    <span className="text-sm font-extrabold text-amber-300">PUSH / TIE — Wager returned ({payout} Credits)</span>
                   )}
 
                   {(gameState === 'LOST' || gameState === 'BUSTED') && (
                     <span className="text-sm font-extrabold text-red-400">
-                      {gameState === 'BUSTED' ? '💥 BUSTED! Over 21' : 'Dealer Won — Better luck next hand!'}
+                      {gameState === 'BUSTED' ? 'BUSTED! Total Exceeded 21' : 'Dealer Won — Hand Complete'}
                     </span>
                   )}
                 </motion.div>
@@ -448,7 +466,7 @@ export default function Blackjack() {
           <div className="space-y-3">
             <div className="flex items-center justify-between text-xs font-bold border-t border-slate-800/80 pt-3">
               <span className="text-slate-400 flex items-center gap-1.5 uppercase tracking-wider">
-                👤 Player Hand ({user?.username})
+                Player Hand ({user?.username})
               </span>
               <span className="font-mono text-emerald-400">
                 {playerEval ? `${playerEval.isSoft ? 'Soft ' : ''}${playerEval.total}` : 'Score: 0'}
@@ -465,14 +483,17 @@ export default function Blackjack() {
           </div>
         </div>
 
-        {/* Live Beginner Strategy Pro Tip Banner */}
-        {gameState === 'IN_PROGRESS' && getProTip() && (
+        {/* Live Beginner Strategy Pro Tip Banner (Active for First 5 Games) */}
+        {gameState === 'IN_PROGRESS' && bjGamesPlayed < 5 && getProTip() && (
           <motion.div
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`p-3 rounded-2xl border text-xs font-bold flex items-center gap-2 justify-center shadow-lg ${getProTip().color}`}
+            className={`p-3 rounded-2xl border text-xs font-bold flex items-center justify-between shadow-lg ${getProTip().color}`}
           >
             <span>{getProTip().text}</span>
+            <span className="text-[10px] opacity-75 font-mono ml-2 shrink-0">
+              Guide ({bjGamesPlayed + 1}/5)
+            </span>
           </motion.div>
         )}
 
@@ -546,7 +567,7 @@ export default function Blackjack() {
                 className="md:col-span-4 py-4 px-6 rounded-2xl font-display font-black text-xl tracking-wider uppercase bg-gradient-to-r from-purple-600 via-brand-500 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-xl shadow-brand-500/30 border border-brand-400/40 flex items-center justify-center gap-3"
               >
                 <Play size={22} className="fill-white" />
-                DEAL HAND — {betAmount} 🪙
+                DEAL HAND — {betAmount} Credits
               </motion.button>
             )}
           </div>
@@ -566,7 +587,7 @@ export default function Blackjack() {
                     disabled={gameState === 'IN_PROGRESS'}
                     className="input-field w-24 text-sm font-black text-center py-1.5 bg-slate-900 border border-slate-800 focus:border-brand-500 rounded-xl text-white"
                   />
-                  <span className="text-xs text-slate-400 font-bold">🪙</span>
+                  <Coins size={14} className="text-yellow-400" />
                 </div>
               </div>
             </div>
@@ -624,7 +645,7 @@ export default function Blackjack() {
             >
               <div className="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-xl">🃏</span>
+                  <Award size={18} className="text-amber-400" />
                   <h2 className="font-display font-black text-lg text-white">Blackjack Rules & Payouts</h2>
                 </div>
                 <button onClick={() => setShowPaytable(false)} className="text-slate-500 hover:text-white p-1">
@@ -635,7 +656,7 @@ export default function Blackjack() {
               <div className="space-y-3 text-xs text-slate-300">
                 <div className="p-3 rounded-2xl bg-brand-500/10 border border-brand-500/30 text-brand-300 space-y-1">
                   <p className="font-bold flex items-center gap-1.5 text-white">
-                    🎯 Objective of Blackjack:
+                    Objective of Blackjack:
                   </p>
                   <p className="text-[11px] leading-relaxed text-slate-300">
                     Get your hand total as close to <strong>21</strong> as possible without exceeding 21 (Busting). Beat the House Dealer's final score to win!
@@ -644,26 +665,26 @@ export default function Blackjack() {
 
                 <div className="grid grid-cols-2 gap-2 text-[11px]">
                   <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
-                    <span className="font-bold text-white block">🂡 Ace (A):</span>
+                    <span className="font-bold text-white block">Ace (A):</span>
                     <span className="text-slate-400">Counts as 1 or 11 automatically</span>
                   </div>
                   <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
-                    <span className="font-bold text-white block">🂫 J, Q, K, 10:</span>
+                    <span className="font-bold text-white block">J, Q, K, 10:</span>
                     <span className="text-slate-400">Every face card is worth 10</span>
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800">
-                    <span>👑 Natural Blackjack (Ace + 10 on deal)</span>
+                    <span>Natural Blackjack (Ace + 10 on deal)</span>
                     <span className="font-black text-yellow-400">3:2 Payout (2.5×)</span>
                   </div>
                   <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800">
-                    <span>🎉 Standard Hand Win</span>
+                    <span>Standard Hand Win</span>
                     <span className="font-black text-yellow-400">1:1 Payout (2.0×)</span>
                   </div>
                   <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800">
-                    <span>⚡ Double Down</span>
+                    <span>Double Down</span>
                     <span className="font-black text-yellow-400">Double wager for 1 final card</span>
                   </div>
                 </div>

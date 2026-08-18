@@ -52,7 +52,7 @@ const GlobalEntry = ({ entry, rank, isMe }) => (
     <div className="text-right">
       <p className="text-xs text-slate-500">Won</p>
       <p className="font-display font-bold text-gold-400 text-sm">
-        {Math.round(entry.totalWon ?? 0).toLocaleString()} 🪙
+        {Math.round(entry.totalWon ?? 0).toLocaleString()} Credits
       </p>
     </div>
   </motion.div>
@@ -154,13 +154,13 @@ const Leaderboard = () => {
                         {player.username} {isMe && <span className="text-xs text-brand-500">(you)</span>}
                       </p>
                       <p className="text-xs text-slate-500">
-                        Balance: {(player.balance ?? 0).toLocaleString()} 🪙
+                        Balance: {(player.balance ?? 0).toLocaleString()} Credits
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="text-xs text-slate-500">Won</p>
-                      <p className="text-sm font-display font-bold text-gold-400">
-                        {Math.round(player.totalWon ?? 0).toLocaleString()} 🪙
+                      <p className="text-[11px] font-bold text-amber-400">
+                        {Math.round(player.totalWon ?? 0).toLocaleString()} Credits
                       </p>
                     </div>
                   </div>
@@ -210,9 +210,9 @@ const Leaderboard = () => {
                       </div>
                       <div className="text-right">
                         {player.won ? (
-                          <span className="font-display font-bold text-gold-400">+{Math.round(payout).toLocaleString()} 🪙</span>
+                          <span className="font-display font-bold text-gold-400">+{Math.round(payout).toLocaleString()} Credits</span>
                         ) : isRefund ? (
-                          <span className="font-display font-semibold text-slate-400">↩ {Math.round(payout).toLocaleString()} 🪙</span>
+                          <span className="font-display font-semibold text-slate-400">↩ {Math.round(payout).toLocaleString()} Credits</span>
                         ) : (
                           <span className="text-slate-600">—</span>
                         )}

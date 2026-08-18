@@ -164,7 +164,7 @@ const Login = () => {
                 to="/register"
                 className="text-brand-400 font-extrabold hover:text-brand-300 transition-colors ml-1"
               >
-                Create one free (100 🪙 Bonus)
+                Create one free (100 Credits Bonus)
               </Link>
             </p>
           </div>

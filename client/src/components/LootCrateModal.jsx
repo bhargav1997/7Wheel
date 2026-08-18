@@ -48,7 +48,7 @@ export default function LootCrateModal({ isOpen, onClose }) {
         setClaimResult(res.data);
         setCrateStage('REVEALED');
         updateBalance(res.data.newBalance);
-        toast.success(`🎁 Opened Daily Loot Crate! +${res.data.creditsAwarded} 🪙`, { duration: 4000 });
+        toast.success(`🎁 Opened Daily Loot Crate! +${res.data.creditsAwarded} Credits`, { duration: 4000 });
         setLoading(false);
       }, 1800);
     } catch (err) {

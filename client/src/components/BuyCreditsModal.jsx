@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CreditCard, Lock, Zap, Star, Crown, Gem, ShieldCheck, Check, Sparkles } from 'lucide-react';
+import { X, CreditCard, Lock, Zap, Star, Crown, Gem, ShieldCheck, Check, Sparkles, Coins } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 
@@ -28,7 +28,7 @@ const PACKS = [
     bonusCredits: 200,
     priceUSD: 9.99,
     popular: true,
-    badge: '🔥 BEST VALUE',
+    badge: 'PREMIER VALUE',
     icon: Star,
     iconColor: 'text-yellow-400',
     iconBg: 'bg-yellow-500/10 border-yellow-500/30',
@@ -58,7 +58,7 @@ const PACKS = [
     bonusCredits: 5000,
     priceUSD: 49.99,
     popular: false,
-    badge: '👑 VIP 33% BONUS',
+    badge: 'VIP 33% BONUS',
     icon: Gem,
     iconColor: 'text-purple-400',
     iconBg: 'bg-purple-500/10 border-purple-500/30',
@@ -160,12 +160,12 @@ const BuyCreditsModal = () => {
             {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-xl shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-black text-xl shadow-inner">
-                  🪙
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-black shadow-inner">
+                  <Coins size={22} />
                 </div>
                 <div>
-                  <h3 className="font-display font-black text-lg text-white leading-none">Get Virtual Credits</h3>
-                  <p className="text-[11px] text-slate-400 mt-1 leading-none">Instant Refill · Played Strictly for Fun</p>
+                  <h3 className="font-display font-black text-lg text-white leading-none">Acquire Gaming Credits</h3>
+                  <p className="text-[11px] text-slate-400 mt-1 leading-none">Instant Allocation · Social Gaming Platform</p>
                 </div>
               </div>
               <button
@@ -218,8 +218,8 @@ const BuyCreditsModal = () => {
 
                         <div>
                           <p className="text-xs font-bold text-slate-300">{p.label}</p>
-                          <p className="text-[13px] font-black text-white mt-0.5">
-                            {p.credits.toLocaleString()} 🪙
+                          <p className="text-[13px] font-black text-white mt-0.5 flex items-center gap-1">
+                            {p.credits.toLocaleString()} <Coins size={12} className="text-amber-400" />
                           </p>
                           {p.bonusCredits > 0 && (
                             <p className="text-[10px] text-emerald-400 font-bold mt-0.5">
@@ -248,8 +248,8 @@ const BuyCreditsModal = () => {
                 >
                   <div>
                     <p className="text-[11px] text-slate-400 font-medium">You will receive</p>
-                    <p className="font-display font-black text-xl text-white">
-                      {totalCredits.toLocaleString()} <span className="text-amber-400">Credits 🪙</span>
+                    <p className="font-display font-black text-xl text-white flex items-center gap-1.5">
+                      {totalCredits.toLocaleString()} <span className="text-amber-400 font-bold flex items-center gap-1">Credits <Coins size={16} /></span>
                     </p>
                     {pack.bonusCredits > 0 && (
                       <span className="text-[10px] text-emerald-400 font-bold">

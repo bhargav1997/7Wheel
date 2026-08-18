@@ -89,7 +89,17 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const updateBalance = useCallback((newBalance) => {
-    setUser((prev) => prev ? { ...prev, balance: newBalance } : prev);
+    if (typeof newBalance === 'function') {
+      setUser((prev) => {
+        if (!prev) return prev;
+        const computed = newBalance(prev.balance);
+        const rounded = Math.round(Number(computed || 0) * 100) / 100;
+        return { ...prev, balance: rounded };
+      });
+    } else {
+      const rounded = Math.round(Number(newBalance || 0) * 100) / 100;
+      setUser((prev) => (prev ? { ...prev, balance: rounded } : prev));
+    }
   }, []);
 
   const purchaseCredits = useCallback(async ({ packId, paymentMethod, paymentDetails }) => {

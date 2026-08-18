@@ -214,14 +214,14 @@ export default function Crash() {
     socket.on('crash:betConfirmed', (bet) => {
       setMyBet(bet);
       playClick();
-      toast.success(`Rocket bet locked in: ${bet.amount} 🪙`);
+      toast.success(`Rocket bet locked in: ${bet.amount} Credits`);
     });
 
     socket.on('crash:cashoutConfirmed', ({ multiplier, payout }) => {
       playWin();
       setShowWinConfetti(true);
       setCashedOutMsg({ multiplier, payout });
-      toast.success(`🚀 Cashed Out at ${multiplier}×! (+${payout.toLocaleString()} 🪙)`, { icon: '🏆', duration: 3500 });
+      toast.success(`🚀 Cashed Out at ${multiplier}×! (+${payout.toLocaleString()} Credits)`, { icon: '🏆', duration: 3500 });
     });
 
     socket.on('crash:exploded', ({ crashPoint }) => {
@@ -315,7 +315,8 @@ export default function Crash() {
             >
               <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                 <span className="font-display font-black text-sm text-white flex items-center gap-2">
-                  🚀 Crash / Rocket — How It Works
+                  <TrendingUp size={18} className="text-emerald-400" />
+                  Crash Multiplier Mechanics & Rules
                 </span>
                 <button onClick={() => setShowRules(false)} className="text-slate-500 hover:text-white">✕</button>
               </div>
@@ -431,7 +432,7 @@ export default function Crash() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {/* Bet Input */}
               <div className="space-y-1">
-                <label className="text-xs text-slate-400 font-bold">Bet Amount (🪙)</label>
+                <label className="text-xs text-slate-400 font-bold">Bet Amount (Credits)</label>
                 <input
                   type="number"
                   min="1"
@@ -442,19 +443,55 @@ export default function Crash() {
                 />
               </div>
 
-              {/* Auto Cashout Input */}
+              {/* Auto Cashout Input & Quick Presets */}
               <div className="space-y-1">
-                <label className="text-xs text-slate-400 font-bold">Auto Cashout Target (×)</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  min="1.01"
-                  value={autoCashout}
-                  onChange={(e) => setAutoCashout(e.target.value)}
-                  disabled={!canBet}
-                  className="input-field w-full text-sm font-black text-center py-2 bg-slate-900 border border-slate-800 focus:border-purple-500 rounded-xl text-white"
-                  placeholder="2.00"
-                />
+                <label className="text-xs text-slate-400 font-bold flex items-center justify-between">
+                  <span>Auto Cashout Target (×)</span>
+                  {autoCashout && (
+                    <span className="text-[10px] text-purple-400 font-extrabold font-mono">
+                      Auto @ {parseFloat(autoCashout).toFixed(2)}×
+                    </span>
+                  )}
+                </label>
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="1.01"
+                    value={autoCashout}
+                    onChange={(e) => setAutoCashout(e.target.value)}
+                    disabled={!canBet}
+                    className="input-field w-full text-sm font-black text-center py-2 bg-slate-900 border border-slate-800 focus:border-purple-500 rounded-xl text-white"
+                    placeholder="2.00"
+                  />
+                  {autoCashout && (
+                    <button
+                      onClick={() => setAutoCashout('')}
+                      disabled={!canBet}
+                      className="px-2 py-2 text-xs font-bold text-slate-400 hover:text-white bg-slate-900 border border-slate-800 rounded-xl"
+                      title="Clear Auto Cashout"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+                {/* Auto Cashout Presets */}
+                <div className="flex items-center gap-1 pt-1">
+                  {['1.5', '2.0', '3.0', '5.0', '10.0'].map((target) => (
+                    <button
+                      key={target}
+                      onClick={() => { playClick(); setAutoCashout(target); }}
+                      disabled={!canBet}
+                      className={`flex-1 py-1 rounded-md text-[10px] font-extrabold font-mono border transition-all ${
+                        autoCashout === target
+                          ? 'bg-purple-500/20 border-purple-500 text-purple-300'
+                          : 'bg-slate-900/80 border-slate-800 hover:border-slate-700 text-slate-400'
+                      } disabled:opacity-40`}
+                    >
+                      {target}×
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -492,7 +529,7 @@ export default function Crash() {
                 className="w-full py-4 rounded-2xl font-display font-black text-xl tracking-wider uppercase bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 shadow-xl shadow-emerald-500/30 border border-emerald-400/40 flex items-center justify-center gap-2"
               >
                 <Trophy size={22} />
-                CASH OUT {currentPayout.toLocaleString()} 🪙 ({gameState.multiplier.toFixed(2)}×)
+                CASH OUT {currentPayout.toLocaleString()} Credits ({gameState.multiplier.toFixed(2)}×)
               </motion.button>
             ) : (
               <motion.button
@@ -509,12 +546,12 @@ export default function Crash() {
                 {myBet ? (
                   <>
                     <CheckCircle2 size={20} className="text-emerald-400" />
-                    <span>Wager Locked ({myBet.amount} 🪙)</span>
+                    <span>Wager Locked ({myBet.amount} Credits)</span>
                   </>
                 ) : (
                   <>
                     <Rocket size={20} />
-                    <span>Place Bet — {betAmount} 🪙</span>
+                    <span>Place Bet — {betAmount} Credits</span>
                   </>
                 )}
               </motion.button>
@@ -524,7 +561,7 @@ export default function Crash() {
             {cashedOutMsg && (
               <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-center font-bold text-xs flex items-center justify-center gap-2">
                 <Trophy size={16} className="text-yellow-400" />
-                Cashed Out at {cashedOutMsg.multiplier}×! (+{cashedOutMsg.payout.toLocaleString()} 🪙)
+                Cashed Out at {cashedOutMsg.multiplier}×! (+{cashedOutMsg.payout.toLocaleString()} Credits)
               </div>
             )}
           </div>
@@ -554,7 +591,7 @@ export default function Crash() {
                   >
                     <span className="font-bold">{b.username}</span>
                     <span>
-                      {b.amount} 🪙
+                      {b.amount} Credits
                       {b.cashedOut && (
                         <span className="text-emerald-400 font-extrabold ml-1">
                           → {b.cashoutMult}× (+{b.payout?.toLocaleString()})

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Zap, ChevronDown, Shield, Settings, History, Volume2, VolumeX, Flame, Gift, Dices, Disc, Gem, Bomb, Rocket, Layers } from 'lucide-react';
+import { Zap, ChevronDown, Shield, Settings, History, Volume2, VolumeX, Flame, Gift, Dices, Disc, Gem, Bomb, Rocket, Layers, Coins } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
@@ -8,6 +8,7 @@ import LootCrateModal from './LootCrateModal';
 import DailyStreakModal from './DailyStreakModal';
 import RoundHistory from './RoundHistory';
 import BuyCreditsModal from './BuyCreditsModal';
+import { formatCredits } from '../utils/format';
 
 const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, loginStreak }) => {
   const location = useLocation();
@@ -32,7 +33,11 @@ const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, logi
 
         {/* Left: Brand + Sleek Game Selector Tabs */}
         <div className="flex items-center gap-6">
-          <Link to="/play" className="flex items-center gap-2.5 group">
+          <Link
+            to="/play"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="flex items-center gap-2.5 group"
+          >
             <div className="w-9 h-9 rounded-xl bg-brand-gradient flex items-center justify-center text-lg font-black text-white glow-brand group-hover:scale-105 transition-transform">
               7
             </div>
@@ -161,9 +166,9 @@ const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, logi
           {/* Credits Balance & Buy Pill */}
           <div className="flex items-center">
             <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-l-xl px-3 py-1.5 border-r-0">
-              <span className="text-sm">🪙</span>
+              <Coins size={14} className="text-amber-400" />
               <span className="font-display font-bold text-xs sm:text-sm text-slate-100 tabular-nums">
-                {(user?.balance ?? 0).toLocaleString()}
+                {formatCredits(user?.balance)}
               </span>
             </div>
             <button
@@ -249,7 +254,6 @@ const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, logi
                       onClick={() => setShowMenu(false)}
                       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-purple-400 hover:bg-purple-500/10 transition-colors font-semibold"
                     >
-                      <span>🎮</span>
                       Try Shadow Breach
                     </a>
 

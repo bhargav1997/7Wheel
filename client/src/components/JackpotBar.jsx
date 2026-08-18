@@ -53,7 +53,7 @@ export default function JackpotBar() {
                 />
               </div>
               <span className="text-[11px] font-bold text-white">
-                {t.currentAmount.toLocaleString()} 🪙
+                {t.currentAmount.toLocaleString()} Credits
               </span>
             </div>
           );

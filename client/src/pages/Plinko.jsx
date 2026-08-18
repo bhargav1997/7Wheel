@@ -12,29 +12,29 @@ import toast from 'react-hot-toast';
 
 const MULTIPLIER_TABLES = {
   8: {
-    LOW: [5.6, 2.1, 1.1, 1.0, 0.5, 1.0, 1.1, 2.1, 5.6],
-    MEDIUM: [13, 3.0, 1.3, 0.7, 0.4, 0.7, 1.3, 3.0, 13],
-    HIGH: [29, 4.0, 1.5, 0.3, 0.2, 0.3, 1.5, 4.0, 29],
+    LOW: [5.6, 2.1, 1.1, 1.0, 0.0, 1.0, 1.1, 2.1, 5.6],
+    MEDIUM: [13, 3.0, 1.3, 0.7, 0.0, 0.7, 1.3, 3.0, 13],
+    HIGH: [29, 4.0, 1.5, 0.2, 0.0, 0.2, 1.5, 4.0, 29],
   },
   10: {
-    LOW: [8.9, 3.0, 1.4, 1.1, 1.0, 0.5, 1.0, 1.1, 1.4, 3.0, 8.9],
-    MEDIUM: [22, 5.0, 2.0, 1.4, 0.6, 0.4, 0.6, 1.4, 2.0, 5.0, 22],
-    HIGH: [76, 10, 3.0, 0.9, 0.3, 0.2, 0.3, 0.9, 3.0, 10, 76],
+    LOW: [8.9, 3.0, 1.4, 1.1, 1.0, 0.0, 1.0, 1.1, 1.4, 3.0, 8.9],
+    MEDIUM: [22, 5.0, 2.0, 1.4, 0.5, 0.0, 0.5, 1.4, 2.0, 5.0, 22],
+    HIGH: [76, 10, 3.0, 0.9, 0.2, 0.0, 0.2, 0.9, 3.0, 10, 76],
   },
   12: {
-    LOW: [10, 3.0, 1.6, 1.4, 1.1, 1.0, 0.5, 1.0, 1.1, 1.4, 1.6, 3.0, 10],
-    MEDIUM: [33, 11, 4.0, 2.0, 1.1, 0.6, 0.3, 0.6, 1.1, 2.0, 4.0, 11, 33],
-    HIGH: [170, 24, 8.1, 2.0, 0.7, 0.2, 0.2, 0.7, 2.0, 8.1, 24, 170],
+    LOW: [10, 3.0, 1.6, 1.4, 1.1, 1.0, 0.0, 1.0, 1.1, 1.4, 1.6, 3.0, 10],
+    MEDIUM: [33, 11, 4.0, 2.0, 1.1, 0.5, 0.0, 0.5, 1.1, 2.0, 4.0, 11, 33],
+    HIGH: [170, 24, 8.1, 2.0, 0.7, 0.0, 0.0, 0.7, 2.0, 8.1, 24, 170],
   },
   14: {
-    LOW: [15, 4.0, 1.9, 1.4, 1.2, 1.1, 1.0, 0.5, 1.0, 1.1, 1.2, 1.4, 1.9, 4.0, 15],
-    MEDIUM: [58, 15, 7.0, 4.0, 1.9, 1.0, 0.5, 0.2, 0.5, 1.0, 1.9, 4.0, 7.0, 15, 58],
-    HIGH: [420, 56, 18, 5.0, 1.9, 0.3, 0.2, 0.2, 0.2, 0.3, 1.9, 5.0, 18, 56, 420],
+    LOW: [15, 4.0, 1.9, 1.4, 1.2, 1.1, 1.0, 0.0, 1.0, 1.1, 1.2, 1.4, 1.9, 4.0, 15],
+    MEDIUM: [58, 15, 7.0, 4.0, 1.9, 1.0, 0.4, 0.0, 0.4, 1.0, 1.9, 4.0, 7.0, 15, 58],
+    HIGH: [420, 56, 18, 5.0, 1.9, 0.3, 0.0, 0.0, 0.0, 0.3, 1.9, 5.0, 18, 56, 420],
   },
   16: {
-    LOW: [16, 9.0, 2.0, 1.4, 1.4, 1.2, 1.1, 1.0, 0.5, 1.0, 1.1, 1.2, 1.4, 1.4, 2.0, 9.0, 16],
-    MEDIUM: [110, 41, 10, 5.0, 3.0, 1.5, 1.0, 0.5, 0.3, 0.5, 1.0, 1.5, 3.0, 5.0, 10, 41, 110],
-    HIGH: [1000, 130, 26, 9.0, 4.0, 2.0, 0.2, 0.2, 0.2, 0.2, 0.2, 2.0, 4.0, 9.0, 26, 130, 1000],
+    LOW: [16, 9.0, 2.0, 1.4, 1.4, 1.2, 1.1, 1.0, 0.0, 1.0, 1.1, 1.2, 1.4, 1.4, 2.0, 9.0, 16],
+    MEDIUM: [110, 41, 10, 5.0, 3.0, 1.5, 1.0, 0.4, 0.0, 0.4, 1.0, 1.5, 3.0, 5.0, 10, 41, 110],
+    HIGH: [1000, 130, 26, 9.0, 4.0, 2.0, 0.2, 0.0, 0.0, 0.0, 0.2, 2.0, 4.0, 9.0, 26, 130, 1000],
   },
 };
 
@@ -324,13 +324,14 @@ export default function Plinko() {
     if (isNaN(bet) || bet < 1) { toast.error('Minimum bet is 1 credit'); return; }
     if (bet > balance) { setShowInsufficientModal(true); return; }
 
+    // 1) Immediately deduct wager upfront from local balance when dropping ball
+    updateBalance((prev) => Math.max(0, prev - bet));
+
     try {
       const token = localStorage.getItem('7wheel_token');
       const { data } = await axios.post('/api/plinko/drop', { betAmount: bet, riskLevel, rows }, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      updateBalance(data.balanceAfter);
 
       const dropId = Date.now() + '-' + Math.random();
       const dropData = {
@@ -339,10 +340,13 @@ export default function Plinko() {
         bucketIndex: data.bucketIndex,
         multiplier: data.multiplier,
         payout: data.payout,
+        balanceAfter: data.balanceAfter,
       };
 
       setActiveBallDrops((prev) => [...prev, dropData]);
     } catch (err) {
+      // Refund wager if API drop fails
+      updateBalance((prev) => prev + bet);
       toast.error(err.response?.data?.message || 'Drop failed.');
     }
   };
@@ -361,6 +365,11 @@ export default function Plinko() {
     setLastWin(ball);
     setHistory((prev) => [ball.multiplier, ...prev.slice(0, 9)]);
 
+    // 2) Update balance with ball's earned payout only when it physically lands in bucket!
+    if (ball.payout > 0) {
+      updateBalance((prev) => prev + ball.payout);
+    }
+
     if (ball.multiplier >= 1.0) {
       playWin();
       if (ball.multiplier >= 10.0) setShowWinConfetti(true);
@@ -369,9 +378,10 @@ export default function Plinko() {
     }
 
     setActiveBallDrops((prev) => prev.filter((b) => b.id !== ball.id));
-  }, [playWin, playLose]);
+  }, [playWin, playLose, updateBalance]);
 
   const getBucketColor = (mult) => {
+    if (mult === 0) return 'bg-red-500/20 text-red-400 border-red-500/40 shadow-[0_0_10px_rgba(239,68,68,0.2)] font-black';
     if (mult >= 100) return 'bg-amber-400 text-slate-950 shadow-[0_0_15px_#f59e0b] font-black border-amber-300';
     if (mult >= 10) return 'bg-purple-600 text-white shadow-[0_0_12px_#a855f7] font-black border-purple-400';
     if (mult >= 2) return 'bg-emerald-500 text-slate-950 font-black border-emerald-300';
@@ -498,7 +508,7 @@ export default function Plinko() {
                     onChange={(e) => setBetAmount(e.target.value)}
                     className="input-field flex-1 text-sm font-black text-center py-2 bg-slate-900 border border-slate-800 focus:border-brand-500 rounded-xl text-white"
                   />
-                  <span className="text-xs text-slate-400 font-bold">🪙</span>
+                  <Coins size={14} className="text-yellow-400" />
                 </div>
 
                 {/* Quick Bet Buttons */}
@@ -536,7 +546,7 @@ export default function Plinko() {
                   className="w-full py-4 rounded-2xl font-display font-black text-lg tracking-wider bg-gradient-to-r from-purple-600 via-brand-500 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-xl shadow-brand-500/30 border border-brand-400/40 flex items-center justify-center gap-2 uppercase transition-all"
                 >
                   <Play size={20} className="fill-white" />
-                  DROP BALL — {betAmount} 🪙
+                  DROP BALL — {betAmount} Credits
                 </motion.button>
 
                 <button
@@ -545,7 +555,7 @@ export default function Plinko() {
                   className="w-full py-2.5 rounded-xl font-bold text-xs bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white transition-all flex items-center justify-center gap-2"
                 >
                   <RefreshCw size={15} className="text-cyan-400" />
-                  Drop 5 Balls ({(parseInt(betAmount, 10) * 5).toLocaleString()} 🪙)
+                  Drop 5 Balls ({(parseInt(betAmount, 10) * 5).toLocaleString()} Credits)
                 </button>
               </div>
             </div>
@@ -556,7 +566,7 @@ export default function Plinko() {
                 <div>
                   <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold block">Last Landing</span>
                   <span className="font-display font-black text-xl text-emerald-400 mt-0.5 block">
-                    +{lastWin.payout.toLocaleString()} 🪙 ({lastWin.multiplier}×)
+                    +{lastWin.payout.toLocaleString()} Credits ({lastWin.multiplier}×)
                   </span>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
@@ -636,8 +646,8 @@ export default function Plinko() {
             >
               <div className="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-xl">🪜</span>
-                  <h2 className="font-display font-black text-lg text-white">Plinko Mechanics & RTP</h2>
+                  <Layers size={22} className="text-purple-400" />
+                  <h1 className="font-display font-black text-xl text-white">Plinko Peg Board</h1>
                 </div>
                 <button onClick={() => setShowPaytable(false)} className="text-slate-500 hover:text-white p-1">
                   <X size={18} />
@@ -645,9 +655,9 @@ export default function Plinko() {
               </div>
 
               <div className="space-y-3 text-xs text-slate-300">
-                <p>🪜 <strong>Pyramid Rows:</strong> Choose between 8, 10, 12, 14, or 16 rows of pegs.</p>
-                <p>🔥 <strong>Risk Profiles:</strong> High Risk features edge multipliers up to <strong>1000×</strong>!</p>
-                <p>🛡️ <strong>Fair RTP:</strong> 97% Return to Player. Binary peg bounce choices are generated using Node <code>crypto.randomInt</code>.</p>
+                <p><strong>Pyramid Rows:</strong> Choose between 8, 10, 12, 14, or 16 rows of pegs.</p>
+                <p><strong>Risk Profiles:</strong> High Risk features edge multipliers up to <strong>1000×</strong>!</p>
+                <p><strong>Fair RTP:</strong> 97.0% Return to Player. Binary peg bounce choices are generated using Node <code>crypto.randomInt</code>.</p>
               </div>
             </motion.div>
           </motion.div>

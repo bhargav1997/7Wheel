@@ -1,26 +1,27 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Trophy, Coins, Users, ArrowRight, Star, AlertTriangle, Sparkles, TrendingUp, Zap, HelpCircle, Gift, Flame, Disc, Gem, Bomb, Rocket, Layers, Dices, Play, CheckCircle2, ChevronRight, Lock, Gamepad2, Info } from 'lucide-react';
+import { Shield, ShieldCheck, Trophy, Coins, Users, ArrowRight, Star, AlertTriangle, Sparkles, TrendingUp, Zap, HelpCircle, Gift, Flame, Disc, Gem, Bomb, Rocket, Layers, Dices, Play, CheckCircle2, ChevronRight, Lock, Gamepad2, Info, Crosshair, Award } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { formatCredits } from '../utils/format';
 
 const GAMES_LIST = [
   {
     id: 'wheel',
     title: '7 Wheel Multiplayer',
     tagline: 'Predict Under 7, Over 7, or Exact 7 in real-time round pools.',
-    icon: '💿',
+    icon: Disc,
     badge: 'MULTIPLAYER',
     badgeColor: 'bg-brand-500/20 text-brand-300 border-brand-500/40',
     color: 'from-purple-600 via-indigo-600 to-brand-500',
     path: '/play',
-    multiplier: 'Up to 9.5x Pool',
+    multiplier: 'Up to 7.0x',
   },
   {
     id: 'roulette',
     title: 'European Roulette',
     tagline: '37-pocket single-zero wheel with deep emerald felt table.',
-    icon: '🎡',
+    icon: Disc,
     badge: '36x PAYOUT',
     badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
     color: 'from-amber-500 via-yellow-600 to-amber-700',
@@ -31,7 +32,7 @@ const GAMES_LIST = [
     id: 'blackjack',
     title: 'Blackjack 21',
     tagline: 'Classic card table vs dealer with 3:2 Natural Blackjack & Double Down.',
-    icon: '🃏',
+    icon: Award,
     badge: '3:2 BLACKJACK',
     badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
     color: 'from-emerald-600 via-teal-600 to-cyan-600',
@@ -42,7 +43,7 @@ const GAMES_LIST = [
     id: 'plinko',
     title: 'Plinko Pyramid',
     tagline: 'Peg bounce arcade physics with up to 1000x edge multipliers.',
-    icon: '🪜',
+    icon: Layers,
     badge: '1000x MULTIPLIER',
     badgeColor: 'bg-pink-500/20 text-pink-300 border-pink-500/40',
     color: 'from-pink-600 via-purple-600 to-indigo-600',
@@ -53,7 +54,7 @@ const GAMES_LIST = [
     id: 'crash',
     title: 'Crash Rocket',
     tagline: 'Real-time rocket flight trajectory curve with live auto-cashout.',
-    icon: '🚀',
+    icon: TrendingUp,
     badge: 'HIGH VOLATILITY',
     badgeColor: 'bg-red-500/20 text-red-300 border-red-500/40',
     color: 'from-red-600 via-orange-600 to-amber-600',
@@ -64,7 +65,7 @@ const GAMES_LIST = [
     id: 'mines',
     title: 'Mines Sweeper',
     tagline: '5x5 grid sweeper with variable mine counts & instant cashout.',
-    icon: '💣',
+    icon: Crosshair,
     badge: '97% RTP',
     badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
     color: 'from-cyan-600 via-blue-600 to-indigo-600',
@@ -75,12 +76,23 @@ const GAMES_LIST = [
     id: 'flip',
     title: 'Flip or Flop',
     tagline: 'Rapid 3D coin toss streak ladder with 50/50 hardware fair odds.',
-    icon: '🎲',
+    icon: Coins,
     badge: 'RAPID STREAKS',
-    badgeColor: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40',
-    color: 'from-yellow-500 via-amber-600 to-orange-600',
-    path: '/flip-or-flop',
-    multiplier: 'Streak Multipliers',
+    badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+    color: 'from-yellow-600 via-amber-600 to-orange-600',
+    path: '/flip',
+    multiplier: '2.0x Double Up',
+  },
+  {
+    id: 'slots',
+    title: 'Vegas 777 Slots',
+    tagline: '5-reel video slot machine with Scatter Free Spins & Wild symbols.',
+    icon: Sparkles,
+    badge: 'FREE SPINS',
+    badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/40',
+    color: 'from-purple-600 via-fuchsia-600 to-pink-600',
+    path: '/slots',
+    multiplier: 'Up to 500x',
   },
 ];
 
@@ -129,7 +141,7 @@ const Landing = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#05050a] text-slate-100 flex flex-col selection:bg-brand-500 selection:text-white relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-[#05050a] text-slate-100 flex flex-col selection:bg-brand-500 selection:text-white relative overflow-x-hidden font-sans pt-16">
       
       {/* Background ambient radial glows */}
       <div className="absolute top-[-10%] left-[20%] w-[800px] h-[600px] rounded-full bg-brand-600/10 blur-[150px] pointer-events-none" />
@@ -143,22 +155,26 @@ const Landing = () => {
             initial={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-gradient-to-r from-purple-950 via-slate-900 to-purple-950 border-b border-purple-500/30 py-2 px-4 text-center text-xs font-bold text-slate-300 flex items-center justify-center gap-2 overflow-hidden"
+            className="bg-gradient-to-r from-purple-950 via-slate-900 to-purple-950 border-b border-purple-500/30 py-2 px-4 text-center text-xs font-bold text-slate-300 flex items-center justify-center gap-2 overflow-hidden relative z-50"
           >
-            <Gamepad2 size={15} className="text-cyan-400 shrink-0" />
-            <span>🎮 <strong>SOCIAL GAMING PLATFORM:</strong> Played strictly with virtual game credits (🪙) for fun & entertainment only. No real money gambling or cash payouts.</span>
+            <ShieldCheck size={14} className="text-emerald-400 shrink-0" />
+            <span><strong>SOCIAL GAMING PLATFORM:</strong> Played strictly with virtual game credits for entertainment. No real money gambling or cash payouts.</span>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Sticky Header */}
-      <header className="sticky py-2 top-0 z-50 border-b border-slate-800/80 bg-[#05050a]/90 backdrop-blur-2xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between">
+      {/* Always Visible Fixed Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 py-2 border-b border-slate-800/80 bg-[#05050a]/95 backdrop-blur-2xl shadow-2xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           
           {/* Brand Logo */}
           <Link
             to="/"
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            onClick={(e) => {
+              e.preventDefault();
+              window.history.pushState('', document.title, window.location.pathname);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
             className="flex items-center gap-3 group"
           >
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-brand-500 via-purple-600 to-pink-600 flex items-center justify-center text-xl font-black text-white shadow-lg shadow-brand-500/30 group-hover:scale-105 transition-transform">
@@ -171,7 +187,16 @@ const Landing = () => {
           </Link>
 
           {/* Quick Nav Links */}
-          <nav className="hidden md:flex items-center gap-8 text-xs font-extrabold tracking-wider uppercase text-slate-400">
+          <nav className="hidden md:flex items-center gap-6 text-xs font-extrabold tracking-wider uppercase text-slate-400">
+            <button
+              onClick={() => {
+                window.history.pushState('', document.title, window.location.pathname);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="hover:text-brand-400 text-slate-200 transition-colors flex items-center gap-1"
+            >
+              <span>Hero Section</span>
+            </button>
             <a href="#games" className="hover:text-white transition-colors">Games Suite</a>
             <a href="#disclaimer" className="hover:text-cyan-400 transition-colors">Social Play Disclaimer</a>
             <a href="#features" className="hover:text-white transition-colors">VIP Perks</a>
@@ -182,7 +207,7 @@ const Landing = () => {
           <div className="flex items-center gap-3">
             {user ? (
               <Link to="/play" className="btn-primary py-2.5 px-6 text-xs font-black flex items-center gap-2 glow-brand rounded-xl">
-                Lobby ({user.balance} 🪙) <Zap size={14} />
+                Lobby ({formatCredits(user.balance)} Credits) <Zap size={14} />
               </Link>
             ) : (
               <>
@@ -191,7 +216,7 @@ const Landing = () => {
                 </Link>
                 <Link to="/register" className="btn-primary py-2.5 px-5 text-xs font-black rounded-xl glow-brand flex items-center gap-1.5">
                   <Coins size={15} className="text-yellow-300" />
-                  Claim 100 🪙 Bonus
+                  Claim 100 Bonus Credits
                 </Link>
               </>
             )}
@@ -210,7 +235,7 @@ const Landing = () => {
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-slate-900/90 border border-brand-500/40 text-brand-300 text-xs font-black uppercase tracking-wider shadow-2xl backdrop-blur-md"
           >
             <Sparkles size={14} className="text-yellow-400 animate-spin" style={{ animationDuration: '4s' }} />
-            <span>INSTANT 100 FREE GAME CREDITS (100 🪙 WELCOME BONUS)</span>
+            <span>INSTANT 100 COMPLIMENTARY GAME CREDITS (WELCOME ALLOCATION)</span>
           </motion.div>
 
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-black uppercase tracking-wider">
@@ -239,7 +264,7 @@ const Landing = () => {
             className="btn-primary px-9 py-4 text-sm font-black uppercase tracking-wider flex items-center justify-center gap-3 glow-brand hover:scale-[1.02] transition-all rounded-2xl shadow-2xl w-full sm:w-auto"
           >
             <Coins size={18} className="text-yellow-300" />
-            Claim 100 🪙 & Play Free
+            Claim 100 Credits & Play Free
           </Link>
           <a
             href="#games"
@@ -250,45 +275,45 @@ const Landing = () => {
         </div>
 
         {/* Social Proof Stats Bar */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-8 border-t border-slate-800/60">
-          <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-900">
-            <span className="font-display font-black text-2xl text-emerald-400 block">100 🪙</span>
-            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Free Virtual Signup Bonus</span>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-6 max-w-4xl mx-auto">
+          <div className="card p-4 text-center border border-slate-800 bg-slate-900/60 rounded-2xl">
+            <span className="font-display font-black text-2xl text-emerald-400 block">100 Credits</span>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Welcome Balance</span>
           </div>
-          <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-900">
-            <span className="font-display font-black text-2xl text-brand-400 block">7 Games</span>
-            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Virtual Arcade Suite</span>
+          <div className="card p-4 text-center border border-slate-800 bg-slate-900/60 rounded-2xl">
+            <span className="font-display font-black text-2xl text-amber-400 block">97.0%</span>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Standard RTP Rate</span>
           </div>
-          <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-900">
-            <span className="font-display font-black text-2xl text-cyan-400 block">100% Free</span>
-            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Fun & Entertainment Only</span>
+          <div className="card p-4 text-center border border-slate-800 bg-slate-900/60 rounded-2xl">
+            <span className="font-display font-black text-2xl text-purple-400 block">7 Titles</span>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Social Casino Suite</span>
           </div>
-          <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-900">
-            <span className="font-display font-black text-2xl text-purple-400 block">1,245+</span>
-            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Active Online Players</span>
+          <div className="card p-4 text-center border border-slate-800 bg-slate-900/60 rounded-2xl">
+            <span className="font-display font-black text-2xl text-cyan-400 block">HMAC-256</span>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Provably Fair RNG</span>
           </div>
         </div>
       </section>
 
       {/* DEDICATED SOCIAL GAMING DISCLAIMER SECTION */}
-      <section id="disclaimer" className="max-w-5xl mx-auto px-4 sm:px-6 py-10 w-full relative z-10">
+      <section id="disclaimer" className="max-w-5xl mx-auto px-4 sm:px-6 py-10 w-full relative z-10 scroll-mt-24">
         <div className="card p-6 border-2 border-cyan-500/30 bg-slate-950/80 backdrop-blur-xl rounded-3xl flex flex-col md:flex-row items-center gap-6 shadow-2xl">
           <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
             <Gamepad2 size={28} />
           </div>
           <div className="space-y-1.5 text-center md:text-left">
             <h3 className="font-display font-black text-lg text-white flex items-center justify-center md:justify-start gap-2">
-              <span>🎮 Entertainment & Social Gaming Notice</span>
+              <span>Entertainment & Social Gaming Notice</span>
             </h3>
             <p className="text-slate-300 text-xs leading-relaxed font-medium">
-              7Wheel is a free-to-play social casino simulation platform designed purely for amusement, friendly competition, and entertainment. All games use virtual tokens (🪙) only. <strong>No real money deposit, real money wagering, or cash prize payouts are offered or available.</strong> Winning in virtual games does not imply future success at real money gambling.
+              7Wheel is a free-to-play social casino simulation platform designed purely for amusement, friendly competition, and entertainment. All games use virtual credits only. <strong>No real money deposit, real money wagering, or cash prize payouts are offered or available.</strong> Winning in virtual games does not imply future success at real money gambling.
             </p>
           </div>
         </div>
       </section>
 
       {/* ALL 7 GAMES SHOWCASE SECTION */}
-      <section id="games" className="max-w-7xl mx-auto px-4 sm:px-6 py-16 w-full relative z-10 space-y-10">
+      <section id="games" className="max-w-7xl mx-auto px-4 sm:px-6 py-16 w-full relative z-10 space-y-10 scroll-mt-24">
         
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-brand-500/10 border border-brand-500/30 text-brand-400 text-xs font-black uppercase tracking-wider">
@@ -313,8 +338,8 @@ const Landing = () => {
             >
               {/* Header Badge */}
               <div className="flex items-center justify-between">
-                <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${game.color} flex items-center justify-center text-2xl shadow-lg shadow-purple-500/20 group-hover:scale-110 transition-transform`}>
-                  {game.icon}
+                <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${game.color} flex items-center justify-center text-white shadow-lg shadow-purple-500/20 group-hover:scale-110 transition-transform`}>
+                  <game.icon size={24} />
                 </div>
                 <span className={`text-[10px] font-mono font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border ${game.badgeColor}`}>
                   {game.badge}
@@ -351,7 +376,7 @@ const Landing = () => {
       </section>
 
       {/* PLATFORM FEATURES & REWARDS SECTION */}
-      <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 py-16 w-full relative z-10 space-y-12">
+      <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 py-16 w-full relative z-10 space-y-12 scroll-mt-24">
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <h2 className="font-display font-black text-3xl text-white">VIP REWARDS & PLATFORM PERKS</h2>
           <p className="text-slate-400 text-xs sm:text-sm font-semibold">
@@ -368,7 +393,7 @@ const Landing = () => {
             </div>
             <h3 className="font-display font-black text-lg text-white">Daily Mystery Loot Crates</h3>
             <p className="text-slate-400 text-xs leading-relaxed font-medium">
-              Claim free daily gacha loot crates with tier drops from Common up to Legendary 500 🪙 jackpots. Includes a guaranteed pity counter at 10 opens!
+              Claim free daily gacha loot crates with tier drops from Common up to Legendary 500 Credits jackpots. Includes a guaranteed pity counter at 10 opens!
             </p>
           </div>
 
@@ -398,10 +423,14 @@ const Landing = () => {
 
       {/* LIVE WINNERS MARQUEE FEED */}
       <section className="border-y border-slate-800/80 bg-slate-950/90 py-8 relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-display font-black text-xs uppercase tracking-widest text-white">LIVE PAYOUT FEED (VIRTUAL 🪙)</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          
+          {/* Live Win Feed Header */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+              <span className="font-display font-black text-xs uppercase tracking-widest text-white">LIVE PAYOUT FEED (VIRTUAL CREDITS)</span>
+            </div>
           </div>
 
           <div className="flex items-center gap-3 overflow-x-auto no-scrollbar w-full md:w-auto">
@@ -418,9 +447,9 @@ const Landing = () => {
                   </div>
                   <div>
                     <span className="text-xs font-bold text-white block leading-none">{win.name}</span>
-                    <span className="text-[10px] text-slate-400 leading-none mt-1 block">{win.game}</span>
+                    <span className="text-slate-400 font-medium">won on <strong className="text-slate-200">{win.game}</strong></span>
                   </div>
-                  <span className="font-mono font-black text-xs text-emerald-400 ml-2">+{win.amount.toFixed(2)} 🪙</span>
+                  <span className="font-mono font-black text-xs text-emerald-400 ml-2">+{win.amount.toFixed(2)} Credits</span>
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -449,7 +478,7 @@ const Landing = () => {
               className="btn-primary px-10 py-4 text-sm font-black uppercase tracking-wider inline-flex items-center gap-3 glow-brand rounded-2xl shadow-2xl hover:scale-105 transition-transform"
             >
               <Coins size={20} className="text-yellow-300" />
-              Register Account & Claim 100 🪙 Free
+              Register Account & Claim 100 Free Credits
             </Link>
           </div>
         </div>

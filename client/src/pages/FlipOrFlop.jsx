@@ -164,13 +164,13 @@ export default function FlipOrFlop() {
             if (myResult.won) {
               playWin();
               setShowWinConfetti(true);
-              toast.success(`🔥 Won +${myResult.payout.toLocaleString()} 🪙! Streak: ${myResult.streak}`, {
+              toast.success(`🔥 Won +${myResult.payout.toLocaleString()} Credits! Streak: ${myResult.streak}`, {
                 duration: 3000,
                 icon: '🎉',
               });
             } else {
               playLose();
-              toast.error(`Lost ${myResult.amount} 🪙 — better luck next round!`, { duration: 2500 });
+              toast.error(`Lost ${myResult.amount} Credits — better luck next round!`, { duration: 2500 });
             }
           }
         }
@@ -180,7 +180,7 @@ export default function FlipOrFlop() {
     socket.on('flip:betConfirmed', (bet) => {
       setMyBet(bet);
       playClick();
-      toast.success(`Bet locked in: ${bet.amount} 🪙 on ${bet.choice}`);
+      toast.success(`Bet locked in: ${bet.amount} Credits on ${bet.choice}`);
     });
 
     socket.on('flip:roundStarting', ({ by, timeLeft }) => {
@@ -503,7 +503,7 @@ export default function FlipOrFlop() {
                   Bet Locked In
                 </p>
                 <p className={`text-xl font-black font-display ${myBet.choice === 'FLIP' ? 'text-cyan-300' : 'text-purple-300'}`}>
-                  {myBet.amount.toLocaleString()} 🪙 on {myBet.choice}
+                  {myBet.amount.toLocaleString()} Credits on {myBet.choice}
                 </p>
               </div>
 
@@ -542,7 +542,7 @@ export default function FlipOrFlop() {
                 </div>
                 <p className="text-xs text-slate-400 mb-6">Lower half of wheel · Payout up to {getMultiplierNum(userStreak)}×!</p>
                 <div className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 group-hover:from-cyan-500 group-hover:to-blue-500 text-center font-display font-black text-base text-white shadow-lg shadow-cyan-500/20">
-                  BET FLIP — {betAmount} 🪙
+                  BET FLIP — {betAmount} Credits
                 </div>
               </motion.button>
 
@@ -561,7 +561,7 @@ export default function FlipOrFlop() {
                 </div>
                 <p className="text-xs text-slate-400 mb-6">Upper half of wheel · Payout up to {getMultiplierNum(userStreak)}×!</p>
                 <div className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 group-hover:from-purple-500 group-hover:to-pink-500 text-center font-display font-black text-base text-white shadow-lg shadow-purple-500/20">
-                  BET FLOP — {betAmount} 🪙
+                  BET FLOP — {betAmount} Credits
                 </div>
               </motion.button>
             </motion.div>
@@ -583,7 +583,7 @@ export default function FlipOrFlop() {
                   disabled={!canBet}
                   className="input-field w-24 text-sm font-black text-center py-1.5 bg-slate-900 border border-slate-800 focus:border-brand-500 rounded-xl text-white"
                 />
-                <span className="text-xs text-slate-400 font-bold">🪙</span>
+                <Coins size={14} className="text-amber-400" />
               </div>
             </div>
           </div>
@@ -643,8 +643,8 @@ export default function FlipOrFlop() {
                 >
                   <span className="font-semibold">{w.username}</span>
                   <span>
-                    {w.choice} · {w.amount} 🪙
-                    {w.won && ` → +${w.payout.toLocaleString()} 🪙 (${w.streak}🔥)`}
+                    {w.choice} · {w.amount} Credits
+                    {w.won && ` → +${w.payout.toLocaleString()} Credits (${w.streak}🔥)`}
                   </span>
                 </div>
               ))}

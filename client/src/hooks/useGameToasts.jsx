@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { RotateCcw } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 /**
@@ -40,7 +41,7 @@ export function useGameToasts({ gameState, user }) {
               <div>
                 <p style={{ fontWeight: 800, fontSize: '15px', marginBottom: '2px' }}>You Won!</p>
                 <p style={{ color: '#4ade80', fontWeight: 700, fontSize: '18px' }}>
-                  +{Math.round(myResult.payout).toLocaleString()} 🪙
+                  +{Math.round(myResult.payout).toLocaleString()} Credits
                 </p>
                 <p style={{ color: '#86efac', fontSize: '11px' }}>
                   {winningCategory?.replace('_7', ' 7') ?? ''} · Wheel landed on {result}
@@ -70,11 +71,11 @@ export function useGameToasts({ gameState, user }) {
                 minWidth: '260px',
               }}
             >
-              <span style={{ fontSize: '28px', lineHeight: 1 }}>↩️</span>
+              <RotateCcw size={28} className="text-blue-400 shrink-0" />
               <div>
                 <p style={{ fontWeight: 800, fontSize: '15px', marginBottom: '2px' }}>Refunded!</p>
                 <p style={{ color: '#93c5fd', fontWeight: 700, fontSize: '16px' }}>
-                  +{Math.round(myResult.refund).toLocaleString()} 🪙 returned
+                  +{Math.round(myResult.refund).toLocaleString()} Credits returned
                 </p>
                 <p style={{ color: '#bfdbfe', fontSize: '11px' }}>No winners — 90% refunded</p>
               </div>

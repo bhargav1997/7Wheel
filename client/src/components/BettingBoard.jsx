@@ -105,7 +105,7 @@ const BettingBoard = ({ onInsufficientCredits }) => {
             </div>
             <div className="text-right">
               <p className="text-xs text-slate-500">Total Pot</p>
-              <p className="font-display font-bold text-gold-400 text-lg">{Math.round(pot).toLocaleString()} 🪙</p>
+              <p className="font-display font-bold text-gold-400 text-lg">{Math.round(pot).toLocaleString()} Credits</p>
             </div>
           </div>
         )}
@@ -139,7 +139,7 @@ const BettingBoard = ({ onInsufficientCredits }) => {
             </div>
             <div className="text-right">
               <p className="text-xs text-slate-500">Total Pot</p>
-              <p className="font-display font-bold text-gold-400 text-lg">{Math.round(pot).toLocaleString()} 🪙</p>
+              <p className="font-display font-bold text-gold-400 text-lg">{Math.round(pot).toLocaleString()} Credits</p>
               <p className="text-xs text-slate-500">{bettorCount} / {playerCount} bet</p>
             </div>
           </div>
@@ -225,7 +225,7 @@ const BettingBoard = ({ onInsufficientCredits }) => {
               Bet Amount (10 credits minimum)
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gold-400 font-bold">🪙</span>
+              <Coins size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-yellow-400" />
               <input
                 id="bet-amount"
                 type="number"
@@ -289,7 +289,7 @@ const BettingBoard = ({ onInsufficientCredits }) => {
               <>
                 <Coins size={16} />
                 Place Bet
-                {selectedChoice && betAmount && ` — ${betAmount} 🪙`}
+                {selectedChoice && betAmount && ` — ${betAmount} Credits`}
               </>
             )}
           </motion.button>
@@ -310,7 +310,7 @@ const BettingBoard = ({ onInsufficientCredits }) => {
             <div>
               <p className="font-semibold text-white">Bet Placed!</p>
               <p className="text-sm text-slate-400">
-                {myBet.amount.toLocaleString()} 🪙 on{' '}
+                {myBet.amount.toLocaleString()} Credits on{' '}
                 <span className="font-semibold text-emerald-400">
                   {myBet.choice.replace('_', ' ')}
                 </span>

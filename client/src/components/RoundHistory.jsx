@@ -46,7 +46,7 @@ function HistoryRow({ item }) {
 
       <div className="text-right shrink-0">
         <span className={`font-mono font-black text-xs ${isWin ? 'text-emerald-400' : 'text-slate-400'}`}>
-          {isWin ? '+' : '-'}{item.amount.toLocaleString()} 🪙
+          {isWin ? '+' : '-'}{item.amount.toLocaleString()} Credits
         </span>
         <span className="text-[9px] text-slate-500 block mt-0.5 font-mono">
           Bal: {item.balanceAfter.toLocaleString()}

@@ -311,7 +311,7 @@ export default function Roulette() {
         if (data.totalPayout > 0) {
           playWin();
           setShowWinConfetti(true);
-          toast.success(`🎉 Winning Pocket ${data.pocket} (${data.color})! Won +${data.totalPayout.toLocaleString()} 🪙`, { duration: 3500 });
+          toast.success(`🎉 Winning Pocket ${data.pocket} (${data.color})! Won +${data.totalPayout.toLocaleString()} Credits`, { duration: 3500 });
         } else {
           playLose();
         }
@@ -424,7 +424,7 @@ export default function Roulette() {
                   </div>
 
                   <span className="font-display font-black text-base text-white">
-                    {spinResult.totalPayout > 0 ? `+${spinResult.totalPayout.toLocaleString()} 🪙` : 'No Match'}
+                    {spinResult.totalPayout > 0 ? `+${spinResult.totalPayout.toLocaleString()} Credits` : 'No Match'}
                   </span>
                 </motion.div>
               ) : (
@@ -531,7 +531,7 @@ export default function Roulette() {
                   <span>0 (GREEN ZERO)</span>
                   {placedBets.find((b) => b.key === 'straight-0') && (
                     <span className="absolute right-3 bg-amber-400 text-slate-950 font-black text-xs px-2.5 py-0.5 rounded-full shadow-md">
-                      {placedBets.find((b) => b.key === 'straight-0').amount} 🪙
+                      {placedBets.find((b) => b.key === 'straight-0').amount} Credits
                     </span>
                   )}
                 </button>
@@ -585,7 +585,7 @@ export default function Roulette() {
                       >
                         <span>{d.label}</span>
                         {existing && (
-                          <span className="text-[10px] font-black text-yellow-400">({existing.amount} 🪙)</span>
+                          <span className="text-[10px] font-black text-yellow-400">({existing.amount} Credits)</span>
                         )}
                       </button>
                     );
@@ -646,7 +646,7 @@ export default function Roulette() {
                 ) : (
                   <>
                     <Play size={22} className="fill-slate-950" />
-                    <span>SPIN ROULETTE — {totalWager.toLocaleString()} 🪙</span>
+                    <span>SPIN ROULETTE — {totalWager.toLocaleString()} Credits</span>
                   </>
                 )}
               </motion.button>
@@ -674,7 +674,7 @@ export default function Roulette() {
             >
               <div className="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-xl">🎡</span>
+                  <Disc size={22} className="text-amber-400" />
                   <h2 className="font-display font-black text-lg text-white">European Roulette Rules</h2>
                 </div>
                 <button onClick={() => setShowPaytable(false)} className="text-slate-500 hover:text-white p-1">

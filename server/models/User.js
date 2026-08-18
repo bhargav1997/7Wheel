@@ -28,6 +28,8 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 100,  // 100 free credits on signup
       min: [0, 'Balance cannot be negative'],
+      set: (val) => Math.round(val * 100) / 100,
+      get: (val) => Math.round(val * 100) / 100,
     },
     creditsEarned: {
       type: Number,

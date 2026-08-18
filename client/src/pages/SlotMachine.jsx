@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Coins, HelpCircle, X, Zap, Volume2, VolumeX, Sparkles, Trophy, History, Play, Square, Flame } from 'lucide-react';
+import { ArrowLeft, Coins, HelpCircle, X, Zap, Volume2, VolumeX, Sparkles, Trophy, History, Play, Square, Flame, Crown, Gem, ShieldCheck, Star, Disc } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
@@ -12,26 +12,61 @@ import toast from 'react-hot-toast';
 
 // ── Symbol Config ────────────────────────────────────────────────────────────
 const SYMBOLS = {
-  seven:  { emoji: '7️⃣', label: 'Seven',   color: 'text-red-400',    glow: 'shadow-red-500/50' },
-  gem:    { emoji: '💎', label: 'Diamond', color: 'text-cyan-400',   glow: 'shadow-cyan-500/50' },
-  bar:    { emoji: '🎰', label: 'BAR',     color: 'text-yellow-400', glow: 'shadow-yellow-500/50' },
-  star:   { emoji: '⭐', label: 'Star',    color: 'text-amber-400',  glow: 'shadow-amber-500/50' },
-  bell:   { emoji: '🔔', label: 'Bell',    color: 'text-amber-300',  glow: 'shadow-amber-400/50' },
-  lemon:  { emoji: '🍋', label: 'Lemon',   color: 'text-yellow-500', glow: 'shadow-yellow-600/50' },
-  cherry: { emoji: '🍒', label: 'Cherry',  color: 'text-red-500',    glow: 'shadow-red-600/50' },
-  wild:   { emoji: '🃏', label: 'Wild',    color: 'text-purple-400', glow: 'shadow-purple-500/50' },
+  seven:  { label: 'Seven 777', color: 'text-yellow-400' },
+  gem:    { label: 'Diamond', color: 'text-cyan-400' },
+  bar:    { label: 'BAR Emblem', color: 'text-emerald-400' },
+  star:   { label: 'Gold Star', color: 'text-amber-400' },
+  bell:   { label: 'Lightning', color: 'text-purple-400' },
+  lemon:  { label: 'Golden Disc', color: 'text-yellow-500' },
+  cherry: { label: 'Red Flame', color: 'text-red-500' },
+  wild:   { label: 'Wild Emblem', color: 'text-pink-400' },
 };
 
+function SymbolIcon({ symbolKey, size = 32 }) {
+  switch (symbolKey) {
+    case 'seven':
+      return (
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600 flex items-center justify-center font-display font-black text-2xl text-slate-950 shadow-[0_0_20px_rgba(245,158,11,0.6)] border-2 border-yellow-200">
+          7
+        </div>
+      );
+    case 'gem':
+      return <Gem size={size} className="text-cyan-400 filter drop-shadow-[0_0_12px_#06b6d4]" />;
+    case 'bar':
+      return (
+        <div className="px-3 py-1 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600 font-display font-black text-xs text-slate-950 shadow-[0_0_12px_rgba(16,185,129,0.5)] border border-emerald-300 tracking-wider">
+          BAR
+        </div>
+      );
+    case 'star':
+      return <Star size={size} className="text-amber-400 fill-amber-400 filter drop-shadow-[0_0_12px_#f59e0b]" />;
+    case 'bell':
+      return <Zap size={size} className="text-purple-400 fill-purple-400 filter drop-shadow-[0_0_12px_#a855f7]" />;
+    case 'lemon':
+      return <Disc size={size} className="text-yellow-400 filter drop-shadow-[0_0_12px_#eab308]" />;
+    case 'cherry':
+      return <Flame size={size} className="text-red-500 fill-red-500 filter drop-shadow-[0_0_12px_#ef4444]" />;
+    case 'wild':
+      return (
+        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-purple-600 via-pink-500 to-purple-700 flex items-center justify-center text-white shadow-[0_0_15px_rgba(168,85,247,0.6)] border border-pink-400/50">
+          <Sparkles size={20} />
+        </div>
+      );
+    default:
+      return <Sparkles size={size} className="text-brand-400" />;
+  }
+}
+
 const PAYTABLE = [
-  { combo: 'seven',   mult: '50×', label: '7️⃣ 7️⃣ 7️⃣ — Jackpot', highlight: true, color: 'from-amber-500/20 to-yellow-500/20 text-yellow-300' },
-  { combo: 'gem',     mult: '25×', label: '💎 💎 💎 — Diamond', highlight: true, color: 'from-cyan-500/20 to-blue-500/20 text-cyan-300' },
-  { combo: 'bar',     mult: '15×', label: '🎰 🎰 🎰 — BAR triple', highlight: false },
-  { combo: 'star',    mult: '10×', label: '⭐ ⭐ ⭐ — Stars',     highlight: false },
-  { combo: 'bell',    mult: '8×',  label: '🔔 🔔 🔔 — Bells',     highlight: false },
-  { combo: 'lemon',   mult: '5×',  label: '🍋 🍋 🍋 — Lemons',    highlight: false },
-  { combo: 'cherry',  mult: '3×',  label: '🍒 🍒 🍒 — Cherries',  highlight: false },
-  { combo: 'cherry2', mult: '1.5×',label: 'Any 2 × 🍒 — Double Cherry', highlight: false },
-  { combo: 'wild',    mult: 'WILD',label: '🃏 — Substitutes Any Symbol', highlight: false },
+  { combo: 'seven',   mult: '50×', label: 'Jackpot 777 Trio', highlight: true, color: 'from-amber-500/20 to-yellow-500/20 text-yellow-300' },
+  { combo: 'gem',     mult: '25×', label: 'Diamond Trio', highlight: true, color: 'from-cyan-500/20 to-blue-500/20 text-cyan-300' },
+  { combo: 'bar',     mult: '15×', label: 'BAR Emblem Triple', highlight: false },
+  { combo: 'star',    mult: '10×', label: 'Gold Star Trio', highlight: false },
+  { combo: 'bell',    mult: '8×',  label: 'Thunder Volt Trio', highlight: false },
+  { combo: 'lemon',   mult: '5×',  label: 'Golden Disc Trio', highlight: false },
+  { combo: 'cherry',  mult: '3×',  label: 'Red Flame Trio', highlight: false },
+  { combo: 'cherry2', mult: '1.5×',label: 'Double Flame Combo', highlight: false },
+  { combo: 'wild',    mult: 'WILD',label: 'Wild Emblem — Substitutes Any Symbol', highlight: false },
 ];
 
 const REEL_KEYS = Object.keys(SYMBOLS);
@@ -167,7 +202,6 @@ function SingleReel({ finalSymbol, spinning, stopDelay, onStop, reelIndex }) {
       <div className="w-full flex flex-col items-center justify-around h-full relative z-0">
         {symbols.map((symKey, posIndex) => {
           const isCenter = posIndex === 1;
-          const sym = SYMBOLS[symKey] || SYMBOLS.cherry;
 
           return (
             <motion.div
@@ -182,9 +216,7 @@ function SingleReel({ finalSymbol, spinning, stopDelay, onStop, reelIndex }) {
                 isCenter ? 'z-10 font-bold' : ''
               }`}
             >
-              <span className="text-4xl md:text-5xl drop-shadow-md">
-                {sym.emoji}
-              </span>
+              <SymbolIcon symbolKey={symKey} size={32} />
             </motion.div>
           );
         })}
@@ -247,6 +279,9 @@ export default function SlotMachine() {
     setResult(null);
     setPendingReels(null);
 
+    // 1) Immediately deduct wager upfront from local balance when pulling spin
+    updateBalance((prev) => Math.max(0, prev - bet));
+
     try {
       const token = localStorage.getItem('7wheel_token');
       const { data } = await axios.post(
@@ -255,12 +290,12 @@ export default function SlotMachine() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      updateBalance(data.balanceAfter);
-
       const nextData = { reels: data.reels, result: data };
       pendingReelsRef.current = nextData;
       setPendingReels(nextData);
     } catch (err) {
+      // Refund wager if API spin fails
+      updateBalance((prev) => prev + bet);
       spinningRef.current = false;
       setSpinning(false);
       setAutoSpinCount(0);
@@ -296,6 +331,11 @@ export default function SlotMachine() {
           won: s.won + (finalResult.win ? finalResult.payout : 0),
           maxWin: Math.max(s.maxWin, finalResult.win ? finalResult.payout : 0),
         }));
+
+        // 2) Update balance with payout only when all 3 reels finish spinning!
+        if (finalResult.win && finalResult.payout > 0) {
+          updateBalance((prev) => prev + finalResult.payout);
+        }
 
         if (finalResult.win) {
           playWin();
@@ -392,8 +432,8 @@ export default function SlotMachine() {
           {/* Golden Header Badge */}
           <div className="flex items-center justify-between border-b border-slate-800/80 pb-4 mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 via-purple-600 to-pink-600 flex items-center justify-center text-xl shadow-lg shadow-purple-500/30 animate-pulse">
-                🎰
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 via-purple-600 to-pink-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/30">
+                <Sparkles size={20} />
               </div>
               <div>
                 <h1 className="font-display font-black text-xl md:text-2xl text-white tracking-wide flex items-center gap-2">
@@ -463,10 +503,10 @@ export default function SlotMachine() {
                         <Trophy size={20} className="text-yellow-400 animate-bounce" />
                         <div>
                           <span className="text-xs uppercase font-extrabold tracking-widest text-emerald-400 block">
-                            {result.multiplier >= 25 ? '🏆 MEGA JACKPOT WIN!' : result.multiplier >= 10 ? '🔥 BIG WIN!' : '🎉 WINNER!'}
+                            {result.multiplier >= 25 ? 'MEGA JACKPOT WIN!' : result.multiplier >= 10 ? 'BIG WIN!' : 'WINNER!'}
                           </span>
                           <span className="text-2xl font-black text-white tracking-tight">
-                            +{result.payout.toLocaleString()} 🪙
+                            +{result.payout.toLocaleString()} Credits
                           </span>
                           <span className="text-xs text-emerald-400/80 ml-2 font-bold">({result.multiplier}×)</span>
                         </div>
@@ -478,7 +518,7 @@ export default function SlotMachine() {
                 ) : (
                   <div className="text-xs text-slate-500 font-medium tracking-wide uppercase flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-brand-500 animate-ping" />
-                    {spinning ? 'Spinning Reels… Good Luck!' : 'Set Wager and Pull Spin to Play'}
+                    {spinning ? 'Spinning Reels…' : 'Set Wager and Click Spin to Play'}
                   </div>
                 )}
               </AnimatePresence>
@@ -511,7 +551,7 @@ export default function SlotMachine() {
                 ) : (
                   <>
                     <Zap size={22} className="fill-white text-white" />
-                    <span>SPIN — {betAmount} 🪙</span>
+                    <span>SPIN — {betAmount} Credits</span>
                   </>
                 )}
               </motion.button>
@@ -570,7 +610,7 @@ export default function SlotMachine() {
                   disabled={spinning || autoSpinCount > 0}
                   className="input-field w-24 text-sm font-black text-center py-1.5 bg-slate-900 border border-slate-800 focus:border-brand-500 rounded-xl text-white"
                 />
-                <span className="text-xs text-slate-400 font-bold">🪙</span>
+                <Coins size={14} className="text-yellow-400" />
               </div>
             </div>
           </div>
@@ -625,7 +665,7 @@ export default function SlotMachine() {
           <div className="card p-4 border border-slate-800 bg-slate-950/60 rounded-2xl flex items-center justify-between">
             <div>
               <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Session Won</p>
-              <p className="text-xl font-black text-emerald-400 font-display mt-0.5">+{sessionStats.won.toLocaleString()} 🪙</p>
+              <p className="text-xl font-black text-emerald-400 font-display mt-0.5">+{sessionStats.won.toLocaleString()} Credits</p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
               <Coins size={18} />
@@ -636,7 +676,7 @@ export default function SlotMachine() {
             <div>
               <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Highest Win</p>
               <p className="text-xl font-black text-yellow-400 font-display mt-0.5">
-                {sessionStats.maxWin > 0 ? `+${sessionStats.maxWin.toLocaleString()} 🪙` : '0 🪙'}
+                {sessionStats.maxWin > 0 ? `+${sessionStats.maxWin.toLocaleString()} Credits` : '0 Credits'}
               </p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center text-yellow-400">
@@ -654,7 +694,7 @@ export default function SlotMachine() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
               {recentWins.map((w) => (
                 <div key={w.id} className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between text-xs">
-                  <span className="font-extrabold text-emerald-400">+{w.payout.toLocaleString()} 🪙</span>
+                  <span className="font-extrabold text-emerald-400">+{w.payout.toLocaleString()} Credits</span>
                   <span className="text-[10px] text-slate-500 font-mono">{w.time}</span>
                 </div>
               ))}
@@ -682,8 +722,8 @@ export default function SlotMachine() {
             >
               <div className="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-xl">🎰</span>
-                  <h2 className="font-display font-black text-lg text-white">Paytable & Rules</h2>
+                  <Sparkles size={22} className="text-yellow-400" />
+                  <h1 className="font-display font-black text-xl text-white">Classic 777 Slots</h1>
                 </div>
                 <button onClick={() => setShowPaytable(false)} className="text-slate-500 hover:text-white p-1">
                   <X size={18} />
@@ -707,8 +747,8 @@ export default function SlotMachine() {
               </div>
 
               <div className="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400 space-y-1 text-center">
-                <p>🃏 <strong>Wild Symbol</strong> substitutes for any symbol to form a winning combo.</p>
-                <p>Minimum wager is <strong>10 🪙</strong> · All outcomes are server-verified.</p>
+                <p><strong>Wild Symbol</strong> substitutes for any symbol to form a winning combo.</p>
+                <p>Minimum wager is <strong>10 Credits</strong> · All outcomes are server-verified.</p>
               </div>
             </motion.div>
           </motion.div>

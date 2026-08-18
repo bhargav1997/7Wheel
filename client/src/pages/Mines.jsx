@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Coins, HelpCircle, X, Zap, Volume2, VolumeX, ShieldAlert, Sparkles, Trophy, Bomb, Play, Dices, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Coins, HelpCircle, X, Volume2, VolumeX, Bomb, Gem, Trophy, Sparkles, Dices, Play, Crosshair } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
@@ -174,7 +174,7 @@ export default function Mines() {
         setCurrentPayout(data.payout);
         setGameState('CASHOUT');
         updateBalance(data.balanceAfter);
-        toast.success(`🎉 Max Cleared! Won +${data.payout.toLocaleString()} 🪙!`, { icon: '💎', duration: 4000 });
+        toast.success(`🎉 Max Cleared! Won +${data.payout.toLocaleString()} Credits!`, { icon: '💎', duration: 4000 });
       } else {
         playStreak();
         setRevealedTiles(data.revealedTiles);
@@ -208,7 +208,7 @@ export default function Mines() {
       setCurrentMultiplier(data.currentMultiplier);
       setCurrentPayout(data.payout);
       updateBalance(data.balanceAfter);
-      toast.success(`💰 Cashed Out +${data.payout.toLocaleString()} 🪙 (${data.currentMultiplier}×)!`, { icon: '🏆', duration: 3500 });
+      toast.success(`💰 Cashed Out +${data.payout.toLocaleString()} Credits (${data.currentMultiplier}×)!`, { icon: '🏆', duration: 3500 });
     } catch (err) {
       toast.error(err.response?.data?.message || 'Cashout failed.');
     } finally {
@@ -274,12 +274,12 @@ export default function Mines() {
               
               {/* Title Header */}
               <div className="flex items-center gap-3 border-b border-slate-800 pb-3">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-xl shadow-lg shadow-emerald-500/20">
-                  💣
+                <div className="w-10 h-10 shrink-0 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-600/20 border border-emerald-500/30 flex items-center justify-center shadow-lg shadow-emerald-500/10">
+                  <Crosshair size={20} className="text-red-400" />
                 </div>
                 <div>
-                  <h1 className="font-display font-black text-xl text-white tracking-wide">MINES SWEEPER</h1>
-                  <p className="text-[11px] text-slate-400">Uncover Gems 💎 · Avoid Mines 💣</p>
+                  <h1 className="font-display font-black text-xl text-white tracking-wide leading-none">Mines Sweeper</h1>
+                  <p className="text-[11px] text-slate-400 mt-1 leading-none">Uncover Safe Gems · Avoid Hidden Mines</p>
                 </div>
               </div>
 
@@ -326,7 +326,7 @@ export default function Mines() {
                     disabled={gameState === 'IN_PROGRESS'}
                     className="input-field flex-1 text-sm font-black text-center py-2 bg-slate-900 border border-slate-800 focus:border-brand-500 rounded-xl text-white"
                   />
-                  <span className="text-xs text-slate-400 font-bold">🪙</span>
+                  <Coins size={14} className="text-yellow-400" />
                 </div>
 
                 {/* Quick Bet Buttons */}
@@ -378,7 +378,7 @@ export default function Mines() {
                       }`}
                     >
                       <Trophy size={20} />
-                      Cash Out {currentPayout.toLocaleString()} 🪙 ({currentMultiplier}×)
+                      Cash Out {currentPayout.toLocaleString()} Credits ({currentMultiplier}×)
                     </motion.button>
 
                     <button
@@ -399,7 +399,7 @@ export default function Mines() {
                     className="w-full py-4 rounded-2xl font-display font-black text-lg tracking-wider bg-gradient-to-r from-purple-600 via-brand-500 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-xl shadow-brand-500/30 border border-brand-400/40 flex items-center justify-center gap-2 uppercase transition-all"
                   >
                     <Play size={20} className="fill-white" />
-                    Place Bet — {betAmount} 🪙
+                    Place Bet — {betAmount} Credits
                   </motion.button>
                 )}
               </div>
@@ -472,7 +472,11 @@ export default function Mines() {
                             animate={{ scale: 1, rotate: 0 }}
                             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                           >
-                            {isMine ? '💣' : '💎'}
+                            {isMine ? (
+                              <Crosshair size={26} className="text-red-400 animate-pulse" />
+                            ) : (
+                              <Gem size={26} className="text-emerald-400 drop-shadow-[0_0_12px_rgba(52,211,153,0.8)]" />
+                            )}
                           </motion.span>
                         ) : (
                           <span className="text-xs text-slate-700 font-mono select-none">
@@ -494,7 +498,7 @@ export default function Mines() {
                     className="text-center font-display"
                   >
                     <span className="text-xs uppercase font-extrabold text-emerald-400 tracking-widest block">CASHOUT SUCCESSFUL!</span>
-                    <span className="text-xl font-black text-white">+{currentPayout.toLocaleString()} 🪙 ({currentMultiplier}×)</span>
+                    <span className="text-xl font-black text-white">+{currentPayout.toLocaleString()} Credits ({currentMultiplier}×)</span>
                   </motion.div>
                 )}
 
@@ -539,8 +543,8 @@ export default function Mines() {
             >
               <div className="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-xl">💣</span>
-                  <h2 className="font-display font-black text-lg text-white">Mines Rules & RTP</h2>
+                  <Crosshair size={18} className="text-red-400" />
+                  <h2 className="font-display font-black text-lg text-white">Mines Mechanics & RTP</h2>
                 </div>
                 <button onClick={() => setShowPaytable(false)} className="text-slate-500 hover:text-white p-1">
                   <X size={18} />
@@ -548,10 +552,10 @@ export default function Mines() {
               </div>
 
               <div className="space-y-3 text-xs text-slate-300">
-                <p>💎 <strong>Objective:</strong> Uncover as many safe Gems as possible without hitting a hidden Mine.</p>
-                <p>📈 <strong>Multiplier:</strong> Every revealed Gem increases your cashout payout based on exact probability theory.</p>
-                <p>💰 <strong>Cash Out Anytime:</strong> Lock in your winnings at any point before hitting a Mine.</p>
-                <p>🛡️ <strong>Fair RTP:</strong> 97% Return to Player (3% house edge). Cryptographically randomized mine placement.</p>
+                <p><strong>Objective:</strong> Uncover as many safe Gems as possible without hitting a hidden Mine.</p>
+                <p><strong>Multiplier:</strong> Every revealed Gem increases your cashout payout based on exact probability theory.</p>
+                <p><strong>Cash Out Anytime:</strong> Lock in your winnings at any point before hitting a Mine.</p>
+                <p><strong>Fair RTP:</strong> 97.0% Return to Player (3.0% house edge). Cryptographically randomized mine placement.</p>
               </div>
             </motion.div>
           </motion.div>

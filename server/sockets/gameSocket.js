@@ -76,48 +76,32 @@ const broadcastState = (io) => {
 };
 
 // ─────────────────────────────────────────────
-// Pari-Mutuel Payout Logic
+// Payout Logic (2x for Under/Over 7, 7x for Exact 7)
 // ─────────────────────────────────────────────
+const MULTIPLIERS = {
+  UNDER_7: 2,
+  EXACT_7: 7,
+  OVER_7: 2,
+};
+
 const computePayouts = (bets, result) => {
   const winningCategory = getCategory(result);
   const totalPot = bets.reduce((sum, b) => sum + b.amount, 0);
 
-  // Platform commission fee of 3.5% (2.0% service fee + 1.5% support fee)
-  const platformFee = parseFloat((totalPot * 0.035).toFixed(2));
-  const distributablePool = totalPot - platformFee;
-
-  // Filter winning wagers
-  const winningBets = bets.filter((b) => b.choice === winningCategory);
-  const totalWinningBets = winningBets.reduce((sum, b) => sum + b.amount, 0);
-
   const payouts = [];
 
-  if (totalWinningBets > 0) {
-    // Winners present, split the remaining pool proportionally based on bet sizes
-    bets.forEach((bet) => {
-      if (bet.choice === winningCategory) {
-        const share = bet.amount / totalWinningBets;
-        const payoutAmount = parseFloat((share * distributablePool).toFixed(2));
-        payouts.push({
-          userId: bet.userId,
-          username: bet.username,
-          won: true,
-          payout: payoutAmount,
-          refund: 0,
-        });
-      } else {
-        payouts.push({
-          userId: bet.userId,
-          username: bet.username,
-          won: false,
-          payout: 0,
-          refund: 0,
-        });
-      }
-    });
-  } else {
-    // No winners, house retains 100% of wagers
-    bets.forEach((bet) => {
+  bets.forEach((bet) => {
+    if (bet.choice === winningCategory) {
+      const mult = MULTIPLIERS[winningCategory] || 2;
+      const payoutAmount = Math.round(bet.amount * mult * 100) / 100;
+      payouts.push({
+        userId: bet.userId,
+        username: bet.username,
+        won: true,
+        payout: payoutAmount,
+        refund: 0,
+      });
+    } else {
       payouts.push({
         userId: bet.userId,
         username: bet.username,
@@ -125,10 +109,9 @@ const computePayouts = (bets, result) => {
         payout: 0,
         refund: 0,
       });
-    });
-  }
+    }
+  });
 
-  // Calculate actual platform earnings for this round
   const totalDistributed = payouts.reduce((sum, p) => sum + p.payout, 0);
   const platformEarnings = parseFloat((totalPot - totalDistributed).toFixed(2));
 
@@ -136,7 +119,7 @@ const computePayouts = (bets, result) => {
     payouts,
     winningCategory,
     totalPot,
-    hadWinners: totalWinningBets > 0,
+    hadWinners: payouts.some((p) => p.won),
     platformEarnings,
   };
 };

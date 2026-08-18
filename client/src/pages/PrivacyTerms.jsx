@@ -40,7 +40,6 @@ const PrivacyTerms = () => {
 
           {/* Social Casino Disclaimer — Legal Shield */}
           <div className="flex gap-3 p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-xl text-emerald-400 text-xs leading-relaxed">
-            <span className="text-xl flex-shrink-0">🎮</span>
             <div className="space-y-1">
               <strong className="font-bold text-sm">Social Entertainment Platform — Not Gambling</strong>
               <p>

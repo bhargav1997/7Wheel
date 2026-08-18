@@ -4,10 +4,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   User, Mail, Shield, Zap, Copy, Users, TrendingUp,
   LogOut, Trash2, AlertTriangle, Lock, Eye, EyeOff,
-  CheckCircle, ArrowLeft, Gift,
+  CheckCircle, ArrowLeft, Gift, Trophy, Crown, Medal, Award, ChevronRight, Star
 } from 'lucide-react';
+import TopWinnersModal from '../components/TopWinnersModal';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
+import { formatCredits } from '../utils/format';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Stat card helper
@@ -170,8 +172,9 @@ const DeleteZone = ({ onDeleted }) => {
 // ─────────────────────────────────────────────────────────────────────────────
 // Profile Page
 // ─────────────────────────────────────────────────────────────────────────────
-const Profile = () => {
+export default function Profile() {
   const { user, logout, refreshUser } = useAuth();
+  const [showTopWinnersModal, setShowTopWinnersModal] = useState(false);
   const navigate = useNavigate();
 
   // On mount, refresh user to ensure referralCode is generated and synced from server
@@ -241,9 +244,69 @@ const Profile = () => {
 
           {/* Stats grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
-            <StatCard icon={Zap} label="Credits" value={(user?.balance ?? 0).toLocaleString()} sub="🪙 entertainment only" accent="bg-yellow-500/10" />
+            <StatCard icon={Zap} label="Credits" value={formatCredits(user?.balance)} sub="entertainment credits only" accent="bg-yellow-500/10" />
             <StatCard icon={TrendingUp} label="Games Played" value={user?.gamesPlayed ?? 0} accent="bg-emerald-500/10" />
             <StatCard icon={Users} label="Referrals" value={user?.referralCount ?? 0} sub="+50 credits each" accent="bg-purple-500/10" />
+          </div>
+        </motion.div>
+
+        {/* ── Top 10 Winners & Hall of Fame Card ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08 }}
+          className="card p-6 space-y-4 border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-slate-950 to-purple-900/10 relative overflow-hidden"
+        >
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-yellow-600 flex items-center justify-center text-slate-950 shadow-lg shadow-amber-500/20">
+                <Trophy size={20} className="fill-slate-950" />
+              </div>
+              <div>
+                <h2 className="font-display font-black text-base text-white flex items-center gap-2">
+                  <span>VIP Hall of Fame</span>
+                  <span className="text-[9px] bg-amber-400 text-slate-950 font-black px-2 py-0.2 rounded-full uppercase tracking-wider">
+                    Top 10 Rankings
+                  </span>
+                </h2>
+                <p className="text-xs text-slate-400">Weekly, Monthly & All-Time High Roller Leaderboards</p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowTopWinnersModal(true)}
+              className="py-2.5 px-4 rounded-xl font-display font-black text-xs bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-950 hover:brightness-110 transition-all flex items-center gap-1.5 shadow-lg shadow-amber-500/20"
+            >
+              <Crown size={14} className="fill-slate-950" />
+              <span>View Top 10 Winners</span>
+              <ChevronRight size={14} />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+            <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center gap-2.5">
+              <Zap size={16} className="text-amber-400 shrink-0" />
+              <div>
+                <span className="text-[10px] text-slate-500 uppercase font-bold block">Weekly Champions</span>
+                <span className="text-xs font-bold text-slate-200">500 Bonus Credits Prize</span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center gap-2.5">
+              <Star size={16} className="text-purple-400 shrink-0" />
+              <div>
+                <span className="text-[10px] text-slate-500 uppercase font-bold block">Monthly All-Stars</span>
+                <span className="text-xs font-bold text-slate-200">Exclusive VIP Crown Badge</span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center gap-2.5">
+              <Crown size={16} className="text-yellow-400 shrink-0" />
+              <div>
+                <span className="text-[10px] text-slate-500 uppercase font-bold block">All-Time Legends</span>
+                <span className="text-xs font-bold text-slate-200">Highest Credits Earned</span>
+              </div>
+            </div>
           </div>
         </motion.div>
 
@@ -301,7 +364,7 @@ const Profile = () => {
               {[
                 ['1', 'Share your code with a friend'],
                 ['2', 'They enter it on the Register page'],
-                ['3', 'Both accounts instantly get +50 credits 🪙'],
+                ['3', 'Both accounts instantly get +50 credits'],
               ].map(([n, text]) => (
                 <div key={n} className="flex items-center gap-3 text-xs text-slate-400">
                   <span className="w-5 h-5 rounded-full bg-brand-500/15 border border-brand-500/20 flex items-center justify-center text-[10px] font-bold text-brand-400 flex-shrink-0">
@@ -357,8 +420,11 @@ const Profile = () => {
           Credits are virtual entertainment tokens · No cash value · All purchases final
         </p>
       </div>
+      {/* Top 10 Winners VIP Modal */}
+      <TopWinnersModal
+        open={showTopWinnersModal}
+        onClose={() => setShowTopWinnersModal(false)}
+      />
     </div>
   );
 };
-
-export default Profile;

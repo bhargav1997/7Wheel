@@ -1,6 +1,6 @@
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Coins, Zap, Flame, Gift, X, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
+import { Coins, Zap, Flame, X, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export default function InsufficientCreditsModal({ open, onClose, onOpenBuyCredits, onOpenDailyStreak }) {
   if (!open) return null;
@@ -16,7 +16,7 @@ export default function InsufficientCreditsModal({ open, onClose, onOpenBuyCredi
         >
           {/* Dark luxury backdrop */}
           <motion.div
-            className="absolute inset-0 bg-black/80 backdrop-blur-md"
+            className="absolute inset-0 bg-black/85 backdrop-blur-md"
             onClick={onClose}
           />
 
@@ -43,21 +43,21 @@ export default function InsufficientCreditsModal({ open, onClose, onOpenBuyCredi
             {/* Animated Emblem */}
             <div className="pt-2">
               <motion.div
-                className="w-20 h-20 rounded-3xl bg-amber-500/10 border-2 border-amber-500/40 flex items-center justify-center text-4xl mx-auto shadow-xl shadow-amber-500/20"
-                animate={{ scale: [1, 1.08, 1], rotate: [0, -4, 4, 0] }}
+                className="w-20 h-20 rounded-3xl bg-amber-500/10 border-2 border-amber-500/40 flex items-center justify-center text-amber-400 mx-auto shadow-xl shadow-amber-500/20"
+                animate={{ scale: [1, 1.06, 1] }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
               >
-                🪙
+                <Coins size={36} />
               </motion.div>
             </div>
 
             {/* Header Title & Subtitle */}
             <div className="space-y-1.5">
               <h2 className="font-display font-black text-2xl text-white tracking-tight">
-                Oops! Running Low on Credits 🪙
+                Additional Credits Required
               </h2>
               <p className="text-slate-300 text-xs max-w-xs mx-auto leading-relaxed font-medium">
-                You don't have enough virtual credits for this wager. Top up your balance to keep playing!
+                Your account balance requires refilling to place this wager. Select an option below to continue.
               </p>
             </div>
 
@@ -74,7 +74,7 @@ export default function InsufficientCreditsModal({ open, onClose, onOpenBuyCredi
                 className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-display font-black text-sm uppercase tracking-wider shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2"
               >
                 <Zap size={18} className="fill-slate-950" />
-                <span>Get More Credits</span>
+                <span>Refill Gaming Credits</span>
                 <ArrowRight size={16} />
               </motion.button>
 
@@ -89,14 +89,14 @@ export default function InsufficientCreditsModal({ open, onClose, onOpenBuyCredi
                 className="w-full py-3 px-5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-purple-500/50 text-slate-200 hover:text-white font-bold text-xs flex items-center justify-center gap-2 transition-all"
               >
                 <Flame size={16} className="text-amber-400" />
-                <span>Claim Free Daily Bonus 🔥</span>
+                <span>Claim Complimentary Tokens</span>
               </motion.button>
             </div>
 
             {/* Compliance Footer Disclaimer */}
             <div className="pt-2 border-t border-slate-800/80 text-[10px] text-slate-400 flex items-center justify-center gap-1.5 font-medium">
               <ShieldCheck size={13} className="text-emerald-400" />
-              <span>Virtual Game Credits only · No real money gambling</span>
+              <span>Virtual Gaming Tokens · Provably Fair Platform</span>
             </div>
           </motion.div>
         </motion.div>
