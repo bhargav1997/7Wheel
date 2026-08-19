@@ -1,6 +1,8 @@
 {
   "name": "7wheel-server",
   "version": "1.0.0",
+  "private": true,
+  "license": "UNLICENSED",
   "description": "7 Wheel Central Hub — Express/Socket.io Backend",
   "main": "server.js",
   "scripts": {

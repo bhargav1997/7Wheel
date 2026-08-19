@@ -1,6 +1,8 @@
 {
   "name": "7wheel-central-hub",
   "version": "1.0.0",
+  "private": true,
+  "license": "UNLICENSED",
   "description": "7 Wheel Central Hub — Full-Stack MERN Game",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
