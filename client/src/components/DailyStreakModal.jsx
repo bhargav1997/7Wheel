@@ -117,7 +117,7 @@ export default function DailyStreakModal({ open, onClose }) {
                 animate={celebrated ? { scale: [1, 1.25, 1], rotate: [0, -10, 10, 0] } : {}}
                 transition={{ duration: 0.5 }}
               >
-                🔥
+                <Flame size={32} className="text-orange-400" />
               </motion.div>
               <h2 className="font-display font-black text-2xl text-white">Daily Streak</h2>
               <p className="text-slate-400 text-sm mt-1">Log in every day to earn bonus credits!</p>

@@ -438,8 +438,8 @@ export default function Plinko() {
               
               {/* Title Header */}
               <div className="flex items-center gap-3 border-b border-slate-800 pb-3">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-600 via-pink-500 to-amber-500 flex items-center justify-center text-xl shadow-lg shadow-purple-500/20">
-                  🪜
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-600 via-pink-500 to-amber-500 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                  <Layers size={20} className="text-white" />
                 </div>
                 <div>
                   <h1 className="font-display font-black text-xl text-white tracking-wide">PLINKO PYRAMID</h1>

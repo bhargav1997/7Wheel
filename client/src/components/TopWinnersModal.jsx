@@ -129,7 +129,7 @@ export default function TopWinnersModal({ open, onClose }) {
                 <div>
                   <span className="text-slate-400 font-medium block">Your Standing</span>
                   <span className="font-display font-black text-white text-sm">
-                    You are ranked #{userRank} {userRank <= 10 ? '🔥 In Top 10!' : '— Play to climb!'}
+                    You are ranked #{userRank} {userRank <= 10 ? <span className="text-amber-400 inline-flex items-center gap-1"><Flame size={12} className="text-orange-400" /> Top 10!</span> : '— Play to climb!'}
                   </span>
                 </div>
               </div>

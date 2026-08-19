@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Coins, HelpCircle, X, Zap, Volume2, VolumeX, Rocket, Flame, Users, Trophy, CheckCircle2, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Coins, HelpCircle, X, Zap, Volume2, VolumeX, Rocket, Flame, Users, Trophy, CheckCircle2, TrendingUp, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useSocket } from '../context/SocketContext';
@@ -221,7 +221,7 @@ export default function Crash() {
       playWin();
       setShowWinConfetti(true);
       setCashedOutMsg({ multiplier, payout });
-      toast.success(`🚀 Cashed Out at ${multiplier}×! (+${payout.toLocaleString()} Credits)`, { icon: '🏆', duration: 3500 });
+      toast.success(`Cashed Out at ${multiplier}×! (+${payout.toLocaleString()} Credits)`, { duration: 3500 });
     });
 
     socket.on('crash:exploded', ({ crashPoint }) => {
@@ -323,8 +323,8 @@ export default function Crash() {
               <p>Place your wager during the 5-second countdown. Once launched, the rocket's multiplier climbs exponentially ($1.00\times \to 100\times+$).</p>
               <p>Click <strong>CASH OUT</strong> before the rocket explodes to win your current multiplier. If it crashes first, your wager is lost!</p>
               <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
-                <span>🛡️ <strong>Provably Fair RTP:</strong> 97% Return to Player (3% house edge).</span>
-                <span>⚡ Set <strong>Auto Cashout</strong> to lock in payouts automatically.</span>
+                <span><ShieldCheck size={12} className="inline mr-1 text-slate-400" /><strong>Provably Fair RTP:</strong> 97% Return to Player (3% house edge).</span>
+                <span><Zap size={12} className="inline mr-1 text-amber-400" />Set <strong>Auto Cashout</strong> to lock in payouts automatically.</span>
               </div>
             </motion.div>
           )}

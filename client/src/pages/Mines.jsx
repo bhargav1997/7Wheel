@@ -174,7 +174,7 @@ export default function Mines() {
         setCurrentPayout(data.payout);
         setGameState('CASHOUT');
         updateBalance(data.balanceAfter);
-        toast.success(`🎉 Max Cleared! Won +${data.payout.toLocaleString()} Credits!`, { icon: '💎', duration: 4000 });
+        toast.success(`Board Cleared! Won +${data.payout.toLocaleString()} Credits!`, { duration: 4000 });
       } else {
         playStreak();
         setRevealedTiles(data.revealedTiles);
@@ -208,7 +208,7 @@ export default function Mines() {
       setCurrentMultiplier(data.currentMultiplier);
       setCurrentPayout(data.payout);
       updateBalance(data.balanceAfter);
-      toast.success(`💰 Cashed Out +${data.payout.toLocaleString()} Credits (${data.currentMultiplier}×)!`, { icon: '🏆', duration: 3500 });
+      toast.success(`Cashed Out +${data.payout.toLocaleString()} Credits (${data.currentMultiplier}×)!`, { duration: 3500 });
     } catch (err) {
       toast.error(err.response?.data?.message || 'Cashout failed.');
     } finally {

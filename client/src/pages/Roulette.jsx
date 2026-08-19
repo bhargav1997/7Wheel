@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Coins, HelpCircle, X, Zap, Volume2, VolumeX, RotateCcw, Trophy, Sparkles, Disc, Play, Trash2, Flame, Undo2 } from 'lucide-react';
+import { ArrowLeft, Coins, HelpCircle, X, Zap, Volume2, VolumeX, RotateCcw, Trophy, Sparkles, Disc, Play, Trash2, Flame, Undo2, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
@@ -697,8 +697,8 @@ export default function Roulette() {
                 </div>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400 text-center">
-                🛡️ European Single-Zero Rules (97.3% Return to Player).
+              <div className="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400 text-center flex items-center justify-center gap-1.5">
+                <ShieldCheck size={11} className="text-slate-500" /> European Single-Zero Rules (97.3% Return to Player).
               </div>
             </motion.div>
           </motion.div>

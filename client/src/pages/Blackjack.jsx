@@ -690,8 +690,8 @@ export default function Blackjack() {
                 </div>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400 text-center">
-                🛡️ House Dealer hits on 16 or lower and stands on soft 17. 52-card deck shuffled cryptographically.
+              <div className="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400 text-center flex items-center justify-center gap-1.5">
+                <ShieldAlert size={11} className="text-slate-500" /> House Dealer hits on 16 or lower and stands on soft 17. 52-card deck shuffled cryptographically.
               </div>
             </motion.div>
           </motion.div>

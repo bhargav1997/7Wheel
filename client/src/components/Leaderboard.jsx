@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Trophy, Crown, TrendingDown, Hash, TrendingUp,
-  Users, Globe, RefreshCw, Medal, Loader2
+  Users, Globe, RefreshCw, Medal, Loader2, CalendarDays
 } from 'lucide-react';
 import { useSocket } from '../context/SocketContext';
 import { useAuth } from '../context/AuthContext';
@@ -205,7 +205,7 @@ const Leaderboard = () => {
                           {player.username} {isMe && <span className="text-xs text-brand-500">(you)</span>}
                         </p>
                         <p className="text-xs text-slate-500">
-                          {player.won ? 'Winner 🏆' : isRefund ? 'Refunded' : 'Lost'}
+                        {player.won ? <span className="flex items-center gap-1"><Trophy size={11} className="text-amber-400" /> Winner</span> : isRefund ? 'Refunded' : 'Lost'}
                         </p>
                       </div>
                       <div className="text-right">
@@ -244,7 +244,7 @@ const Leaderboard = () => {
                         : 'text-slate-500 hover:text-slate-300'
                     }`}
                   >
-                    {t === 'alltime' ? '🏆 All-Time' : '📅 This Week'}
+                    {t === 'alltime' ? <span className="flex items-center gap-1 justify-center"><Trophy size={11} /> All-Time</span> : <span className="flex items-center gap-1 justify-center"><CalendarDays size={11} /> This Week</span>}
                   </button>
                 ))}
                 <button

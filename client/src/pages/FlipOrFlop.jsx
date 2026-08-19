@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Flame, HelpCircle, Users, Coins, Clock, CheckCircle2, Trophy, Volume2, VolumeX, Sparkles, Zap, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Flame, HelpCircle, Users, Coins, Clock, CheckCircle2, Trophy, Volume2, VolumeX, Sparkles, Zap, TrendingUp, ShieldCheck, Dices, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useSocket } from '../context/SocketContext';
@@ -295,9 +295,9 @@ export default function FlipOrFlop() {
             >
               <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                 <span className="font-display font-black text-sm text-white flex items-center gap-2">
-                  🎲 Rapid Flip or Flop Mechanics
+                  <Sparkles size={14} className="text-brand-400" /> Rapid Flip or Flop Mechanics
                 </span>
-                <button onClick={() => setShowRules(false)} className="text-slate-500 hover:text-white">✕</button>
+                <button onClick={() => setShowRules(false)} className="text-slate-500 hover:text-white"><X size={14} /></button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
@@ -310,8 +310,8 @@ export default function FlipOrFlop() {
                 </div>
               </div>
               <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
-                <span>🛡️ <strong>100% Cryptographically Fair:</strong> Powered by Node <code>crypto.randomInt</code>.</span>
-                <span>🔥 Streaks boost payout from <strong>1.85× up to 3.0×</strong>!</span>
+                <span><ShieldCheck size={12} className="inline mr-1 text-slate-400" /><strong>Cryptographically Fair:</strong> Powered by Node <code>crypto.randomInt</code>.</span>
+                <span><TrendingUp size={12} className="inline mr-1 text-amber-400" />Streaks boost payout from <strong>1.85× up to 3.0×</strong>!</span>
               </div>
             </motion.div>
           )}
@@ -375,8 +375,8 @@ export default function FlipOrFlop() {
             {gameState.status === 'WAITING' && (
               <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="space-y-2">
                 <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-cyan-500 via-purple-600 to-pink-500 p-1 shadow-lg shadow-purple-500/20 mx-auto flex items-center justify-center">
-                  <div className="w-full h-full rounded-full bg-slate-950 flex items-center justify-center font-display font-black text-3xl text-white">
-                    🎲
+                  <div className="w-full h-full rounded-full bg-slate-950 flex items-center justify-center">
+                    <Dices size={36} className="text-white" />
                   </div>
                 </div>
                 <p className="text-sm font-extrabold text-white mt-2">Waiting for Bets…</p>
@@ -405,8 +405,8 @@ export default function FlipOrFlop() {
                   animate={{ rotateY: [0, 360, 720, 1080] }}
                   transition={{ duration: 1.5, ease: 'easeInOut', repeat: Infinity }}
                 >
-                  <div className="w-full h-full rounded-full bg-slate-950 flex items-center justify-center font-display font-black text-4xl text-yellow-400">
-                    ⚡
+                  <div className="w-full h-full rounded-full bg-slate-950 flex items-center justify-center">
+                    <Zap size={40} className="text-yellow-400 fill-yellow-400" />
                   </div>
                 </motion.div>
                 <p className="text-sm font-bold text-brand-300 animate-pulse">Flipping Outcome…</p>
@@ -644,7 +644,7 @@ export default function FlipOrFlop() {
                   <span className="font-semibold">{w.username}</span>
                   <span>
                     {w.choice} · {w.amount} Credits
-                    {w.won && ` → +${w.payout.toLocaleString()} Credits (${w.streak}🔥)`}
+                    {w.won && ` → +${w.payout.toLocaleString()} Credits (${w.streak} streak)`}
                   </span>
                 </div>
               ))}

@@ -9,6 +9,7 @@ const BET_OPTIONS = [
     id: 'UNDER_7',
     label: 'Under 7',
     range: '1 – 6',
+    multiplier: '1× – 5×',
     icon: TrendingDown,
     gradient: 'from-blue-600 to-blue-800',
     border: 'border-blue-500',
@@ -21,6 +22,7 @@ const BET_OPTIONS = [
     id: 'EXACT_7',
     label: 'Exact 7',
     range: '7',
+    multiplier: '7×',
     icon: Hash,
     gradient: 'from-emerald-600 to-emerald-800',
     border: 'border-emerald-500',
@@ -33,6 +35,7 @@ const BET_OPTIONS = [
     id: 'OVER_7',
     label: 'Over 7',
     range: '8 – 12',
+    multiplier: '1× – 4×',
     icon: TrendingUp,
     gradient: 'from-red-600 to-red-800',
     border: 'border-red-500',
@@ -42,6 +45,50 @@ const BET_OPTIONS = [
     bgHover: 'hover:bg-red-500/10',
   },
 ];
+
+// Quick bet modifier buttons
+const QuickBetModifiers = ({ betAmount, setBetAmount, balance }) => {
+  const current = parseFloat(betAmount) || 0;
+  const min = 10;
+  const max = Math.floor(balance);
+
+  const actions = [
+    { label: 'Min',  fn: () => min },
+    { label: '½',    fn: () => Math.max(min, Math.floor(current / 2)) },
+    { label: '2×',   fn: () => Math.min(max, current * 2) },
+    { label: 'Max',  fn: () => max },
+    { label: 'Clear',fn: () => '' },
+  ];
+
+  return (
+    <div style={{ display: 'flex', gap: 5, marginTop: 8, flexWrap: 'wrap' }}>
+      {actions.map(({ label, fn }) => (
+        <button
+          key={label}
+          type="button"
+          onClick={() => setBetAmount(String(fn()))}
+          style={{
+            flex: '1 1 auto',
+            minWidth: 38,
+            fontSize: 11,
+            fontWeight: 700,
+            padding: '5px 4px',
+            borderRadius: 8,
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            color: '#94a3b8',
+            cursor: 'pointer',
+            transition: 'all 0.15s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'rgba(196,79,240,0.5)'; }}
+          onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+};
 
 const BettingBoard = ({ onInsufficientCredits }) => {
   const { gameState, myBet, betError, setBetError, placeBet } = useSocket();
@@ -65,7 +112,9 @@ const BettingBoard = ({ onInsufficientCredits }) => {
   const isBettingActive = status === 'WAITING_FOR_PLAYERS' || status === 'BETTING';
   const isCountdownActive = status === 'BETTING';
   const alreadyBet     = !!myBet;
-  const canBet         = isBettingActive && !alreadyBet && !submitting;
+  // Optimistic lock: disable inputs when timer hits 0 (wheel is about to spin)
+  const timerLocked    = status === 'BETTING' && timeLeft === 0;
+  const canBet         = isBettingActive && !alreadyBet && !submitting && !timerLocked;
 
   const handleSubmit = async () => {
     if (!selectedChoice || !canBet) return;
@@ -198,6 +247,16 @@ const BettingBoard = ({ onInsufficientCredits }) => {
                 <p className="font-display font-bold text-white text-sm">{opt.label}</p>
                 <p className="text-xs text-slate-500">{opt.range}</p>
               </div>
+              {/* Multiplier badge */}
+              <div style={{
+                fontSize: 10, fontWeight: 800,
+                color: isSelected || isMyBetChoice ? '#fff' : '#94a3b8',
+                background: isSelected || isMyBetChoice ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)',
+                borderRadius: 6, padding: '2px 6px',
+                letterSpacing: '0.05em',
+              }}>
+                {opt.multiplier}
+              </div>
               {isMyBetChoice && (
                 <div className={`absolute -top-2 -right-2 w-5 h-5 rounded-full
                                 bg-emerald-500 flex items-center justify-center`}>
@@ -238,19 +297,8 @@ const BettingBoard = ({ onInsufficientCredits }) => {
                 disabled={!canBet}
               />
             </div>
-            {/* Quick amounts */}
-            <div className="flex gap-1.5 mt-2 flex-wrap">
-              {[10, 25, 50, 100, 250].map((v) => (
-                <button
-                  key={v}
-                  onClick={() => setBetAmount(String(v))}
-                  className="flex-1 min-w-[2.5rem] text-xs py-1.5 rounded-lg bg-casino-muted border border-casino-border
-                             text-slate-400 hover:text-white hover:border-brand-500 transition-colors"
-                >
-                  {v}
-                </button>
-              ))}
-            </div>
+            {/* Quick bet modifiers */}
+            <QuickBetModifiers betAmount={betAmount} setBetAmount={setBetAmount} balance={balance} />
           </div>
 
           {/* Error */}
