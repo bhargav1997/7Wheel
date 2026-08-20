@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CreditCard, Lock, Zap, Star, Crown, Gem, ShieldCheck, Check, Sparkles, Coins } from 'lucide-react';
+import {
+  X, CreditCard, Lock, Zap, Star, Crown, Gem, ShieldCheck,
+  Check, Sparkles, Coins, Gift, ArrowRight, CheckCircle2, Shield
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
+import { formatCredits } from '../utils/format';
 
 const PACKS = [
   {
@@ -18,7 +22,7 @@ const PACKS = [
     iconColor: 'text-blue-400',
     iconBg: 'bg-blue-500/10 border-blue-500/30',
     borderColor: 'hover:border-blue-500/50',
-    activeBorder: 'border-blue-500 bg-blue-500/10 ring-1 ring-blue-500',
+    activeBorder: 'border-blue-500 bg-blue-500/10 ring-2 ring-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.25)]',
     description: 'Casual fun play',
   },
   {
@@ -28,12 +32,12 @@ const PACKS = [
     bonusCredits: 200,
     priceUSD: 9.99,
     popular: true,
-    badge: 'PREMIER VALUE',
+    badge: 'BEST VALUE',
     icon: Star,
-    iconColor: 'text-yellow-400',
-    iconBg: 'bg-yellow-500/10 border-yellow-500/30',
-    borderColor: 'hover:border-yellow-500/50',
-    activeBorder: 'border-amber-500 bg-amber-500/10 ring-1 ring-amber-500',
+    iconColor: 'text-amber-400',
+    iconBg: 'bg-amber-500/10 border-amber-500/30',
+    borderColor: 'hover:border-amber-500/50',
+    activeBorder: 'border-amber-500 bg-amber-500/10 ring-2 ring-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.25)]',
     description: 'Most popular choice',
   },
   {
@@ -48,7 +52,7 @@ const PACKS = [
     iconColor: 'text-orange-400',
     iconBg: 'bg-orange-500/10 border-orange-500/30',
     borderColor: 'hover:border-orange-500/50',
-    activeBorder: 'border-orange-500 bg-orange-500/10 ring-1 ring-orange-500',
+    activeBorder: 'border-orange-500 bg-orange-500/10 ring-2 ring-orange-500/50 shadow-[0_0_20px_rgba(249,115,22,0.25)]',
     description: 'For serious streak builders',
   },
   {
@@ -58,17 +62,17 @@ const PACKS = [
     bonusCredits: 5000,
     priceUSD: 49.99,
     popular: false,
-    badge: 'VIP 33% BONUS',
+    badge: '+33% VIP BONUS',
     icon: Gem,
     iconColor: 'text-purple-400',
     iconBg: 'bg-purple-500/10 border-purple-500/30',
     borderColor: 'hover:border-purple-500/50',
-    activeBorder: 'border-purple-500 bg-purple-500/10 ring-1 ring-purple-500',
+    activeBorder: 'border-purple-500 bg-purple-500/10 ring-2 ring-purple-500/50 shadow-[0_0_20px_rgba(168,85,247,0.25)]',
     description: 'Ultimate high stakes pool',
   },
 ];
 
-// Format Card Number (adds spaces every 4 digits)
+// Format Card Number (auto space every 4 digits)
 const formatCardNumber = (value) => {
   const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
   const matches = v.match(/\d{4,16}/g);
@@ -87,8 +91,18 @@ const formatExpiry = (value) => {
   return v;
 };
 
+// Detect Card Brand for Visual Badge
+const getCardBrand = (number) => {
+  const clean = number.replace(/\s/g, '');
+  if (clean.startsWith('4')) return 'VISA';
+  if (clean.startsWith('5') || clean.startsWith('2')) return 'MASTERCARD';
+  if (clean.startsWith('34') || clean.startsWith('37')) return 'AMEX';
+  if (clean.startsWith('6')) return 'DISCOVER';
+  return null;
+};
+
 const BuyCreditsModal = () => {
-  const { purchaseCredits, showBuyCreditsModal, setShowBuyCreditsModal } = useAuth();
+  const { user, purchaseCredits, showBuyCreditsModal, setShowBuyCreditsModal } = useAuth();
 
   const [selectedPack, setSelectedPack] = useState('popular');
   const [submitting, setSubmitting] = useState(false);
@@ -98,6 +112,7 @@ const BuyCreditsModal = () => {
 
   const pack = PACKS.find((p) => p.id === selectedPack);
   const totalCredits = (pack?.credits || 0) + (pack?.bonusCredits || 0);
+  const cardBrand = getCardBrand(card.number);
 
   const isCardValid = () =>
     card.number.replace(/\s/g, '').length === 16 &&
@@ -106,13 +121,25 @@ const BuyCreditsModal = () => {
     card.name.trim().length > 2 &&
     card.postal.trim().length >= 3;
 
+  // 1-Click Demo Fill for Quick Testing
+  const handleFillDemo = () => {
+    setCard({
+      number: '4532 8901 2345 6789',
+      expiry: '12/28',
+      cvc: '777',
+      name: user?.username ? `${user.username.toUpperCase()} VIP` : 'ALEX MORGAN',
+      postal: '90210',
+    });
+    toast.success('⚡ Test card details loaded!', { icon: '💳' });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isCardValid()) return;
     setSubmitting(true);
     try {
-      // Simulate secure payment processing delay
-      await new Promise((resolve) => setTimeout(resolve, 1800));
+      // Simulate realistic payment gateway processing
+      await new Promise((resolve) => setTimeout(resolve, 1400));
       const data = await purchaseCredits({
         packId: selectedPack,
         paymentMethod: 'CARD',
@@ -127,7 +154,7 @@ const BuyCreditsModal = () => {
       setCard({ number: '', expiry: '', cvc: '', name: '', postal: '' });
       setShowBuyCreditsModal(false);
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Payment failed. Please check card details.');
+      toast.error(err.response?.data?.message || 'Payment failed. Please verify your card details.');
     } finally {
       setSubmitting(false);
     }
@@ -137,7 +164,7 @@ const BuyCreditsModal = () => {
     <AnimatePresence>
       {showBuyCreditsModal && (
         <motion.div
-          className="fixed inset-0 z-[99999] flex items-center justify-center p-4"
+          className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -150,58 +177,77 @@ const BuyCreditsModal = () => {
 
           {/* Modal Container */}
           <motion.div
-            initial={{ scale: 0.9, y: 20, opacity: 0 }}
+            initial={{ scale: 0.92, y: 20, opacity: 0 }}
             animate={{ scale: 1, y: 0, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 280, damping: 24 }}
-            className="relative card max-w-lg w-full border border-slate-800 bg-slate-950 shadow-[0_0_60px_rgba(168,85,247,0.25)] rounded-3xl flex flex-col max-h-[90vh] overflow-hidden z-10"
+            exit={{ scale: 0.92, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 26 }}
+            className="relative card max-w-lg w-full border border-slate-800 bg-[#090910] shadow-[0_0_60px_rgba(168,85,247,0.3)] rounded-3xl flex flex-col max-h-[92vh] overflow-hidden z-10"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-xl shrink-0">
+            {/* Header with Ambient Gradient */}
+            <div className="relative flex items-center justify-between p-4 sm:p-5 border-b border-slate-800/80 bg-gradient-to-r from-purple-950/40 via-slate-900/60 to-purple-950/40 backdrop-blur-xl shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-black shadow-inner">
-                  <Coins size={22} />
+                <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-500/20 to-yellow-600/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shadow-inner">
+                  <Coins size={24} className="animate-pulse" />
                 </div>
                 <div>
-                  <h3 className="font-display font-black text-lg text-white leading-none">Acquire Gaming Credits</h3>
-                  <p className="text-[11px] text-slate-400 mt-1 leading-none">Instant Allocation · Social Gaming Platform</p>
+                  <h3 className="font-display font-black text-lg sm:text-xl text-white leading-none flex items-center gap-2">
+                    Acquire Game Credits
+                  </h3>
+                  <p className="text-[11px] text-slate-400 mt-1 leading-none font-medium">
+                    Instant Delivery · Provably Fair Platform
+                  </p>
                 </div>
               </div>
               <button
                 onClick={() => !submitting && setShowBuyCreditsModal(false)}
                 disabled={submitting}
-                className="text-slate-400 hover:text-white transition-colors p-1 disabled:opacity-30"
+                className="w-8 h-8 rounded-full bg-slate-900/80 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition-colors disabled:opacity-30"
               >
-                <X size={20} />
+                <X size={16} />
               </button>
             </div>
 
             {/* Scrollable Body */}
-            <div className="p-5 overflow-y-auto space-y-5 flex-1">
+            <div className="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1 no-scrollbar">
+
+              {/* Live Balance Banner */}
+              <div className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-slate-900/90 border border-slate-800/80">
+                <div className="flex items-center gap-2">
+                  <Coins size={15} className="text-amber-400" />
+                  <span className="text-xs text-slate-300 font-bold">Current Balance:</span>
+                </div>
+                <span className="font-display font-black text-sm text-white tabular-nums">
+                  {formatCredits(user?.balance)} Credits
+                </span>
+              </div>
               
               {/* Credit Pack Selector Grid */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs text-slate-400 font-bold uppercase tracking-wider">Select a Credit Pack</label>
+                  <label className="text-xs text-slate-400 font-extrabold uppercase tracking-wider">
+                    Select a Credit Pack
+                  </label>
                   <span className="text-[11px] text-amber-400 font-bold flex items-center gap-1">
-                    <Sparkles size={12} /> Up to 33% Bonus Credits
+                    <Sparkles size={12} /> Up to +33% Free Bonus
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
                   {PACKS.map((p) => {
                     const Icon = p.icon;
                     const isSelected = selectedPack === p.id;
+                    const totalPackCredits = p.credits + p.bonusCredits;
+
                     return (
                       <button
                         key={p.id}
                         type="button"
                         disabled={submitting}
                         onClick={() => setSelectedPack(p.id)}
-                        className={`relative rounded-2xl border p-3.5 text-left transition-all flex flex-col justify-between ${
-                          isSelected ? p.activeBorder : `bg-slate-900/60 border-slate-800 ${p.borderColor}`
-                        } disabled:opacity-50`}
+                        className={`relative rounded-2xl border p-3 sm:p-3.5 text-left transition-all flex flex-col justify-between ${
+                          isSelected ? p.activeBorder : `bg-slate-900/60 border-slate-800/90 ${p.borderColor}`
+                        } disabled:opacity-50 group`}
                       >
                         {p.badge && (
                           <span className="absolute -top-2.5 right-2 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow-md">
@@ -213,24 +259,34 @@ const BuyCreditsModal = () => {
                           <div className={`w-8 h-8 rounded-xl border flex items-center justify-center ${p.iconBg}`}>
                             <Icon size={16} className={p.iconColor} />
                           </div>
-                          {isSelected && <Check size={16} className="text-amber-400" />}
+                          {isSelected && (
+                            <div className="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center text-slate-950">
+                              <Check size={12} className="stroke-[3]" />
+                            </div>
+                          )}
                         </div>
 
                         <div>
                           <p className="text-xs font-bold text-slate-300">{p.label}</p>
-                          <p className="text-[13px] font-black text-white mt-0.5 flex items-center gap-1">
-                            {p.credits.toLocaleString()} <Coins size={12} className="text-amber-400" />
+                          <p className="font-display font-black text-sm sm:text-base text-white mt-0.5 flex items-center gap-1">
+                            {totalPackCredits.toLocaleString()} <Coins size={13} className="text-amber-400" />
                           </p>
-                          {p.bonusCredits > 0 && (
-                            <p className="text-[10px] text-emerald-400 font-bold mt-0.5">
-                              +{p.bonusCredits.toLocaleString()} BONUS
+                          {p.bonusCredits > 0 ? (
+                            <p className="text-[10px] text-emerald-400 font-extrabold mt-0.5">
+                              +{p.bonusCredits.toLocaleString()} FREE BONUS
+                            </p>
+                          ) : (
+                            <p className="text-[10px] text-slate-500 font-medium mt-0.5">
+                              Standard Tier
                             </p>
                           )}
                         </div>
 
-                        <div className="mt-2 pt-2 border-t border-slate-800/60 flex items-center justify-between">
-                          <span className="text-xs font-black text-amber-400">${p.priceUSD} USD</span>
-                          <span className="text-[10px] text-slate-500">Instant</span>
+                        <div className="mt-2.5 pt-2 border-t border-slate-800/80 flex items-center justify-between">
+                          <span className="font-display font-black text-xs sm:text-sm text-amber-400">
+                            ${p.priceUSD} USD
+                          </span>
+                          <span className="text-[10px] text-slate-500 font-bold">Instant</span>
                         </div>
                       </button>
                     );
@@ -242,69 +298,81 @@ const BuyCreditsModal = () => {
               {pack && (
                 <motion.div
                   key={selectedPack}
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center justify-between bg-gradient-to-r from-slate-900 via-purple-950/40 to-slate-900 border border-brand-500/30 rounded-2xl p-4 shadow-lg"
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex items-center justify-between bg-gradient-to-r from-purple-950/40 via-slate-900 to-purple-950/40 border border-brand-500/40 rounded-2xl p-3.5 shadow-lg"
                 >
-                  <div>
-                    <p className="text-[11px] text-slate-400 font-medium">You will receive</p>
-                    <p className="font-display font-black text-xl text-white flex items-center gap-1.5">
-                      {totalCredits.toLocaleString()} <span className="text-amber-400 font-bold flex items-center gap-1">Credits <Coins size={16} /></span>
+                  <div className="space-y-0.5">
+                    <p className="text-[11px] text-slate-400 font-medium">Allocation Summary</p>
+                    <p className="font-display font-black text-lg sm:text-xl text-white flex items-center gap-1.5">
+                      {totalCredits.toLocaleString()} <span className="text-amber-400 font-bold flex items-center gap-1">Credits <Coins size={15} /></span>
                     </p>
                     {pack.bonusCredits > 0 && (
-                      <span className="text-[10px] text-emerald-400 font-bold">
-                        🎁 Includes {pack.bonusCredits.toLocaleString()} free bonus credits!
+                      <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+                        <Gift size={11} /> Includes {pack.bonusCredits.toLocaleString()} complimentary bonus credits!
                       </span>
                     )}
                   </div>
                   <div className="text-right">
-                    <p className="text-[11px] text-slate-400 font-medium">Total Price</p>
-                    <p className="font-display font-black text-2xl text-white">${pack.priceUSD}</p>
-                    <p className="text-[10px] text-slate-500">USD · Instant Delivery</p>
+                    <p className="text-[11px] text-slate-400 font-medium">Checkout Total</p>
+                    <p className="font-display font-black text-xl sm:text-2xl text-amber-400">${pack.priceUSD}</p>
+                    <p className="text-[10px] text-slate-500 font-medium">USD · No extra fees</p>
                   </div>
                 </motion.div>
               )}
 
               {/* Payment Card Form */}
-              <form onSubmit={handleSubmit} className="space-y-4 pt-1">
-                <div className="p-4 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-3">
+              <form onSubmit={handleSubmit} className="space-y-3 pt-1">
+                <div className="p-3.5 sm:p-4 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-3">
                   
-                  {/* Stripe Security Header */}
+                  {/* Stripe Security & 1-Click Demo Fill Header */}
                   <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
-                    <span className="flex items-center gap-1.5 text-xs font-bold text-slate-300">
-                      <Lock size={12} className="text-emerald-400" />
-                      256-Bit Encrypted Payment
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center -space-x-1.5">
-                        <div className="w-4 h-4 rounded-full bg-red-500 opacity-90" />
-                        <div className="w-4 h-4 rounded-full bg-yellow-400 opacity-80" />
-                      </div>
-                      <span className="font-black text-[10px] italic text-blue-400">VISA</span>
-                      <span className="text-[9px] text-slate-500 font-mono">Stripe</span>
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-300">
+                      <Lock size={13} className="text-emerald-400" />
+                      <span>256-Bit Encrypted Card Checkout</span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleFillDemo}
+                      className="text-[10px] font-extrabold text-brand-300 hover:text-brand-200 bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/30 px-2 py-0.5 rounded-lg transition-all flex items-center gap-1"
+                      title="Auto fill test card for quick demo"
+                    >
+                      <Zap size={11} />
+                      <span>Fill Test Card</span>
+                    </button>
+                  </div>
+
+                  {/* Card Number Input with Brand Icon */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[10px] text-slate-400 font-extrabold uppercase">Card Number</label>
+                      {cardBrand && (
+                        <span className="text-[9px] font-black tracking-wider text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/30">
+                          {cardBrand}
+                        </span>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength="19"
+                        required
+                        disabled={submitting}
+                        value={card.number}
+                        onChange={(e) => setCard({ ...card, number: formatCardNumber(e.target.value) })}
+                        placeholder="4532 8901 2345 6789"
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 transition-all font-mono tracking-widest"
+                      />
+                      <CreditCard size={16} className="absolute right-3 top-3 text-slate-500 pointer-events-none" />
                     </div>
                   </div>
 
-                  {/* Card Number Input */}
-                  <div>
-                    <label className="block text-[10px] text-slate-400 mb-1 font-bold">CARD NUMBER</label>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      maxLength="19"
-                      required
-                      disabled={submitting}
-                      value={card.number}
-                      onChange={(e) => setCard({ ...card, number: formatCardNumber(e.target.value) })}
-                      placeholder="4532 1098 7654 3210"
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 transition-all font-mono tracking-widest"
-                    />
-                  </div>
-
                   {/* Expiry, CVC & Zip */}
-                  <div className="grid grid-cols-3 gap-2 pt-1">
+                  <div className="grid grid-cols-3 gap-2">
                     <div>
-                      <label className="block text-[10px] text-slate-400 mb-1 font-bold">EXPIRY</label>
+                      <label className="block text-[10px] text-slate-400 mb-1 font-extrabold uppercase">Expiry</label>
                       <input
                         type="text"
                         inputMode="numeric"
@@ -314,12 +382,12 @@ const BuyCreditsModal = () => {
                         value={card.expiry}
                         onChange={(e) => setCard({ ...card, expiry: formatExpiry(e.target.value) })}
                         placeholder="MM/YY"
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-2.5 text-center text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 font-mono"
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-2.5 text-center text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 font-mono font-bold"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[10px] text-slate-400 mb-1 font-bold">CVC</label>
+                      <label className="block text-[10px] text-slate-400 mb-1 font-extrabold uppercase">CVC</label>
                       <input
                         type="text"
                         inputMode="numeric"
@@ -328,13 +396,13 @@ const BuyCreditsModal = () => {
                         disabled={submitting}
                         value={card.cvc}
                         onChange={(e) => setCard({ ...card, cvc: e.target.value.replace(/[^0-9]/g, '') })}
-                        placeholder="123"
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-2.5 text-center text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 font-mono"
+                        placeholder="777"
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-2.5 text-center text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 font-mono font-bold"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[10px] text-slate-400 mb-1 font-bold">POSTAL CODE</label>
+                      <label className="block text-[10px] text-slate-400 mb-1 font-extrabold uppercase">Zip / Postal</label>
                       <input
                         type="text"
                         maxLength="7"
@@ -343,21 +411,21 @@ const BuyCreditsModal = () => {
                         value={card.postal}
                         onChange={(e) => setCard({ ...card, postal: e.target.value.toUpperCase() })}
                         placeholder="90210"
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-2.5 text-center text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 font-mono"
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-2.5 text-center text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 font-mono font-bold uppercase"
                       />
                     </div>
                   </div>
 
                   {/* Cardholder Name */}
                   <div>
-                    <label className="block text-[10px] text-slate-400 mb-1 font-bold">CARDHOLDER NAME</label>
+                    <label className="block text-[10px] text-slate-400 mb-1 font-extrabold uppercase">Cardholder Name</label>
                     <input
                       type="text"
                       disabled={submitting}
                       value={card.name}
                       onChange={(e) => setCard({ ...card, name: e.target.value })}
-                      placeholder="Jane Smith"
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-500"
+                      placeholder="Alex Morgan"
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 font-medium uppercase"
                       required
                     />
                   </div>
@@ -369,12 +437,12 @@ const BuyCreditsModal = () => {
                   disabled={submitting || !isCardValid()}
                   whileHover={isCardValid() ? { scale: 1.01 } : {}}
                   whileTap={isCardValid() ? { scale: 0.98 } : {}}
-                  className="w-full py-4 px-6 rounded-2xl font-display font-black text-sm uppercase tracking-wider bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-400 text-slate-950 shadow-xl shadow-amber-500/25 border border-amber-400/40 flex items-center justify-center gap-2.5 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                  className="w-full py-3.5 sm:py-4 px-6 rounded-2xl font-display font-black text-sm uppercase tracking-wider bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-400 text-slate-950 shadow-xl shadow-amber-500/25 border border-amber-400/40 flex items-center justify-center gap-2.5 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                 >
                   {submitting ? (
                     <>
                       <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                      <span>Processing Payment…</span>
+                      <span>Allocating Credits…</span>
                     </>
                   ) : (
                     <>
@@ -385,11 +453,11 @@ const BuyCreditsModal = () => {
                 </motion.button>
               </form>
 
-              {/* Legal Social Gaming Disclaimer */}
-              <div className="flex gap-2 p-3 bg-slate-900/60 border border-slate-800 rounded-2xl">
+              {/* Social Gaming Compliance Disclaimer */}
+              <div className="flex gap-2 p-3 bg-slate-900/60 border border-slate-800/80 rounded-2xl">
                 <ShieldCheck size={16} className="text-emerald-400 shrink-0 mt-0.5" />
                 <p className="text-[10px] text-slate-400 leading-relaxed font-medium">
-                  <strong className="text-slate-300">Social Gaming Disclaimer:</strong> Virtual credits have no cash value and cannot be withdrawn or exchanged for real money. Played strictly for fun and entertainment.
+                  <strong className="text-slate-300">Social Gaming Disclaimer:</strong> Game credits are strictly virtual entertainment tokens for social play. They have no real cash value and cannot be withdrawn or exchanged for real currency.
                 </p>
               </div>
             </div>
