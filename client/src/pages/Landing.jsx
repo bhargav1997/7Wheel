@@ -164,8 +164,8 @@ const Landing = () => {
       </AnimatePresence>
 
       {/* Always Visible Fixed Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 py-2 border-b border-slate-800/80 bg-[#05050a]/95 backdrop-blur-2xl shadow-2xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+      <header className="fixed top-0 left-0 right-0 z-50 py-1.5 sm:py-2 border-b border-slate-800/80 bg-[#05050a]/95 backdrop-blur-2xl shadow-2xl">
+        <div className="max-w-7xl mx-auto px-2.5 sm:px-6 h-13 sm:h-14 flex items-center justify-between gap-1.5 sm:gap-3">
           
           {/* Brand Logo */}
           <Link
@@ -175,14 +175,14 @@ const Landing = () => {
               window.history.pushState('', document.title, window.location.pathname);
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className="flex items-center gap-3 group"
+            className="flex items-center gap-1.5 sm:gap-3 group shrink-0"
           >
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-brand-500 via-purple-600 to-pink-600 flex items-center justify-center text-xl font-black text-white shadow-lg shadow-brand-500/30 group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-gradient-to-br from-brand-500 via-purple-600 to-pink-600 flex items-center justify-center text-base sm:text-xl font-black text-white shadow-lg shadow-brand-500/30 group-hover:scale-105 transition-transform shrink-0">
               7
             </div>
             <div>
-              <span className="font-display font-black text-white text-lg tracking-tight leading-none block">7 WHEEL</span>
-              <span className="text-[9px] text-brand-400 font-extrabold tracking-widest uppercase leading-none block mt-1">Social Gaming Hub</span>
+              <span className="font-display font-black text-white text-sm sm:text-lg tracking-tight leading-none block whitespace-nowrap">7 WHEEL</span>
+              <span className="text-[8px] sm:text-[9px] text-brand-400 font-extrabold tracking-wider sm:tracking-widest uppercase leading-none block mt-0.5 sm:mt-1 whitespace-nowrap">Social Hub</span>
             </div>
           </Link>
 
@@ -203,20 +203,22 @@ const Landing = () => {
             <Link to="/privacy-terms" className="hover:text-white transition-colors">Rules</Link>
           </nav>
 
-          {/* Action CTAs */}
-          <div className="flex items-center gap-3">
+          {/* Action CTAs — Compact Horizontal Format under 412px */}
+          <div className="flex items-center gap-1 sm:gap-3 shrink-0">
             {user ? (
-              <Link to="/play" className="btn-primary py-2.5 px-6 text-xs font-black flex items-center gap-2 glow-brand rounded-xl">
-                Lobby ({formatCredits(user.balance)} Credits) <Zap size={14} />
+              <Link to="/play" className="btn-primary py-1.5 sm:py-2.5 px-2.5 sm:px-6 text-[11px] sm:text-xs font-black flex items-center gap-1 sm:gap-2 glow-brand rounded-xl whitespace-nowrap shadow-md">
+                <span>Lobby</span>
+                <span className="hidden xs:inline text-[10px] sm:text-xs text-brand-200">({formatCredits(user.balance)})</span>
+                <Zap size={13} className="text-yellow-300 shrink-0" />
               </Link>
             ) : (
               <>
-                <Link to="/login" className="text-slate-300 hover:text-white text-xs font-extrabold px-3 py-2 transition-colors">
+                <Link to="/login" className="text-slate-300 hover:text-white text-[11px] sm:text-xs font-extrabold px-1.5 sm:px-3 py-1.5 sm:py-2 transition-colors whitespace-nowrap">
                   Sign In
                 </Link>
-                <Link to="/register" className="btn-primary py-2.5 px-5 text-xs font-black rounded-xl glow-brand flex items-center gap-1.5">
-                  <Coins size={15} className="text-yellow-300" />
-                  Claim 100 Bonus Credits
+                <Link to="/register" className="btn-primary py-1.5 sm:py-2.5 px-2.5 sm:px-5 text-[11px] sm:text-xs font-black rounded-xl glow-brand flex items-center gap-1 sm:gap-1.5 whitespace-nowrap shrink-0 shadow-md">
+                  <Coins size={13} className="text-yellow-300 shrink-0" />
+                  <span>Claim 100 <span className="hidden xs:inline">Credits</span></span>
                 </Link>
               </>
             )}

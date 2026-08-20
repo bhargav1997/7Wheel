@@ -29,26 +29,26 @@ const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, logi
 
   return (
     <header className="relative z-50 border-b border-casino-border bg-casino-card/90 backdrop-blur-2xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-2.5 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4">
 
         {/* Left: Brand + Sleek Game Selector Tabs */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-2 sm:gap-6 shrink-0">
           <Link
             to="/play"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="flex items-center gap-2.5 group"
+            className="flex items-center gap-2 group shrink-0"
           >
-            <div className="w-9 h-9 rounded-xl bg-brand-gradient flex items-center justify-center text-lg font-black text-white glow-brand group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-brand-gradient flex items-center justify-center text-base sm:text-lg font-black text-white glow-brand group-hover:scale-105 transition-transform shrink-0">
               7
             </div>
-            <div className="hidden sm:block">
-              <span className="font-display font-bold text-white text-base leading-none block">7 Wheel</span>
-              <span className="text-[10px] text-slate-400 font-medium leading-none">Social Casino</span>
+            <div className="hidden xs:block">
+              <span className="font-display font-bold text-white text-sm sm:text-base leading-none block whitespace-nowrap">7 Wheel</span>
+              <span className="text-[9px] sm:text-[10px] text-slate-400 font-medium leading-none block mt-0.5 whitespace-nowrap">Social Casino</span>
             </div>
           </Link>
 
-          {/* Game Tabs */}
-          <nav className="flex items-center gap-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
+          {/* Game Tabs (visible on tablet/desktop) */}
+          <nav className="hidden lg:flex items-center gap-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
             <Link
               to="/play"
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
@@ -148,50 +148,50 @@ const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, logi
           </nav>
         </div>
 
-        {/* Right: Credits + Crate + Profile Dropdown */}
-        <div className="flex items-center gap-3">
+        {/* Right: Credits + Crate + Profile Dropdown (Horizontal & Compact) */}
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
 
           {/* Daily Crate Button */}
           <motion.button
             onClick={() => setShowCrateModal(true)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-300 hover:border-purple-400/60 transition-all text-xs font-bold"
+            className="flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-300 hover:border-purple-400/60 transition-all text-[11px] sm:text-xs font-bold"
             title="Open Daily Mystery Crate"
           >
-            <Gift size={14} className="text-purple-400 animate-bounce" />
+            <Gift size={13} className="text-purple-400 animate-bounce shrink-0" />
             <span className="hidden md:inline">Daily Crate</span>
           </motion.button>
 
           {/* Credits Balance & Buy Pill */}
-          <div className="flex items-center">
-            <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-l-xl px-3 py-1.5 border-r-0">
-              <Coins size={14} className="text-amber-400" />
-              <span className="font-display font-bold text-xs sm:text-sm text-slate-100 tabular-nums">
+          <div className="flex items-center shrink-0">
+            <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-l-xl px-2 sm:px-3 py-1 sm:py-1.5 border-r-0">
+              <Coins size={13} className="text-amber-400 shrink-0" />
+              <span className="font-display font-bold text-[11px] sm:text-sm text-slate-100 tabular-nums">
                 {formatCredits(user?.balance)}
               </span>
             </div>
             <button
               onClick={() => setShowBuyCreditsModal(true)}
-              className="px-2.5 py-1.5 bg-brand-gradient border border-brand-500 hover:brightness-110 rounded-r-xl text-white font-bold text-xs flex items-center gap-1 transition-all"
+              className="px-2 sm:px-2.5 py-1 sm:py-1.5 bg-brand-gradient border border-brand-500 hover:brightness-110 rounded-r-xl text-white font-bold text-[11px] sm:text-xs flex items-center gap-1 transition-all"
               title="Get More Credits"
             >
-              <Zap size={12} />
+              <Zap size={11} className="shrink-0" />
               <span className="hidden sm:inline">Get</span>
             </button>
           </div>
 
           {/* User Profile Menu */}
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
               onClick={() => setShowMenu((v) => !v)}
-              className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 hover:border-slate-700 transition-colors"
+              className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-xl px-2 py-1 sm:px-2.5 sm:py-1.5 hover:border-slate-700 transition-colors"
             >
-              <div className="w-6 h-6 rounded-lg bg-brand-gradient flex items-center justify-center text-xs font-bold text-white">
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-brand-gradient flex items-center justify-center text-[10px] sm:text-xs font-bold text-white shrink-0">
                 {user?.username?.[0]?.toUpperCase()}
               </div>
               <ChevronDown
-                size={14}
+                size={12}
                 className={`text-slate-400 transition-transform ${showMenu ? 'rotate-180' : ''}`}
               />
             </button>
