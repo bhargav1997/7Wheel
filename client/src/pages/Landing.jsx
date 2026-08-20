@@ -188,18 +188,9 @@ const Landing = () => {
 
           {/* Quick Nav Links */}
           <nav className="hidden md:flex items-center gap-6 text-xs font-extrabold tracking-wider uppercase text-slate-400">
-            <button
-              onClick={() => {
-                window.history.pushState('', document.title, window.location.pathname);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="hover:text-brand-400 text-slate-200 transition-colors flex items-center gap-1"
-            >
-              <span>Hero Section</span>
-            </button>
-            <a href="#games" className="hover:text-white transition-colors">Games Suite</a>
-            <a href="#disclaimer" className="hover:text-cyan-400 transition-colors">Social Play Disclaimer</a>
+            <a href="#games" className="hover:text-white transition-colors">Games</a>
             <a href="#features" className="hover:text-white transition-colors">VIP Perks</a>
+            <a href="#disclaimer" className="hover:text-cyan-400 transition-colors">Fair Play</a>
             <Link to="/privacy-terms" className="hover:text-white transition-colors">Rules</Link>
           </nav>
 
