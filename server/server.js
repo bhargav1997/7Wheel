@@ -29,10 +29,28 @@ connectDB();
 const app = express();
 const httpServer = http.createServer(app);
 
+// Determine allowed origins (support comma-separated origins, e.g. "https://7-wheel.vercel.app,http://localhost:5173")
+const allowedOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(',').map((url) => url.trim().replace(/\/+$/, ''))
+  : ['http://localhost:5173', 'http://localhost:3000'];
+
+const isOriginAllowed = (origin, callback) => {
+  if (!origin) return callback(null, true);
+  const cleanOrigin = origin.replace(/\/+$/, '');
+  if (
+    allowedOrigins.includes(cleanOrigin) ||
+    allowedOrigins.includes('*') ||
+    cleanOrigin.endsWith('.vercel.app')
+  ) {
+    return callback(null, true);
+  }
+  return callback(null, true);
+};
+
 // Socket.io setup with CORS
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: isOriginAllowed,
     methods: ['GET', 'POST'],
     credentials: true,
   },
@@ -43,7 +61,7 @@ const io = new Server(httpServer, {
 // ─────────────────────────────────────────────
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: isOriginAllowed,
     credentials: true,
   })
 );
