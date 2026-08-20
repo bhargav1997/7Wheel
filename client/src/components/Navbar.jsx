@@ -1,6 +1,10 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Zap, ChevronDown, Shield, Settings, History, Volume2, VolumeX, Flame, Gift, Dices, Disc, Gem, Bomb, Rocket, Layers, Coins } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import {
+  Zap, ChevronDown, Shield, Settings, History, Volume2, VolumeX,
+  Flame, Gift, Dices, Disc, Gem, Bomb, Rocket, Layers, Coins,
+  Gamepad2, User, Trophy, Sparkles, X, ChevronRight, Check
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
@@ -10,276 +14,416 @@ import RoundHistory from './RoundHistory';
 import BuyCreditsModal from './BuyCreditsModal';
 import { formatCredits } from '../utils/format';
 
+const GAMES = [
+  {
+    path: '/play',
+    label: '7 Wheel',
+    tagline: 'Multiplayer 7-Multiplier Wheel',
+    icon: Disc,
+    badge: 'HOT',
+    color: 'from-purple-600 to-brand-500',
+  },
+  {
+    path: '/flip-or-flop',
+    label: 'Flip or Flop',
+    tagline: 'Rapid 50/50 Streak Multiplier',
+    icon: Dices,
+    badge: 'LIVE',
+    color: 'from-amber-500 to-orange-600',
+  },
+  {
+    path: '/slots',
+    label: 'Vegas 777 Slots',
+    tagline: 'Classic 3-Reel with Wild Emblems',
+    icon: Gem,
+    badge: '50× JACKPOT',
+    color: 'from-purple-600 to-pink-600',
+  },
+  {
+    path: '/mines',
+    label: 'Mines Sweeper',
+    tagline: '5×5 Grid & Instant Cashout',
+    icon: Bomb,
+    badge: '97% RTP',
+    color: 'from-emerald-600 to-teal-600',
+  },
+  {
+    path: '/crash',
+    label: 'Crash Rocket',
+    tagline: 'Exponential Multiplier Curve',
+    icon: Rocket,
+    badge: 'HIGH MULT',
+    color: 'from-red-600 to-pink-600',
+  },
+  {
+    path: '/roulette',
+    label: 'Roulette 36×',
+    tagline: 'European Single-Zero Table',
+    icon: Disc,
+    badge: '36× PAYOUT',
+    color: 'from-amber-600 to-yellow-600',
+  },
+  {
+    path: '/blackjack',
+    label: 'Blackjack 21',
+    tagline: 'Classic Casino Table vs Dealer',
+    icon: Layers,
+    badge: '3:2 PAYOUT',
+    color: 'from-emerald-600 to-cyan-600',
+  },
+  {
+    path: '/plinko',
+    label: 'Plinko Pyramid',
+    tagline: 'Arcade Physics up to 1000×',
+    icon: Dices,
+    badge: '1000× MAX',
+    color: 'from-pink-600 to-purple-600',
+  },
+];
+
 const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, loginStreak }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, showBuyCreditsModal, setShowBuyCreditsModal, setShowAdminStats } = useAuth();
   const [showMenu, setShowMenu] = useState(false);
   const [showCrateModal, setShowCrateModal] = useState(false);
   const [showStreakModal, setShowStreakModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [showMobileGamesDrawer, setShowMobileGamesDrawer] = useState(false);
 
-  const isFlipPage  = location.pathname === '/flip-or-flop';
-  const isSlotsPage = location.pathname === '/slots';
-  const isMinesPage = location.pathname === '/mines';
-  const isCrashPage = location.pathname === '/crash';
-  const isRoulettePage = location.pathname === '/roulette';
-  const isBlackjackPage = location.pathname === '/blackjack';
-  const isPlinkoPage = location.pathname === '/plinko';
-  const isWheelPage = location.pathname === '/play' || location.pathname === '/';
+  const isGameActive = (gamePath) => {
+    if (gamePath === '/play') return location.pathname === '/play' || location.pathname === '/';
+    return location.pathname === gamePath;
+  };
+
+  const currentGame = GAMES.find((g) => isGameActive(g.path)) || GAMES[0];
 
   return (
-    <header className="relative z-50 border-b border-casino-border bg-casino-card/90 backdrop-blur-2xl">
-      <div className="max-w-7xl mx-auto px-2.5 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4">
+    <>
+      {/* ── TOP HEADER (Desktop & Mobile) ── */}
+      <header className="sticky top-0 z-40 border-b border-casino-border bg-casino-card/95 backdrop-blur-2xl">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2">
 
-        {/* Left: Brand + Sleek Game Selector Tabs */}
-        <div className="flex items-center gap-2 sm:gap-6 shrink-0">
-          <Link
-            to="/play"
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="flex items-center gap-2 group shrink-0"
-          >
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-brand-gradient flex items-center justify-center text-base sm:text-lg font-black text-white glow-brand group-hover:scale-105 transition-transform shrink-0">
-              7
-            </div>
-            <div className="hidden xs:block">
-              <span className="font-display font-bold text-white text-sm sm:text-base leading-none block whitespace-nowrap">7 Wheel</span>
-              <span className="text-[9px] sm:text-[10px] text-slate-400 font-medium leading-none block mt-0.5 whitespace-nowrap">Social Casino</span>
-            </div>
-          </Link>
-
-          {/* Game Tabs (visible on tablet/desktop) */}
-          <nav className="hidden lg:flex items-center gap-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
+          {/* Left: Brand Logo + Desktop Game Tabs */}
+          <div className="flex items-center gap-3 sm:gap-6 shrink-0">
             <Link
               to="/play"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                isWheelPage
-                  ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-              }`}
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="flex items-center gap-2 group shrink-0"
             >
-              <Disc size={13} />
-              <span>Wheel</span>
-            </Link>
-
-            <Link
-              to="/flip-or-flop"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                isFlipPage
-                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-extrabold'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-              }`}
-            >
-              <Dices size={13} />
-              <span>Flip</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
-            </Link>
-
-            <Link
-              to="/slots"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                isSlotsPage
-                  ? 'bg-purple-500 text-white shadow-md shadow-purple-500/20 font-extrabold'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-              }`}
-            >
-              <Gem size={13} />
-              <span>Slots</span>
-            </Link>
-
-            <Link
-              to="/mines"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                isMinesPage
-                  ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20 font-extrabold'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-              }`}
-            >
-              <Bomb size={13} />
-              <span>Mines</span>
-            </Link>
-
-            <Link
-              to="/crash"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                isCrashPage
-                  ? 'bg-purple-500 text-white shadow-md shadow-purple-500/20 font-extrabold'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-              }`}
-            >
-              <Rocket size={13} />
-              <span>Crash</span>
-            </Link>
-
-            <Link
-              to="/roulette"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                isRoulettePage
-                  ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-extrabold'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-              }`}
-            >
-              <Disc size={13} />
-              <span>Roulette</span>
-            </Link>
-
-            <Link
-              to="/blackjack"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                isBlackjackPage
-                  ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20 font-extrabold'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-              }`}
-            >
-              <Layers size={13} />
-              <span>Blackjack</span>
-            </Link>
-
-            <Link
-              to="/plinko"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                isPlinkoPage
-                  ? 'bg-purple-500 text-white shadow-md shadow-purple-500/20 font-extrabold'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-              }`}
-            >
-              <Dices size={13} />
-              <span>Plinko</span>
-            </Link>
-          </nav>
-        </div>
-
-        {/* Right: Credits + Crate + Profile Dropdown (Horizontal & Compact) */}
-        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-
-          {/* Daily Crate Button */}
-          <motion.button
-            onClick={() => setShowCrateModal(true)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-300 hover:border-purple-400/60 transition-all text-[11px] sm:text-xs font-bold"
-            title="Open Daily Mystery Crate"
-          >
-            <Gift size={13} className="text-purple-400 animate-bounce shrink-0" />
-            <span className="hidden md:inline">Daily Crate</span>
-          </motion.button>
-
-          {/* Credits Balance & Buy Pill */}
-          <div className="flex items-center shrink-0">
-            <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-l-xl px-2 sm:px-3 py-1 sm:py-1.5 border-r-0">
-              <Coins size={13} className="text-amber-400 shrink-0" />
-              <span className="font-display font-bold text-[11px] sm:text-sm text-slate-100 tabular-nums">
-                {formatCredits(user?.balance)}
-              </span>
-            </div>
-            <button
-              onClick={() => setShowBuyCreditsModal(true)}
-              className="px-2 sm:px-2.5 py-1 sm:py-1.5 bg-brand-gradient border border-brand-500 hover:brightness-110 rounded-r-xl text-white font-bold text-[11px] sm:text-xs flex items-center gap-1 transition-all"
-              title="Get More Credits"
-            >
-              <Zap size={11} className="shrink-0" />
-              <span className="hidden sm:inline">Get</span>
-            </button>
-          </div>
-
-          {/* User Profile Menu */}
-          <div className="relative shrink-0">
-            <button
-              onClick={() => setShowMenu((v) => !v)}
-              className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-xl px-2 py-1 sm:px-2.5 sm:py-1.5 hover:border-slate-700 transition-colors"
-            >
-              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-lg bg-brand-gradient flex items-center justify-center text-[10px] sm:text-xs font-bold text-white shrink-0">
-                {user?.username?.[0]?.toUpperCase()}
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-brand-gradient flex items-center justify-center text-base sm:text-lg font-black text-white glow-brand group-hover:scale-105 transition-transform shrink-0">
+                7
               </div>
-              <ChevronDown
-                size={12}
-                className={`text-slate-400 transition-transform ${showMenu ? 'rotate-180' : ''}`}
-              />
+              <div className="hidden xs:block">
+                <span className="font-display font-bold text-white text-sm sm:text-base leading-none block whitespace-nowrap">7 Wheel</span>
+                <span className="text-[9px] sm:text-[10px] text-slate-400 font-medium leading-none block mt-0.5 whitespace-nowrap">Social Casino</span>
+              </div>
+            </Link>
+
+            {/* Mobile Game Switcher Pill Trigger */}
+            <button
+              onClick={() => setShowMobileGamesDrawer(true)}
+              className="lg:hidden flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-brand-500/50 text-slate-200 transition-all text-xs font-bold"
+            >
+              <currentGame.icon size={13} className="text-brand-400 shrink-0" />
+              <span className="truncate max-w-[85px]">{currentGame.label}</span>
+              <ChevronDown size={12} className="text-slate-400 shrink-0" />
             </button>
 
-            <AnimatePresence>
-              {showMenu && (
-                <motion.div
-                  initial={{ opacity: 0, y: -8, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute right-0 top-12 w-56 card shadow-2xl shadow-black/80 overflow-hidden border border-slate-800 bg-slate-950/95"
-                >
-                  {/* User Banner */}
-                  <div className="p-3 border-b border-slate-800/80 bg-slate-900/50">
-                    <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Logged in as</p>
-                    <p className="font-bold text-sm text-white truncate">{user?.username}</p>
-                  </div>
+            {/* Desktop Game Tabs (≥1024px) */}
+            <nav className="hidden lg:flex items-center gap-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
+              {GAMES.map((game) => {
+                const active = isGameActive(game.path);
+                const Icon = game.icon;
+                return (
+                  <Link
+                    key={game.path}
+                    to={game.path}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                      active
+                        ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                    }`}
+                  >
+                    <Icon size={13} />
+                    <span>{game.label}</span>
+                    {game.badge === 'LIVE' && <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
 
-                  {/* Menu Items */}
-                  <div className="p-2 space-y-1 text-xs">
-                    <Link
-                      to="/profile"
-                      onClick={() => setShowMenu(false)}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition-colors"
-                    >
-                      <Settings size={14} className="text-slate-400" />
-                      Profile & Settings
-                    </Link>
+          {/* Right: Credits Balance + Profile Dropdown */}
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
 
-                    <button
-                      onClick={() => { setShowStreakModal(true); onOpenStreak?.(); setShowMenu(false); }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-amber-400 hover:bg-amber-500/10 transition-colors text-left font-semibold"
-                    >
-                      <Flame size={14} />
-                      Daily Login Bonus
-                      {loginStreak > 0 && <span className="ml-auto text-[10px] bg-amber-500/20 px-1.5 py-0.5 rounded-full">{loginStreak}d</span>}
-                    </button>
+            {/* Daily Crate Button (Desktop) */}
+            <motion.button
+              onClick={() => setShowCrateModal(true)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="hidden md:flex items-center gap-1 px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-300 hover:border-purple-400/60 transition-all text-xs font-bold"
+              title="Open Daily Mystery Crate"
+            >
+              <Gift size={14} className="text-purple-400 animate-bounce shrink-0" />
+              <span>Daily Crate</span>
+            </motion.button>
 
-                    <button
-                      onClick={() => { setShowHistoryModal(true); onOpenHistory?.(); setShowMenu(false); }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition-colors text-left"
-                    >
-                      <History size={14} className="text-slate-400" />
-                      Round History
-                    </button>
+            {/* Credits Balance & Get Pill */}
+            <div className="flex items-center shrink-0">
+              <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-l-xl px-2.5 sm:px-3 py-1 sm:py-1.5 border-r-0">
+                <Coins size={14} className="text-amber-400 shrink-0" />
+                <span className="font-display font-bold text-xs sm:text-sm text-slate-100 tabular-nums">
+                  {formatCredits(user?.balance)}
+                </span>
+              </div>
+              <button
+                onClick={() => setShowBuyCreditsModal(true)}
+                className="px-2 sm:px-2.5 py-1 sm:py-1.5 bg-brand-gradient border border-brand-500 hover:brightness-110 rounded-r-xl text-white font-bold text-xs flex items-center gap-1 transition-all shadow-md"
+                title="Get More Credits"
+              >
+                <Zap size={11} className="shrink-0" />
+                <span className="text-[11px] sm:text-xs">Get</span>
+              </button>
+            </div>
 
-                    <button
-                      onClick={() => onToggleSound?.()}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition-colors text-left"
-                    >
-                      {soundEnabled ? <Volume2 size={14} className="text-emerald-400" /> : <VolumeX size={14} className="text-slate-500" />}
-                      Sound Effects: {soundEnabled ? 'ON' : 'OFF'}
-                    </button>
+            {/* User Profile Menu */}
+            <div className="relative shrink-0">
+              <button
+                onClick={() => setShowMenu((v) => !v)}
+                className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-xl px-2 py-1 sm:px-2.5 sm:py-1.5 hover:border-slate-700 transition-colors"
+              >
+                <div className="w-6 h-6 rounded-lg bg-brand-gradient flex items-center justify-center text-xs font-bold text-white shrink-0">
+                  {user?.username?.[0]?.toUpperCase()}
+                </div>
+                <ChevronDown
+                  size={12}
+                  className={`text-slate-400 transition-transform ${showMenu ? 'rotate-180' : ''}`}
+                />
+              </button>
 
-                    <a
-                      href="https://shadow-breach.vercel.app/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => setShowMenu(false)}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-purple-400 hover:bg-purple-500/10 transition-colors font-semibold"
-                    >
-                      Try Shadow Breach
-                    </a>
+              <AnimatePresence>
+                {showMenu && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-12 w-56 card shadow-2xl shadow-black/80 overflow-hidden border border-slate-800 bg-slate-950/95 z-50"
+                  >
+                    {/* User Banner */}
+                    <div className="p-3 border-b border-slate-800/80 bg-slate-900/50">
+                      <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Logged in as</p>
+                      <p className="font-bold text-sm text-white truncate">{user?.username}</p>
+                    </div>
 
-                    {user?.role === 'admin' && (
-                      <button
-                        onClick={() => { setShowAdminStats(true); setShowMenu(false); }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-brand-400 hover:bg-brand-500/10 transition-colors text-left font-bold border-t border-slate-800/80 mt-1 pt-2"
+                    {/* Menu Items */}
+                    <div className="p-2 space-y-1 text-xs">
+                      <Link
+                        to="/profile"
+                        onClick={() => setShowMenu(false)}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition-colors"
                       >
-                        <Shield size={14} />
-                        Admin Dashboard
+                        <Settings size={14} className="text-slate-400" />
+                        Profile & Settings
+                      </Link>
+
+                      <button
+                        onClick={() => { setShowStreakModal(true); onOpenStreak?.(); setShowMenu(false); }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-amber-400 hover:bg-amber-500/10 transition-colors text-left font-semibold"
+                      >
+                        <Flame size={14} />
+                        Daily Login Bonus
+                        {loginStreak > 0 && <span className="ml-auto text-[10px] bg-amber-500/20 px-1.5 py-0.5 rounded-full">{loginStreak}d</span>}
                       </button>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+
+                      <button
+                        onClick={() => { setShowHistoryModal(true); onOpenHistory?.(); setShowMenu(false); }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition-colors text-left"
+                      >
+                        <History size={14} className="text-slate-400" />
+                        Round History
+                      </button>
+
+                      <button
+                        onClick={() => onToggleSound?.()}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800/80 hover:text-white transition-colors text-left"
+                      >
+                        {soundEnabled ? <Volume2 size={14} className="text-emerald-400" /> : <VolumeX size={14} className="text-slate-500" />}
+                        Sound Effects: {soundEnabled ? 'ON' : 'OFF'}
+                      </button>
+
+                      <a
+                        href="https://shadow-breach.vercel.app/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => setShowMenu(false)}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-purple-400 hover:bg-purple-500/10 transition-colors font-semibold"
+                      >
+                        Try Shadow Breach
+                      </a>
+
+                      {user?.role === 'admin' && (
+                        <button
+                          onClick={() => { setShowAdminStats(true); setShowMenu(false); }}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-brand-400 hover:bg-brand-500/10 transition-colors text-left font-bold border-t border-slate-800/80 mt-1 pt-2"
+                        >
+                          <Shield size={14} />
+                          Admin Dashboard
+                        </button>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
-      </div>
+      </header>
 
+      {/* ── MOBILE QUICK GAMES DRAWER (Bottom Sheet) ── */}
+      <AnimatePresence>
+        {showMobileGamesDrawer && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowMobileGamesDrawer(false)}
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 lg:hidden"
+            />
+
+            {/* Bottom Sheet Modal */}
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 26, stiffness: 280 }}
+              className="fixed bottom-0 left-0 right-0 z-50 bg-slate-950 border-t border-slate-800 rounded-t-3xl p-5 max-h-[85vh] overflow-y-auto lg:hidden shadow-2xl space-y-4"
+            >
+              {/* Sheet Header */}
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2">
+                  <Gamepad2 size={20} className="text-brand-400" />
+                  <span className="font-display font-black text-lg text-white">Select Game</span>
+                </div>
+                <button
+                  onClick={() => setShowMobileGamesDrawer(false)}
+                  className="w-8 h-8 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* Game Grid Cards */}
+              <div className="grid grid-cols-1 xs:grid-cols-2 gap-2.5">
+                {GAMES.map((game) => {
+                  const active = isGameActive(game.path);
+                  const Icon = game.icon;
+
+                  return (
+                    <button
+                      key={game.path}
+                      onClick={() => {
+                        setShowMobileGamesDrawer(false);
+                        navigate(game.path);
+                      }}
+                      className={`p-3.5 rounded-2xl border text-left flex items-center justify-between transition-all ${
+                        active
+                          ? 'bg-gradient-to-r from-brand-500/20 to-purple-600/20 border-brand-500 shadow-lg shadow-brand-500/20'
+                          : 'bg-slate-900/80 border-slate-800 hover:border-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${game.color} flex items-center justify-center text-white shadow-md shrink-0`}>
+                          <Icon size={18} />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-display font-black text-sm text-white truncate">{game.label}</span>
+                            {game.badge && (
+                              <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-brand-500/20 text-brand-300 border border-brand-500/30 shrink-0">
+                                {game.badge}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-slate-400 truncate">{game.tagline}</p>
+                        </div>
+                      </div>
+
+                      {active ? (
+                        <div className="w-6 h-6 rounded-full bg-brand-500 flex items-center justify-center text-white shrink-0 ml-2">
+                          <Check size={13} />
+                        </div>
+                      ) : (
+                        <ChevronRight size={16} className="text-slate-600 shrink-0 ml-2" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* ── MOBILE BOTTOM NAVIGATION DOCK (Native iOS/Android App feel) ── */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-800/90 bg-[#09090f]/95 backdrop-blur-2xl lg:hidden px-3 py-2 flex items-center justify-around shadow-[0_-4px_25px_rgba(0,0,0,0.7)]">
+        
+        {/* Tab 1: Games Hub Drawer */}
+        <button
+          onClick={() => setShowMobileGamesDrawer(true)}
+          className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-white transition-colors"
+        >
+          <div className="w-8 h-8 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center text-brand-400">
+            <Gamepad2 size={16} />
+          </div>
+          <span className="text-[10px] font-bold tracking-tight text-brand-300">Games</span>
+        </button>
+
+        {/* Tab 2: Daily Crate */}
+        <button
+          onClick={() => setShowCrateModal(true)}
+          className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-white transition-colors"
+        >
+          <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
+            <Gift size={16} className="animate-bounce" />
+          </div>
+          <span className="text-[10px] font-bold tracking-tight text-slate-300">Crates</span>
+        </button>
+
+        {/* Tab 3: Daily Streak */}
+        <button
+          onClick={() => { setShowStreakModal(true); onOpenStreak?.(); }}
+          className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-white transition-colors"
+        >
+          <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+            <Flame size={16} />
+          </div>
+          <span className="text-[10px] font-bold tracking-tight text-slate-300">Streak</span>
+        </button>
+
+        {/* Tab 4: Profile & Settings */}
+        <Link
+          to="/profile"
+          className="flex flex-col items-center gap-1 py-1 px-3 text-slate-400 hover:text-white transition-colors"
+        >
+          <div className="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300">
+            <User size={16} />
+          </div>
+          <span className="text-[10px] font-bold tracking-tight text-slate-300">Profile</span>
+        </Link>
+      </nav>
+
+      {/* Modals */}
       <LootCrateModal isOpen={showCrateModal} onClose={() => setShowCrateModal(false)} />
       <DailyStreakModal open={showStreakModal} onClose={() => setShowStreakModal(false)} />
       <RoundHistory open={showHistoryModal} onClose={() => setShowHistoryModal(false)} />
       <BuyCreditsModal isOpen={showBuyCreditsModal} onClose={() => setShowBuyCreditsModal(false)} />
-    </header>
+    </>
   );
 };
 
 export default Navbar;
+

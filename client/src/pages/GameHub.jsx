@@ -200,7 +200,7 @@ const GameHub = () => {
       <DailyStreakModal open={showStreak} onClose={() => setShowStreak(false)} />
       <RoundHistory open={showHistory} onClose={() => setShowHistory(false)} />
 
-      <main style={{ flex: 1, maxWidth: 1280, margin: '0 auto', width: '100%', padding: '16px 16px 24px' }}>
+      <main className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6 pb-24 lg:pb-8 relative z-10">
 
         {/* ── Top HUD Bar ─────────────────────────────────────────────── */}
         <motion.div

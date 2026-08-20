@@ -233,7 +233,7 @@ export default function Mines() {
 
       <Navbar />
 
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-6 space-y-6 relative z-10">
+      <main className="flex-1 max-w-5xl w-full mx-auto px-3 sm:px-4 py-4 sm:py-6 pb-24 lg:pb-8 space-y-4 sm:space-y-6 relative z-10">
 
         {/* Header Bar */}
         <div className="flex items-center justify-between">

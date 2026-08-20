@@ -51,6 +51,40 @@ const broadcastState = (io) => {
   });
 };
 
+// Helper function to process cashouts atomically
+const processCashout = async (bet, mult, isAuto = false, io) => {
+  if (bet.cashedOut) return;
+  bet.cashedOut = true;
+  bet.cashoutMult = mult;
+  bet.payout = Math.round(bet.amount * mult);
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      bet.userId,
+      { $inc: { balance: bet.payout } },
+      { new: true }
+    );
+
+    await Transaction.create({
+      userId: bet.userId,
+      type: 'BET_WON',
+      amount: bet.payout,
+      balanceAfter: updatedUser.balance,
+      description: `Crash ${isAuto ? 'Auto' : 'Manual'} Cashout at ${mult}× = +${bet.payout} Credits`,
+    });
+
+    // Emit balance update and cashout confirmation to the player
+    io.to(bet.socketId).emit('balance:update', { credits: updatedUser.balance });
+    io.to(bet.socketId).emit('crash:cashoutConfirmed', {
+      multiplier: mult,
+      payout: bet.payout,
+      isAuto,
+    });
+  } catch (err) {
+    console.error('[Crash] Cashout processing error:', err);
+  }
+};
+
 const startCrashLoop = (io) => {
   if (crashInterval) return;
 
@@ -83,6 +117,13 @@ const startCrashLoop = (io) => {
           const nextMult = parseFloat(Math.pow(Math.E, 0.08 * elapsedSec).toFixed(2));
 
           if (nextMult >= crashState.crashPoint) {
+            // Process any auto-cashouts that reached their target before or at the crashPoint!
+            for (const bet of crashState.bets) {
+              if (!bet.cashedOut && bet.autoCashout && bet.autoCashout <= crashState.crashPoint) {
+                await processCashout(bet, bet.autoCashout, true, io);
+              }
+            }
+
             // CRASHED!
             clearInterval(flyTimer);
             crashState.multiplier = crashState.crashPoint;
@@ -98,39 +139,10 @@ const startCrashLoop = (io) => {
           } else {
             crashState.multiplier = nextMult;
 
-            // Check auto-cashouts for active bets
+            // Check auto-cashouts that reached their target during flight
             for (const bet of crashState.bets) {
               if (!bet.cashedOut && bet.autoCashout && nextMult >= bet.autoCashout) {
-                bet.cashedOut = true;
-                bet.cashoutMult = bet.autoCashout;
-                bet.payout = Math.round(bet.amount * bet.autoCashout);
-
-                try {
-                  const updatedUser = await User.findByIdAndUpdate(
-                    bet.userId,
-                    { $inc: { balance: bet.payout } },
-                    { new: true }
-                  );
-
-                  await Transaction.create({
-                    userId: bet.userId,
-                    type: 'BET_WON',
-                    amount: bet.payout,
-                    balanceAfter: updatedUser.balance,
-                    description: `Crash Auto Cashout at ${bet.autoCashout}× = +${bet.payout} 🪙`,
-                  });
-
-                  const sock = io.sockets.sockets.get(bet.socketId);
-                  if (sock) {
-                    sock.emit('balance:update', { credits: updatedUser.balance });
-                    sock.emit('crash:cashoutConfirmed', {
-                      multiplier: bet.autoCashout,
-                      payout: bet.payout,
-                    });
-                  }
-                } catch (err) {
-                  console.error('[Crash] Auto cashout error:', err);
-                }
+                await processCashout(bet, bet.autoCashout, true, io);
               }
             }
 
@@ -285,27 +297,7 @@ const initCrashSocket = (io) => {
         }
 
         const currentMult = crashState.multiplier;
-        bet.cashedOut = true;
-        bet.cashoutMult = currentMult;
-        bet.payout = Math.round(bet.amount * currentMult);
-
-        const updatedUser = await User.findByIdAndUpdate(
-          bet.userId,
-          { $inc: { balance: bet.payout } },
-          { new: true }
-        );
-
-        await Transaction.create({
-          userId: bet.userId,
-          type: 'BET_WON',
-          amount: bet.payout,
-          balanceAfter: updatedUser.balance,
-          description: `Crash Manual Cashout at ${currentMult}× = +${bet.payout} 🪙`,
-        });
-
-        socket.emit('balance:update', { credits: updatedUser.balance });
-        socket.emit('crash:cashoutConfirmed', { multiplier: currentMult, payout: bet.payout });
-
+        await processCashout(bet, currentMult, false, io);
         broadcastState(io);
       } catch (err) {
         console.error('[Crash] Manual cashout error:', err);

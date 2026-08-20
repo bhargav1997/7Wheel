@@ -204,6 +204,15 @@ export default function Crash() {
     socket.on('crash:state', (data) => {
       setGameState(data);
 
+      // Reconcile user bet state from room broadcast
+      if (user && data.bets) {
+        const myServerBet = data.bets.find((b) => b.username === user.username);
+        if (myServerBet && myServerBet.cashedOut && !cashedOutMsg) {
+          setCashedOutMsg({ multiplier: myServerBet.cashoutMult, payout: myServerBet.payout });
+          setShowWinConfetti(true);
+        }
+      }
+
       if (data.status === 'COUNTDOWN' && data.timeLeft === 5) {
         setMyBet(null);
         setCashedOutMsg(null);
@@ -217,11 +226,14 @@ export default function Crash() {
       toast.success(`Rocket bet locked in: ${bet.amount} Credits`);
     });
 
-    socket.on('crash:cashoutConfirmed', ({ multiplier, payout }) => {
+    socket.on('crash:cashoutConfirmed', ({ multiplier, payout, isAuto }) => {
       playWin();
       setShowWinConfetti(true);
       setCashedOutMsg({ multiplier, payout });
-      toast.success(`Cashed Out at ${multiplier}×! (+${payout.toLocaleString()} Credits)`, { duration: 3500 });
+      toast.success(
+        `${isAuto ? '⚡ Auto ' : ''}Cashed Out at ${multiplier}×! (+${payout.toLocaleString()} Credits)`,
+        { duration: 3500 }
+      );
     });
 
     socket.on('crash:exploded', ({ crashPoint }) => {
@@ -245,7 +257,7 @@ export default function Crash() {
       socket.off('crash:error');
       socket.off('balance:update');
     };
-  }, [socket, updateBalance, playWin, playLose, playClick]);
+  }, [socket, user, updateBalance, playWin, playLose, playClick, cashedOutMsg]);
 
   const handlePlaceBet = () => {
     if (gameState.status !== 'COUNTDOWN' || myBet) return;
@@ -253,8 +265,11 @@ export default function Crash() {
     if (isNaN(amount) || amount < 1) { toast.error('Minimum bet is 1 credit'); return; }
     if (amount > balance) { toast.error('Insufficient balance'); return; }
 
+    const parsedAuto = parseFloat(autoCashout);
+    const validAuto = !isNaN(parsedAuto) && parsedAuto >= 1.01 ? parsedAuto : null;
+
     const token = localStorage.getItem('7wheel_token');
-    socket.emit('crash:bet', { amount, autoCashout, token });
+    socket.emit('crash:bet', { amount, autoCashout: validAuto, token });
   };
 
   const handleCashout = () => {
@@ -273,7 +288,7 @@ export default function Crash() {
 
       <Navbar />
 
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-6 space-y-6 relative z-10">
+      <main className="flex-1 max-w-5xl w-full mx-auto px-3 sm:px-4 py-4 sm:py-6 pb-24 lg:pb-8 space-y-4 sm:space-y-6 relative z-10">
 
         {/* Top Header Bar */}
         <div className="flex items-center justify-between flex-wrap gap-3">
@@ -522,15 +537,22 @@ export default function Crash() {
 
             {/* Primary Action Button: PLACE BET or CASH OUT */}
             {gameState.status === 'FLYING' && myBet && !cashedOutMsg ? (
-              <motion.button
-                onClick={handleCashout}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
-                className="w-full py-4 rounded-2xl font-display font-black text-xl tracking-wider uppercase bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 shadow-xl shadow-emerald-500/30 border border-emerald-400/40 flex items-center justify-center gap-2"
-              >
-                <Trophy size={22} />
-                CASH OUT {currentPayout.toLocaleString()} Credits ({gameState.multiplier.toFixed(2)}×)
-              </motion.button>
+              <div className="space-y-2">
+                <motion.button
+                  onClick={handleCashout}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="w-full py-4 rounded-2xl font-display font-black text-xl tracking-wider uppercase bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 shadow-xl shadow-emerald-500/30 border border-emerald-400/40 flex items-center justify-center gap-2"
+                >
+                  <Trophy size={22} />
+                  CASH OUT NOW: {currentPayout.toLocaleString()} Credits ({gameState.multiplier.toFixed(2)}×)
+                </motion.button>
+                {myBet.autoCashout && (
+                  <p className="text-[11px] text-purple-300 text-center font-bold">
+                    ⚡ Auto Cashout Target: {myBet.autoCashout.toFixed(2)}× (Will auto cash out, or click button above to take profits early!)
+                  </p>
+                )}
+              </div>
             ) : (
               <motion.button
                 onClick={handlePlaceBet}
