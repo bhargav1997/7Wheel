@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, ShieldCheck, Trophy, Coins, Users, ArrowRight, Star, AlertTriangle, Sparkles, TrendingUp, Zap, HelpCircle, Gift, Flame, Disc, Gem, Bomb, Rocket, Layers, Dices, Play, CheckCircle2, ChevronRight, Lock, Gamepad2, Info, Crosshair, Award } from 'lucide-react';
+import { Shield, ShieldCheck, Trophy, Coins, Users, ArrowRight, Star, AlertTriangle, Sparkles, TrendingUp, Zap, HelpCircle, Gift, Flame, Disc, Gem, Bomb, Rocket, Layers, Dices, Play, CheckCircle2, ChevronRight, Lock, Gamepad2, Info, Crosshair, Award, Hash } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { formatCredits } from '../utils/format';
 
@@ -38,6 +38,17 @@ const GAMES_LIST = [
     color: 'from-emerald-600 via-teal-600 to-cyan-600',
     path: '/blackjack',
     multiplier: '2.5x Natural Win',
+  },
+  {
+    id: 'keno',
+    title: 'Keno Lottery',
+    tagline: 'Pick up to 10 numbers from a 40-grid & match drawn balls for huge payouts.',
+    icon: Sparkles,
+    badge: '5000x JACKPOT',
+    badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
+    color: 'from-cyan-600 via-blue-600 to-teal-600',
+    path: '/keno',
+    multiplier: 'Up to 5000x',
   },
   {
     id: 'plinko',

@@ -14,6 +14,7 @@ import Crash from './pages/Crash';
 import Roulette from './pages/Roulette';
 import Blackjack from './pages/Blackjack';
 import Plinko from './pages/Plinko';
+import Keno from './pages/Keno';
 import Landing from './pages/Landing';
 import PrivacyTerms from './pages/PrivacyTerms';
 import Profile from './pages/Profile';
@@ -121,6 +122,14 @@ const AppRoutes = () => (
       element={
         <ProtectedRoute>
           <Plinko />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/keno"
+      element={
+        <ProtectedRoute>
+          <Keno />
         </ProtectedRoute>
       }
     />

@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Zap, ChevronDown, Shield, Settings, History, Volume2, VolumeX,
   Flame, Gift, Dices, Disc, Gem, Bomb, Rocket, Layers, Coins,
-  Gamepad2, User, Trophy, Sparkles, X, ChevronRight, Check
+  Gamepad2, User, Trophy, Sparkles, X, ChevronRight, Check, Hash
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -70,6 +70,14 @@ const GAMES = [
     icon: Layers,
     badge: '3:2 PAYOUT',
     color: 'from-emerald-600 to-cyan-600',
+  },
+  {
+    path: '/keno',
+    label: 'Keno',
+    tagline: 'Lottery 40-Ball Match up to 5000×',
+    icon: Sparkles,
+    badge: '5000× MAX',
+    color: 'from-cyan-500 to-blue-600',
   },
   {
     path: '/plinko',
