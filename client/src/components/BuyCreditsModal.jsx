@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, CreditCard, Lock, Zap, Star, Crown, Gem, ShieldCheck,
-  Check, Sparkles, Coins, Gift, ArrowRight, CheckCircle2, Shield
+  Check, Sparkles, Coins, Gift
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
@@ -122,7 +122,7 @@ const BuyCreditsModal = () => {
     card.postal.trim().length >= 3;
 
   // 1-Click Demo Fill for Quick Testing
-  const handleFillDemo = () => {
+  const handleFillDemoCard = () => {
     setCard({
       number: '4532 8901 2345 6789',
       expiry: '12/28',
@@ -136,10 +136,12 @@ const BuyCreditsModal = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isCardValid()) return;
+
     setSubmitting(true);
     try {
       // Simulate realistic payment gateway processing
       await new Promise((resolve) => setTimeout(resolve, 1400));
+      
       const data = await purchaseCredits({
         packId: selectedPack,
         paymentMethod: 'CARD',
@@ -150,6 +152,7 @@ const BuyCreditsModal = () => {
           cardName: card.name,
         },
       });
+
       toast.success(`🎉 Payment Successful! +${data.creditsPurchased.toLocaleString()} credits added!`, { duration: 4000 });
       setCard({ number: '', expiry: '', cvc: '', name: '', postal: '' });
       setShowBuyCreditsModal(false);
@@ -321,7 +324,7 @@ const BuyCreditsModal = () => {
                 </motion.div>
               )}
 
-              {/* Payment Card Form */}
+              {/* Card Payment Form */}
               <form onSubmit={handleSubmit} className="space-y-3 pt-1">
                 <div className="p-3.5 sm:p-4 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-3">
                   
@@ -334,7 +337,7 @@ const BuyCreditsModal = () => {
 
                     <button
                       type="button"
-                      onClick={handleFillDemo}
+                      onClick={handleFillDemoCard}
                       className="text-[10px] font-extrabold text-brand-300 hover:text-brand-200 bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/30 px-2 py-0.5 rounded-lg transition-all flex items-center gap-1"
                       title="Auto fill test card for quick demo"
                     >

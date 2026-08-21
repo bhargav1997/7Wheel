@@ -58,6 +58,8 @@ router.post('/purchase-credits', verifyJWT, async (req, res) => {
       return res.status(400).json({ message: 'Invalid CVC' });
     }
 
+    const maskedDetail = `Card ending in ${cardNumber.slice(-4)}`;
+
     // Total credits to award
     const totalCredits = pack.credits + pack.bonusCredits;
 
@@ -72,8 +74,6 @@ router.post('/purchase-credits', verifyJWT, async (req, res) => {
       },
       { new: true }
     );
-
-    const maskedDetail = `Card ending in ${paymentDetails.cardNumber.slice(-4)}`;
 
     await Transaction.create({
       userId: req.user._id,
