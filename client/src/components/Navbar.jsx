@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Zap, ChevronDown, Shield, Settings, History, Volume2, VolumeX,
   Flame, Gift, Dices, Disc, Gem, Bomb, Rocket, Layers, Coins,
-  Gamepad2, User, Trophy, Sparkles, X, ChevronRight, Check, Hash
+  Gamepad2, User, Trophy, Sparkles, X, ChevronRight, Check, LayoutGrid, LogOut
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -92,12 +92,30 @@ const GAMES = [
 const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, loginStreak }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, showBuyCreditsModal, setShowBuyCreditsModal, setShowAdminStats } = useAuth();
+  const { user, showBuyCreditsModal, setShowBuyCreditsModal, setShowAdminStats, logout } = useAuth();
   const [showMenu, setShowMenu] = useState(false);
+  const [showGamesDropdown, setShowGamesDropdown] = useState(false);
   const [showCrateModal, setShowCrateModal] = useState(false);
   const [showStreakModal, setShowStreakModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [showMobileGamesDrawer, setShowMobileGamesDrawer] = useState(false);
+
+  const gamesDropdownRef = useRef(null);
+  const profileMenuRef = useRef(null);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (gamesDropdownRef.current && !gamesDropdownRef.current.contains(e.target)) {
+        setShowGamesDropdown(false);
+      }
+      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const isGameActive = (gamePath) => {
     if (gamePath === '/play') return location.pathname === '/play' || location.pathname === '/';
@@ -110,10 +128,10 @@ const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, logi
     <>
       {/* ── TOP HEADER (Desktop & Mobile) ── */}
       <header className="sticky top-0 z-40 border-b border-casino-border bg-casino-card/95 backdrop-blur-2xl">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 h-14 sm:h-16 flex items-center justify-between gap-2">
 
-          {/* Left: Brand Logo + Desktop Game Tabs */}
-          <div className="flex items-center gap-3 sm:gap-6 shrink-0">
+          {/* Left: Brand Logo + Game Hub Popover Trigger */}
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
             <Link
               to="/play"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -122,72 +140,146 @@ const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, logi
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-brand-gradient flex items-center justify-center text-base sm:text-lg font-black text-white glow-brand group-hover:scale-105 transition-transform shrink-0">
                 7
               </div>
-              <div className="hidden xs:block">
+              <div className="hidden sm:block">
                 <span className="font-display font-bold text-white text-sm sm:text-base leading-none block whitespace-nowrap">7 Wheel</span>
                 <span className="text-[9px] sm:text-[10px] text-slate-400 font-medium leading-none block mt-0.5 whitespace-nowrap">Social Casino</span>
               </div>
             </Link>
 
-            {/* Mobile Game Switcher Pill Trigger */}
+            {/* Mobile / Tablet Game Switcher Trigger (< 1024px) */}
             <button
               onClick={() => setShowMobileGamesDrawer(true)}
-              className="lg:hidden flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-brand-500/50 text-slate-200 transition-all text-xs font-bold"
+              className="lg:hidden flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-brand-500/50 text-slate-200 transition-all text-xs font-bold shrink-0"
             >
               <currentGame.icon size={13} className="text-brand-400 shrink-0" />
-              <span className="truncate max-w-[85px]">{currentGame.label}</span>
+              <span className="truncate max-w-[70px] sm:max-w-[100px]">{currentGame.label}</span>
               <ChevronDown size={12} className="text-slate-400 shrink-0" />
             </button>
 
-            {/* Desktop Game Tabs (≥1024px) */}
-            <nav className="hidden lg:flex items-center gap-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
-              {GAMES.map((game) => {
-                const active = isGameActive(game.path);
-                const Icon = game.icon;
-                return (
-                  <Link
-                    key={game.path}
-                    to={game.path}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                      active
-                        ? 'bg-brand-500 text-white shadow-md shadow-brand-500/20'
-                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-                    }`}
+            {/* Desktop Games Hub Popover Trigger (≥ 1024px) */}
+            <div className="hidden lg:block relative" ref={gamesDropdownRef}>
+              <button
+                onClick={() => setShowGamesDropdown((v) => !v)}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${
+                  showGamesDropdown
+                    ? 'bg-brand-500/20 border-brand-500 text-brand-300 shadow-lg shadow-brand-500/20'
+                    : 'bg-slate-900/90 border-slate-800 hover:border-slate-700 text-slate-200 hover:bg-slate-850'
+                }`}
+              >
+                <Gamepad2 size={15} className="text-brand-400 shrink-0" />
+                <span className="flex items-center gap-1.5">
+                  <span>Games</span>
+                  <span className="px-1.5 py-0.2 rounded-md bg-brand-500/30 text-brand-300 text-[10px] font-black border border-brand-500/40">
+                    {GAMES.length}
+                  </span>
+                </span>
+                <span className="text-slate-500">|</span>
+                <div className="flex items-center gap-1 text-slate-300">
+                  <currentGame.icon size={12} className="text-amber-400 shrink-0" />
+                  <span className="truncate max-w-[90px]">{currentGame.label}</span>
+                </div>
+                <ChevronDown size={13} className={`text-slate-400 transition-transform duration-200 ${showGamesDropdown ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Desktop Games Grid Popover Dropdown (High Contrast Dark Theme) */}
+              <AnimatePresence>
+                {showGamesDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute left-0 top-12 w-[600px] p-3.5 rounded-2xl border-2 border-slate-800 bg-[#090c15] shadow-[0_16px_50px_rgba(0,0,0,0.95)] z-50 space-y-2.5"
                   >
-                    <Icon size={13} />
-                    <span>{game.label}</span>
-                    {game.badge === 'LIVE' && <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />}
-                  </Link>
-                );
-              })}
-            </nav>
+                    <div className="flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800/80">
+                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
+                        <LayoutGrid size={14} className="text-brand-400" />
+                        Casino Games Library ({GAMES.length})
+                      </span>
+                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                        Provably Fair
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2">
+                      {GAMES.map((game) => {
+                        const active = isGameActive(game.path);
+                        const Icon = game.icon;
+
+                        return (
+                          <Link
+                            key={game.path}
+                            to={game.path}
+                            onClick={() => setShowGamesDropdown(false)}
+                            className={`p-2.5 rounded-xl border text-left flex items-start gap-2.5 transition-all group ${
+                              active
+                                ? 'bg-brand-500/25 border-brand-500 shadow-md shadow-brand-500/30'
+                                : 'bg-[#111726] border-slate-800/90 hover:border-brand-500/60 hover:bg-[#161e32]'
+                            }`}
+                          >
+                            <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${game.color} flex items-center justify-center text-white shadow-md shrink-0 group-hover:scale-105 transition-transform`}>
+                              <Icon size={16} />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center justify-between gap-1">
+                                <span className="font-display font-bold text-xs text-white truncate block">{game.label}</span>
+                                {active && <Check size={12} className="text-brand-400 shrink-0" />}
+                              </div>
+                              <p className="text-[10px] text-slate-300 truncate leading-tight mt-0.5 font-normal">{game.tagline}</p>
+                              {game.badge && (
+                                <span className="inline-block text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-brand-500/20 text-brand-300 border border-brand-500/30 mt-1">
+                                  {game.badge}
+                                </span>
+                              )}
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
 
-          {/* Right: Credits Balance + Profile Dropdown */}
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          {/* Right: Balance + Daily Crate + Profile (ALWAYS VISIBLE & UNCLIPPED) */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 ml-auto">
 
-            {/* Daily Crate Button (Desktop) */}
+            {/* Daily Mystery Crate (≥ 640px) */}
             <motion.button
               onClick={() => setShowCrateModal(true)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="hidden md:flex items-center gap-1 px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-300 hover:border-purple-400/60 transition-all text-xs font-bold"
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-300 hover:border-purple-400/60 transition-all text-xs font-bold shrink-0"
               title="Open Daily Mystery Crate"
             >
               <Gift size={14} className="text-purple-400 animate-bounce shrink-0" />
-              <span>Daily Crate</span>
+              <span className="hidden md:inline">Daily Crate</span>
             </motion.button>
 
-            {/* Credits Balance & Get Pill */}
+            {/* Daily Streak Indicator (≥ 768px) */}
+            {loginStreak > 0 && (
+              <button
+                onClick={() => { setShowStreakModal(true); onOpenStreak?.(); }}
+                className="hidden md:flex items-center gap-1 px-2 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold shrink-0"
+                title={`Daily Login Streak: ${loginStreak} days`}
+              >
+                <Flame size={14} />
+                <span>{loginStreak}d</span>
+              </button>
+            )}
+
+            {/* Credits Balance & Get Credits Button */}
             <div className="flex items-center shrink-0">
-              <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-l-xl px-2.5 sm:px-3 py-1 sm:py-1.5 border-r-0">
-                <Coins size={14} className="text-amber-400 shrink-0" />
+              <div className="flex items-center gap-1 sm:gap-1.5 bg-slate-900 border border-slate-800 rounded-l-xl px-2 sm:px-2.5 py-1 sm:py-1.5 border-r-0">
+                <Coins size={13} className="text-amber-400 shrink-0" />
                 <span className="font-display font-bold text-xs sm:text-sm text-slate-100 tabular-nums">
                   {formatCredits(user?.balance)}
                 </span>
               </div>
               <button
                 onClick={() => setShowBuyCreditsModal(true)}
-                className="px-2 sm:px-2.5 py-1 sm:py-1.5 bg-brand-gradient border border-brand-500 hover:brightness-110 rounded-r-xl text-white font-bold text-xs flex items-center gap-1 transition-all shadow-md"
+                className="px-2 sm:px-2.5 py-1 sm:py-1.5 bg-brand-gradient border border-brand-500 hover:brightness-110 rounded-r-xl text-white font-bold text-xs flex items-center gap-1 transition-all shadow-md shrink-0"
                 title="Get More Credits"
               >
                 <Zap size={11} className="shrink-0" />
@@ -195,37 +287,43 @@ const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, logi
               </button>
             </div>
 
-            {/* User Profile Menu */}
-            <div className="relative shrink-0">
+            {/* User Profile Dropdown Pill (Guaranteed Space, Never Hidden) */}
+            <div className="relative shrink-0" ref={profileMenuRef}>
               <button
                 onClick={() => setShowMenu((v) => !v)}
-                className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-xl px-2 py-1 sm:px-2.5 sm:py-1.5 hover:border-slate-700 transition-colors"
+                className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-xl px-2 py-1 sm:px-2.5 sm:py-1.5 hover:border-slate-700 transition-colors shrink-0"
+                title="Account Menu"
               >
-                <div className="w-6 h-6 rounded-lg bg-brand-gradient flex items-center justify-center text-xs font-bold text-white shrink-0">
-                  {user?.username?.[0]?.toUpperCase()}
+                <div className="w-6 h-6 rounded-lg bg-brand-gradient flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-sm">
+                  {user?.username?.[0]?.toUpperCase() || 'U'}
                 </div>
+                <span className="hidden md:inline font-bold text-xs text-slate-200 max-w-[85px] truncate">
+                  {user?.username}
+                </span>
                 <ChevronDown
                   size={12}
-                  className={`text-slate-400 transition-transform ${showMenu ? 'rotate-180' : ''}`}
+                  className={`text-slate-400 transition-transform duration-200 shrink-0 ${showMenu ? 'rotate-180' : ''}`}
                 />
               </button>
 
+              {/* Profile Menu Popover */}
               <AnimatePresence>
                 {showMenu && (
                   <motion.div
-                    initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                    initial={{ opacity: 0, y: -6, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-12 w-56 card shadow-2xl shadow-black/80 overflow-hidden border border-slate-800 bg-slate-950/95 z-50"
+                    className="absolute right-0 top-12 w-56 card shadow-2xl shadow-black/80 overflow-hidden border border-slate-800 bg-slate-950/98 backdrop-blur-2xl z-50 rounded-2xl"
                   >
-                    {/* User Banner */}
+                    {/* User Header */}
                     <div className="p-3 border-b border-slate-800/80 bg-slate-900/50">
                       <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Logged in as</p>
                       <p className="font-bold text-sm text-white truncate">{user?.username}</p>
+                      <p className="text-[11px] text-brand-300 font-mono mt-0.5">{formatCredits(user?.balance)} Credits</p>
                     </div>
 
-                    {/* Menu Items */}
+                    {/* Menu Options */}
                     <div className="p-2 space-y-1 text-xs">
                       <Link
                         to="/profile"
@@ -278,6 +376,16 @@ const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, logi
                         >
                           <Shield size={14} />
                           Admin Dashboard
+                        </button>
+                      )}
+
+                      {logout && (
+                        <button
+                          onClick={() => { logout(); setShowMenu(false); }}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors text-left font-bold border-t border-slate-800/80 mt-1 pt-2"
+                        >
+                          <LogOut size={14} />
+                          Sign Out
                         </button>
                       )}
                     </div>

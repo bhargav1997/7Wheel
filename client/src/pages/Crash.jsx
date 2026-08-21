@@ -82,9 +82,11 @@ function ConfettiCanvas({ active }) {
   );
 }
 
-// ── Live Rocket Canvas Flight Graph ──────────────────────────────────────────
+// ── Live Animated Rocket Flight Graph ──────────────────────────────────────────
 function RocketGraph({ status, multiplier, crashPoint }) {
   const canvasRef = useRef(null);
+  const stateRef = useRef({ status, multiplier });
+  stateRef.current = { status, multiplier };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -92,70 +94,233 @@ function RocketGraph({ status, multiplier, crashPoint }) {
     const ctx = canvas.getContext('2d');
     let animationFrameId;
 
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    const resize = () => {
+      if (!canvas) return;
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
 
-    const width = canvas.width;
-    const height = canvas.height;
+    // Starfield particles
+    const stars = Array.from({ length: 45 }, () => ({
+      x: Math.random() * (canvas.width || 600),
+      y: Math.random() * (canvas.height || 350),
+      size: Math.random() * 1.5 + 0.5,
+      alpha: Math.random() * 0.7 + 0.3,
+      speed: Math.random() * 0.4 + 0.1,
+    }));
 
-    // Grid lines
-    ctx.clearRect(0, 0, width, height);
+    // Smoke / Flame particles from the rocket engine
+    const engineParticles = [];
+    // Explosion particles for crash
+    let explosionParticles = [];
+    let prevStatus = 'COUNTDOWN';
+    let tick = 0;
 
-    // Draw background grid lines
-    ctx.strokeStyle = 'rgba(51, 65, 85, 0.3)';
-    ctx.lineWidth = 1;
-    for (let x = 0; x < width; x += 40) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, height);
-      ctx.stroke();
-    }
-    for (let y = 0; y < height; y += 40) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(width, y);
-      ctx.stroke();
-    }
+    const render = () => {
+      tick++;
+      const { status: curStatus, multiplier: curMult } = stateRef.current;
+      const width = canvas.width || 600;
+      const height = canvas.height || 350;
 
-    if (status === 'FLYING' || status === 'CRASHED') {
-      const progress = Math.min(1.0, (multiplier - 1.0) / 10.0); // scale up to 10x
-      const startX = 40;
-      const startY = height - 40;
-      const endX = startX + progress * (width - 100);
-      const endY = startY - Math.pow(progress, 0.7) * (height - 100);
+      ctx.clearRect(0, 0, width, height);
 
-      // Gradient under trajectory curve
-      const fillGradient = ctx.createLinearGradient(0, 0, 0, height);
-      fillGradient.addColorStop(0, status === 'CRASHED' ? 'rgba(239, 68, 68, 0.25)' : 'rgba(168, 85, 247, 0.25)');
-      fillGradient.addColorStop(1, 'rgba(15, 23, 42, 0)');
+      // ── Starfield ──
+      stars.forEach((star) => {
+        if (curStatus === 'FLYING') {
+          star.x -= star.speed * 1.5;
+          star.y += star.speed * 0.8;
+          if (star.x < 0) star.x = width;
+          if (star.y > height) star.y = 0;
+        }
+        ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha * (0.6 + Math.sin(tick * 0.05 + star.size) * 0.3)})`;
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
 
-      ctx.beginPath();
-      ctx.moveTo(startX, startY);
-      ctx.quadraticCurveTo(startX + (endX - startX) * 0.5, startY, endX, endY);
-      ctx.lineTo(endX, startY);
-      ctx.closePath();
-      ctx.fillStyle = fillGradient;
-      ctx.fill();
+      // ── Grid Lines ──
+      ctx.strokeStyle = 'rgba(51, 65, 85, 0.25)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < width; x += 45) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < height; y += 45) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
 
-      // Curved rocket line
-      ctx.beginPath();
-      ctx.moveTo(startX, startY);
-      ctx.quadraticCurveTo(startX + (endX - startX) * 0.5, startY, endX, endY);
-      ctx.strokeStyle = status === 'CRASHED' ? '#ef4444' : '#a855f7';
-      ctx.lineWidth = 4;
-      ctx.stroke();
+      const startX = 50;
+      const startY = height - 50;
 
-      // Rocket glow head
-      ctx.save();
-      ctx.shadowColor = status === 'CRASHED' ? '#ef4444' : '#c084fc';
-      ctx.shadowBlur = 15;
-      ctx.fillStyle = status === 'CRASHED' ? '#ef4444' : '#ffffff';
-      ctx.beginPath();
-      ctx.arc(endX, endY, 6, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-  }, [status, multiplier]);
+      // ── Trajectory Curve Calculations ──
+      const progress = Math.min(1.0, (curMult - 1.0) / 10.0); // scales 1.0x to 11.0x across width
+      const endX = startX + progress * (width - 120);
+      const endY = startY - Math.pow(progress, 0.72) * (height - 110);
+      const controlX = startX + (endX - startX) * 0.45;
+      const controlY = startY;
+
+      // Calculate tangent angle of the rocket (derivative at t=1)
+      const dx = (endX - controlX);
+      const dy = (endY - controlY);
+      const rocketAngle = Math.atan2(dy, dx);
+
+      if (curStatus === 'FLYING' || curStatus === 'CRASHED') {
+        // Gradient fill under trajectory curve
+        const fillGradient = ctx.createLinearGradient(0, 0, 0, height);
+        fillGradient.addColorStop(0, curStatus === 'CRASHED' ? 'rgba(239, 68, 68, 0.22)' : 'rgba(168, 85, 247, 0.22)');
+        fillGradient.addColorStop(1, 'rgba(15, 23, 42, 0)');
+
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.quadraticCurveTo(controlX, controlY, endX, endY);
+        ctx.lineTo(endX, startY);
+        ctx.closePath();
+        ctx.fillStyle = fillGradient;
+        ctx.fill();
+
+        // Curved neon rocket trail line
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.quadraticCurveTo(controlX, controlY, endX, endY);
+        ctx.strokeStyle = curStatus === 'CRASHED' ? '#ef4444' : '#c084fc';
+        ctx.lineWidth = 4;
+        ctx.shadowColor = curStatus === 'CRASHED' ? '#ef4444' : '#a855f7';
+        ctx.shadowBlur = 12;
+        ctx.stroke();
+        ctx.restore();
+
+        // ── Spawn Engine Exhaust Particles (While Flying) ──
+        if (curStatus === 'FLYING' && tick % 2 === 0) {
+          const rearDist = 20;
+          const engineX = endX - Math.cos(rocketAngle) * rearDist;
+          const engineY = endY - Math.sin(rocketAngle) * rearDist;
+
+          for (let p = 0; p < 3; p++) {
+            const spread = (Math.random() - 0.5) * 0.8;
+            const pSpeed = Math.random() * 3 + 2;
+            const pAngle = rocketAngle + Math.PI + spread;
+            engineParticles.push({
+              x: engineX,
+              y: engineY,
+              vx: Math.cos(pAngle) * pSpeed,
+              vy: Math.sin(pAngle) * pSpeed,
+              size: Math.random() * 5 + 3,
+              alpha: 1.0,
+              color: p === 0 ? '#fbbf24' : p === 1 ? '#f97316' : '#ec4899',
+            });
+          }
+        }
+      }
+
+      // ── Render and Update Engine Exhaust Particles ──
+      for (let i = engineParticles.length - 1; i >= 0; i--) {
+        const ep = engineParticles[i];
+        ep.x += ep.vx;
+        ep.y += ep.vy;
+        ep.alpha -= 0.04;
+        ep.size *= 0.94;
+
+        if (ep.alpha <= 0 || ep.size <= 0.5) {
+          engineParticles.splice(i, 1);
+          continue;
+        }
+
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, ep.alpha);
+        ctx.fillStyle = ep.color;
+        ctx.shadowColor = ep.color;
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(ep.x, ep.y, ep.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // ── Handle Crash Explosion ──
+      if (curStatus === 'CRASHED' && prevStatus !== 'CRASHED') {
+        // Just crashed! Trigger explosion burst
+        explosionParticles = Array.from({ length: 40 }, () => {
+          const expAngle = Math.random() * Math.PI * 2;
+          const expSpeed = Math.random() * 7 + 2;
+          return {
+            x: endX,
+            y: endY,
+            vx: Math.cos(expAngle) * expSpeed,
+            vy: Math.sin(expAngle) * expSpeed,
+            size: Math.random() * 7 + 3,
+            alpha: 1.0,
+            color: ['#ef4444', '#f97316', '#fbbf24', '#ffffff'][Math.floor(Math.random() * 4)],
+            rot: Math.random() * 360,
+          };
+        });
+      }
+      prevStatus = curStatus;
+
+      // Render explosion particles
+      if (curStatus === 'CRASHED' && explosionParticles.length > 0) {
+        for (let i = explosionParticles.length - 1; i >= 0; i--) {
+          const exp = explosionParticles[i];
+          exp.x += exp.vx;
+          exp.y += exp.vy;
+          exp.vx *= 0.95;
+          exp.vy *= 0.95;
+          exp.alpha -= 0.025;
+
+          if (exp.alpha <= 0) {
+            explosionParticles.splice(i, 1);
+            continue;
+          }
+
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, exp.alpha);
+          ctx.fillStyle = exp.color;
+          ctx.shadowColor = exp.color;
+          ctx.shadowBlur = 10;
+          ctx.beginPath();
+          ctx.arc(exp.x, exp.y, exp.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      // ── Draw the Rocket Ship or Launchpad ──
+      if (curStatus === 'COUNTDOWN') {
+        // Sitting on Launch Pad at start
+        drawLaunchPad(ctx, startX, startY);
+        drawRocketShip(ctx, startX + 10, startY - 14, -Math.PI / 4, false, tick);
+      } else if (curStatus === 'FLYING') {
+        // Flying along the curve with animated flame thruster
+        drawRocketShip(ctx, endX, endY, rocketAngle, false, tick);
+      } else if (curStatus === 'CRASHED') {
+        // Crashed explosion site
+        ctx.save();
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.4)';
+        ctx.shadowColor = '#ef4444';
+        ctx.shadowBlur = 20;
+        ctx.beginPath();
+        ctx.arc(endX, endY, 14 + Math.sin(tick * 0.2) * 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
 
   return (
     <canvas
@@ -163,6 +328,153 @@ function RocketGraph({ status, multiplier, crashPoint }) {
       className="absolute inset-0 w-full h-full pointer-events-none rounded-3xl z-0"
     />
   );
+}
+
+// ── Helper: Draw Sleek Tech Launchpad Platform ────────────────────────────────
+function drawLaunchPad(ctx, x, y) {
+  ctx.save();
+  // Pad base
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(x - 25, y - 4, 50, 8);
+  ctx.fillStyle = '#64748b';
+  ctx.fillRect(x - 20, y - 8, 40, 4);
+
+  // Status lights on pad
+  ctx.fillStyle = '#22c55e';
+  ctx.shadowColor = '#22c55e';
+  ctx.shadowBlur = 8;
+  ctx.beginPath();
+  ctx.arc(x - 14, y - 2, 2.5, 0, Math.PI * 2);
+  ctx.arc(x + 14, y - 2, 2.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+// ── Helper: Draw Aerodynamic Rocket Ship with Jet Flames ──────────────────────
+function drawRocketShip(ctx, x, y, angle, isCrashed, tick) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+
+  // 1. Thruster Jet Flame (Animated fire cone behind rocket)
+  if (!isCrashed) {
+    const flicker = Math.sin(tick * 0.6) * 5 + (Math.random() - 0.5) * 4;
+    const flameLength = 26 + flicker;
+
+    // Outer Orange/Red Flame
+    const flameGrad = ctx.createLinearGradient(-12, 0, -12 - flameLength, 0);
+    flameGrad.addColorStop(0, '#fbbf24');
+    flameGrad.addColorStop(0.4, '#f97316');
+    flameGrad.addColorStop(0.8, '#ef4444');
+    flameGrad.addColorStop(1, 'rgba(239, 68, 68, 0)');
+
+    ctx.save();
+    ctx.fillStyle = flameGrad;
+    ctx.shadowColor = '#f97316';
+    ctx.shadowBlur = 15;
+    ctx.beginPath();
+    ctx.moveTo(-10, -6);
+    ctx.quadraticCurveTo(-14 - flameLength * 0.6, 0, -12 - flameLength, 0);
+    ctx.quadraticCurveTo(-14 - flameLength * 0.6, 0, -10, 6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // Inner Hot White/Yellow Core Flame
+    const coreGrad = ctx.createLinearGradient(-10, 0, -10 - flameLength * 0.6, 0);
+    coreGrad.addColorStop(0, '#ffffff');
+    coreGrad.addColorStop(0.5, '#fde047');
+    coreGrad.addColorStop(1, 'rgba(253, 224, 71, 0)');
+
+    ctx.fillStyle = coreGrad;
+    ctx.beginPath();
+    ctx.moveTo(-10, -3);
+    ctx.quadraticCurveTo(-12 - flameLength * 0.4, 0, -10 - flameLength * 0.65, 0);
+    ctx.quadraticCurveTo(-12 - flameLength * 0.4, 0, -10, 3);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // 2. Stabilizer Tail Fins / Wings
+  ctx.fillStyle = '#6366f1';
+  // Top Fin
+  ctx.beginPath();
+  ctx.moveTo(-8, -4);
+  ctx.lineTo(-17, -15);
+  ctx.lineTo(-4, -5);
+  ctx.closePath();
+  ctx.fill();
+
+  // Bottom Fin
+  ctx.beginPath();
+  ctx.moveTo(-8, 4);
+  ctx.lineTo(-17, 15);
+  ctx.lineTo(-4, 5);
+  ctx.closePath();
+  ctx.fill();
+
+  // Center Ridge Fin
+  ctx.fillStyle = '#4f46e5';
+  ctx.beginPath();
+  ctx.moveTo(-12, -2);
+  ctx.lineTo(-18, 0);
+  ctx.lineTo(-12, 2);
+  ctx.closePath();
+  ctx.fill();
+
+  // 3. Main Rocket Fuselage Body
+  const bodyGrad = ctx.createLinearGradient(0, -8, 0, 8);
+  bodyGrad.addColorStop(0, '#ffffff');
+  bodyGrad.addColorStop(0.5, '#f1f5f9');
+  bodyGrad.addColorStop(1, '#94a3b8');
+
+  ctx.save();
+  ctx.fillStyle = bodyGrad;
+  ctx.shadowColor = 'rgba(168, 85, 247, 0.5)';
+  ctx.shadowBlur = 10;
+  ctx.beginPath();
+  ctx.moveTo(20, 0); // nose tip
+  ctx.quadraticCurveTo(10, -9, -12, -7);
+  ctx.lineTo(-13, 7);
+  ctx.quadraticCurveTo(10, 9, 20, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+
+  // 4. Vibrant Purple Nose Cone
+  ctx.fillStyle = '#a855f7';
+  ctx.beginPath();
+  ctx.moveTo(20, 0);
+  ctx.quadraticCurveTo(14, -5.5, 8, -6.5);
+  ctx.lineTo(8, 6.5);
+  ctx.quadraticCurveTo(14, 5.5, 20, 0);
+  ctx.closePath();
+  ctx.fill();
+
+  // 5. Cockpit Glass Window (Cyan glow)
+  ctx.save();
+  ctx.fillStyle = '#38bdf8';
+  ctx.shadowColor = '#38bdf8';
+  ctx.shadowBlur = 6;
+  ctx.beginPath();
+  ctx.arc(4, 0, 4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#0284c7';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  // Window glare reflection
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+  ctx.beginPath();
+  ctx.arc(3, -1.5, 1.3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // 6. Engine Exhaust Metal Nozzle
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(-14, -5, 3, 10);
+
+  ctx.restore();
 }
 
 // ── Main Crash Page Component ────────────────────────────────────────────────
