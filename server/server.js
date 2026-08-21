@@ -68,6 +68,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.set('io', io);
 
 // ─────────────────────────────────────────────
 // Routes

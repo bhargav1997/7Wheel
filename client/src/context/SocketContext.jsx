@@ -7,7 +7,17 @@ const SocketContext = createContext(null);
 
 export const useSocket = () => {
   const ctx = useContext(SocketContext);
-  if (!ctx) throw new Error('useSocket must be used within SocketProvider');
+  if (!ctx) {
+    return {
+      socket: null,
+      connected: false,
+      gameState: defaultGameState,
+      myBet: null,
+      betError: '',
+      placeBet: () => {},
+      isKicked: false,
+    };
+  }
   return ctx;
 };
 

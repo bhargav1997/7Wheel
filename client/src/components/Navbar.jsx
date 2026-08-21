@@ -3,7 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Zap, ChevronDown, Shield, Settings, History, Volume2, VolumeX,
   Flame, Gift, Dices, Disc, Gem, Bomb, Rocket, Layers, Coins,
-  Gamepad2, User, Trophy, Sparkles, X, ChevronRight, Check, LayoutGrid, LogOut, Crown
+  Gamepad2, User, Trophy, Sparkles, X, ChevronRight, Check, LayoutGrid, LogOut, Crown,
+  HeartHandshake, Send
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -285,11 +286,11 @@ const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, logi
               </div>
               <button
                 onClick={() => setShowBuyCreditsModal(true)}
-                className="px-2 sm:px-2.5 py-1 sm:py-1.5 bg-brand-gradient border border-brand-500 hover:brightness-110 rounded-r-xl text-white font-bold text-xs flex items-center gap-1 transition-all shadow-md shrink-0"
-                title="Get More Credits"
+                className="px-2 sm:px-2.5 py-1 sm:py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 border border-emerald-500 hover:brightness-110 rounded-r-xl text-white font-bold text-xs flex items-center gap-1 transition-all shadow-md shrink-0"
+                title="Send & Request Credits"
               >
-                <Zap size={11} className="shrink-0" />
-                <span className="text-[11px] sm:text-xs">Get</span>
+                <Send size={11} className="shrink-0" />
+                <span className="text-[11px] sm:text-xs">Share</span>
               </button>
             </div>
 
@@ -336,6 +337,14 @@ const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, logi
 
                     {/* Menu Options */}
                     <div className="p-2 space-y-1 text-xs">
+                      <button
+                        onClick={() => { setShowBuyCreditsModal(true); setShowMenu(false); }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-emerald-300 hover:bg-emerald-500/15 hover:text-white transition-colors text-left font-semibold"
+                      >
+                        <HeartHandshake size={14} className="text-emerald-400" />
+                        Send & Request Credits
+                      </button>
+
                       <Link
                         to="/profile"
                         onClick={() => setShowMenu(false)}

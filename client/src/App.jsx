@@ -59,9 +59,7 @@ const AppRoutes = () => (
       path="/play"
       element={
         <ProtectedRoute>
-          <SocketProvider>
-            <GameHub />
-          </SocketProvider>
+          <GameHub />
         </ProtectedRoute>
       }
     />
@@ -69,9 +67,7 @@ const AppRoutes = () => (
       path="/flip-or-flop"
       element={
         <ProtectedRoute>
-          <SocketProvider>
-            <FlipOrFlop />
-          </SocketProvider>
+          <FlipOrFlop />
         </ProtectedRoute>
       }
     />
@@ -95,9 +91,7 @@ const AppRoutes = () => (
       path="/crash"
       element={
         <ProtectedRoute>
-          <SocketProvider>
-            <Crash />
-          </SocketProvider>
+          <Crash />
         </ProtectedRoute>
       }
     />
@@ -168,23 +162,25 @@ const AppRoutes = () => (
 const App = () => (
   <BrowserRouter>
     <AuthProvider>
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          style: {
-            background: '#111118',
-            color: '#e2e8f0',
-            border: '1px solid #1f1f30',
-            borderRadius: '12px',
-            fontFamily: 'Inter, sans-serif',
-          },
-          success: { iconTheme: { primary: '#10b981', secondary: '#111118' } },
-          error:   { iconTheme: { primary: '#ef4444', secondary: '#111118' } },
-        }}
-      />
-      <AppRoutes />
-      <BuyCreditsModal />
-      <AdminStatsModal />
+      <SocketProvider>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: '#111118',
+              color: '#e2e8f0',
+              border: '1px solid #1f1f30',
+              borderRadius: '12px',
+              fontFamily: 'Inter, sans-serif',
+            },
+            success: { iconTheme: { primary: '#10b981', secondary: '#111118' } },
+            error:   { iconTheme: { primary: '#ef4444', secondary: '#111118' } },
+          }}
+        />
+        <AppRoutes />
+        <BuyCreditsModal />
+        <AdminStatsModal />
+      </SocketProvider>
     </AuthProvider>
   </BrowserRouter>
 );

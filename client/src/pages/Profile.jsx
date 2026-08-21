@@ -4,10 +4,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   User, Mail, Shield, Zap, Copy, Users, TrendingUp,
   LogOut, Trash2, AlertTriangle, Lock, Eye, EyeOff,
-  CheckCircle, ArrowLeft, Gift, Trophy, Crown, Medal, Award, ChevronRight, Star, Sparkles
+  CheckCircle, ArrowLeft, Gift, Trophy, Crown, Medal, Award, ChevronRight, Star, Sparkles,
+  HeartHandshake, Send
 } from 'lucide-react';
 import TopWinnersModal from '../components/TopWinnersModal';
 import CosmeticsShopModal from '../components/CosmeticsShopModal';
+import CreditTransferModal from '../components/CreditTransferModal';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { formatCredits } from '../utils/format';
@@ -178,6 +180,7 @@ export default function Profile() {
   const { user, logout, refreshUser } = useAuth();
   const [showTopWinnersModal, setShowTopWinnersModal] = useState(false);
   const [showCosmeticsModal, setShowCosmeticsModal] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
   const navigate = useNavigate();
 
   // On mount, refresh user to ensure referralCode is generated and synced from server
@@ -295,6 +298,40 @@ export default function Profile() {
             >
               <Sparkles size={14} />
               <span>Open VIP Shop</span>
+              <ChevronRight size={14} />
+            </button>
+          </div>
+        </motion.div>
+
+        {/* ── Social Credit Sharing & Requests Card ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.075 }}
+          className="card p-6 space-y-4 border-2 border-emerald-500/40 bg-gradient-to-br from-emerald-950/40 via-slate-950 to-teal-950/30 relative overflow-hidden shadow-xl"
+        >
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30">
+                <HeartHandshake size={22} />
+              </div>
+              <div>
+                <h2 className="font-display font-black text-base text-white flex items-center gap-2">
+                  <span>Send & Request Credits</span>
+                  <span className="text-[9px] bg-emerald-500 text-slate-950 font-black px-2 py-0.2 rounded-full uppercase tracking-wider">
+                    SOCIAL HUB
+                  </span>
+                </h2>
+                <p className="text-xs text-slate-400">Share entertainment tokens with friends or request credits</p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowTransferModal(true)}
+              className="py-2.5 px-4 rounded-xl font-display font-black text-xs bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 hover:brightness-110 transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/25"
+            >
+              <Send size={14} />
+              <span>Transfer & Request</span>
               <ChevronRight size={14} />
             </button>
           </div>
@@ -481,6 +518,15 @@ export default function Profile() {
         isOpen={showCosmeticsModal}
         onClose={() => {
           setShowCosmeticsModal(false);
+          refreshUser();
+        }}
+      />
+
+      {/* Social Credit Sharing & Requests Modal */}
+      <CreditTransferModal
+        isOpen={showTransferModal}
+        onClose={() => {
+          setShowTransferModal(false);
           refreshUser();
         }}
       />
