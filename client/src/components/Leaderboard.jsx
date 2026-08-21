@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { useSocket } from '../context/SocketContext';
 import { useAuth } from '../context/AuthContext';
+import { getEquippedFrame, getEquippedTitle, TitleBadge } from '../utils/cosmetics';
 import axios from 'axios';
 
 // ── Category helpers for round results tab ────────────────────────
@@ -22,41 +23,49 @@ const RankBadge = ({ rank }) => {
 };
 
 // ── Global leaderboard entry ──────────────────────────────────────
-const GlobalEntry = ({ entry, rank, isMe }) => (
-  <motion.div
-    initial={{ opacity: 0, x: -6 }}
-    animate={{ opacity: 1, x: 0 }}
-    transition={{ delay: rank * 0.04 }}
-    className={`flex items-center gap-3 p-2.5 rounded-xl border transition-all ${
-      isMe
-        ? 'border-brand-500/50 bg-brand-500/10'
-        : rank === 0
-        ? 'border-yellow-500/30 bg-yellow-500/5'
-        : 'border-casino-border bg-casino-muted/20'
-    }`}
-  >
-    <div className="w-7 h-7 flex-shrink-0 flex items-center justify-center">
-      <RankBadge rank={rank} />
-    </div>
-    <div className={`w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-xs font-bold text-white ${
-      isMe ? 'bg-brand-gradient' : 'bg-casino-muted border border-casino-border'
-    }`}>
-      {entry.username?.[0]?.toUpperCase()}
-    </div>
-    <div className="flex-1 min-w-0">
-      <p className={`text-sm font-semibold truncate ${isMe ? 'text-brand-300' : 'text-white'}`}>
-        {entry.username} {isMe && <span className="text-xs text-brand-500">(you)</span>}
-      </p>
-      <p className="text-xs text-slate-500">{entry.gamesPlayed ?? 0} rounds played</p>
-    </div>
-    <div className="text-right">
-      <p className="text-xs text-slate-500">Won</p>
-      <p className="font-display font-bold text-gold-400 text-sm">
-        {Math.round(entry.totalWon ?? 0).toLocaleString()} Credits
-      </p>
-    </div>
-  </motion.div>
-);
+const GlobalEntry = ({ entry, rank, isMe, myEquipped }) => {
+  const frame = getEquippedFrame(entry?.equipped?.frame || (isMe ? myEquipped?.frame : 'frame_default'));
+  const titleId = entry?.equipped?.title || (isMe ? myEquipped?.title : null);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -6 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: rank * 0.04 }}
+      className={`flex items-center gap-3 p-2.5 rounded-xl border transition-all ${
+        isMe
+          ? 'border-brand-500/50 bg-brand-500/10'
+          : rank === 0
+          ? 'border-yellow-500/30 bg-yellow-500/5'
+          : 'border-casino-border bg-casino-muted/20'
+      }`}
+    >
+      <div className="w-7 h-7 flex-shrink-0 flex items-center justify-center">
+        <RankBadge rank={rank} />
+      </div>
+      <div className={`w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-xs font-bold transition-all ${
+        frame.avatarClass
+      }`}>
+        {entry.username?.[0]?.toUpperCase()}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <p className={`text-sm font-semibold truncate ${isMe ? 'text-brand-300' : 'text-white'}`}>
+            {entry.username} {isMe && <span className="text-xs text-brand-500 font-normal">(you)</span>}
+          </p>
+          <TitleBadge titleId={titleId} />
+        </div>
+        <p className="text-xs text-slate-500">{entry.gamesPlayed ?? 0} rounds played</p>
+      </div>
+      <div className="text-right">
+        <p className="text-xs text-slate-500">Won</p>
+        <p className="font-display font-bold text-gold-400 text-sm">
+          {Math.round(entry.totalWon ?? 0).toLocaleString()} Credits
+        </p>
+      </div>
+    </motion.div>
+  );
+};
 
 const Leaderboard = () => {
   const { gameState } = useSocket();
@@ -273,6 +282,7 @@ const Leaderboard = () => {
                       entry={entry}
                       rank={i}
                       isMe={entry.username === user?.username}
+                      myEquipped={user?.equipped}
                     />
                   ))}
                   {globalData.userRank && globalData.userRank > 10 && (

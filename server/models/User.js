@@ -101,6 +101,15 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0, // resets to 0 on Legendary drop; at 10 guarantees Legendary
     },
+    // ── VIP Prestige & Cosmetics ────────────────
+    inventory: {
+      type: [String],
+      default: ['frame_default', 'title_novice'],
+    },
+    equipped: {
+      frame: { type: String, default: 'frame_default' },
+      title: { type: String, default: 'title_novice' },
+    },
   },
   { timestamps: true }
 );

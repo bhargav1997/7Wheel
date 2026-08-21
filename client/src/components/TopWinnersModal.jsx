@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Crown, Medal, Flame, Zap, Star, ShieldCheck, X, RefreshCw, Users, Award, ChevronRight, Gift } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { formatCredits } from '../utils/format';
+import { getEquippedFrame, getEquippedTitle, TitleBadge } from '../utils/cosmetics';
 import axios from 'axios';
 
 const RankBadge = ({ rank }) => {
@@ -120,25 +121,34 @@ export default function TopWinnersModal({ open, onClose }) {
           </div>
 
           {/* Your Current Rank Banner */}
-          {userRank && (
-            <div className="mb-4 p-3.5 rounded-2xl bg-gradient-to-r from-brand-500/15 via-purple-500/10 to-transparent border border-brand-500/30 flex items-center justify-between text-xs relative z-10">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-brand-gradient flex items-center justify-center text-xs font-black text-white glow-brand">
-                  #{userRank}
-                </div>
-                <div>
-                  <span className="text-slate-400 font-medium block">Your Standing</span>
-                  <span className="font-display font-black text-white text-sm">
-                    You are ranked #{userRank} {userRank <= 10 ? <span className="text-amber-400 inline-flex items-center gap-1"><Flame size={12} className="text-orange-400" /> Top 10!</span> : '— Play to climb!'}
-                  </span>
-                </div>
-              </div>
+          {userRank && (() => {
+            const myFrame = getEquippedFrame(user?.equipped?.frame);
 
-              <div className="text-right font-mono font-bold text-amber-400">
-                {formatCredits(user?.balance)} Credits
+            return (
+              <div className="mb-4 p-3.5 rounded-2xl bg-gradient-to-r from-brand-500/15 via-purple-500/10 to-transparent border border-brand-500/30 flex items-center justify-between text-xs relative z-10">
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black text-white shrink-0 transition-all ${
+                    myFrame.avatarClass
+                  }`}>
+                    #{userRank}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-slate-400 font-medium">Your Standing:</span>
+                      <TitleBadge titleId={user?.equipped?.title} />
+                    </div>
+                    <span className="font-display font-black text-white text-sm">
+                      You are ranked #{userRank} {userRank <= 10 ? <span className="text-amber-400 inline-flex items-center gap-1"><Flame size={12} className="text-orange-400" /> Top 10!</span> : '— Play to climb!'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-right font-mono font-bold text-amber-400">
+                  {formatCredits(user?.balance)} Credits
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* Leaderboard Table / Cards */}
           <div className="flex-1 overflow-y-auto pr-1 space-y-2.5 relative z-10 min-h-[220px]">
@@ -154,6 +164,8 @@ export default function TopWinnersModal({ open, onClose }) {
             ) : (
               entries.map((entry, idx) => {
                 const isMe = entry.username === user?.username;
+                const frame = getEquippedFrame(entry?.equipped?.frame || (isMe ? user?.equipped?.frame : 'frame_default'));
+                const titleId = entry?.equipped?.title || (isMe ? user?.equipped?.title : null);
 
                 return (
                   <motion.div
@@ -179,19 +191,19 @@ export default function TopWinnersModal({ open, onClose }) {
                         <RankBadge rank={idx} />
                       </div>
 
-                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-display font-black text-xs shrink-0 ${
-                        isMe
-                          ? 'bg-brand-gradient text-white shadow-md'
-                          : 'bg-slate-800 border border-slate-700 text-slate-200'
+                      {/* Customized Avatar with Equipped Frame */}
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-display font-black text-xs shrink-0 transition-all ${
+                        frame.avatarClass
                       }`}>
                         {entry.username?.[0]?.toUpperCase()}
                       </div>
 
                       <div className="min-w-0">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           <span className={`font-display font-bold text-sm truncate ${isMe ? 'text-brand-300' : 'text-white'}`}>
                             {entry.username}
                           </span>
+                          <TitleBadge titleId={titleId} />
                           {isMe && (
                             <span className="text-[9px] bg-brand-500/20 text-brand-300 border border-brand-500/30 px-1.5 py-0.2 rounded font-mono font-bold">
                               YOU

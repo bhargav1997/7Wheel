@@ -4,12 +4,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   User, Mail, Shield, Zap, Copy, Users, TrendingUp,
   LogOut, Trash2, AlertTriangle, Lock, Eye, EyeOff,
-  CheckCircle, ArrowLeft, Gift, Trophy, Crown, Medal, Award, ChevronRight, Star
+  CheckCircle, ArrowLeft, Gift, Trophy, Crown, Medal, Award, ChevronRight, Star, Sparkles
 } from 'lucide-react';
 import TopWinnersModal from '../components/TopWinnersModal';
+import CosmeticsShopModal from '../components/CosmeticsShopModal';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { formatCredits } from '../utils/format';
+import { getEquippedFrame, getEquippedTitle, TitleBadge } from '../utils/cosmetics';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Stat card helper
@@ -175,6 +177,7 @@ const DeleteZone = ({ onDeleted }) => {
 export default function Profile() {
   const { user, logout, refreshUser } = useAuth();
   const [showTopWinnersModal, setShowTopWinnersModal] = useState(false);
+  const [showCosmeticsModal, setShowCosmeticsModal] = useState(false);
   const navigate = useNavigate();
 
   // On mount, refresh user to ensure referralCode is generated and synced from server
@@ -218,35 +221,82 @@ export default function Profile() {
         </div>
 
         {/* ── Account info card ── */}
+        {(() => {
+          const equippedFrame = getEquippedFrame(user?.equipped?.frame);
+          const equippedTitle = getEquippedTitle(user?.equipped?.title);
+
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+              className="card p-6 space-y-4"
+            >
+              <div className="flex items-center gap-4">
+                {/* Equipped Avatar Frame */}
+                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-black transition-all duration-300 ${
+                  equippedFrame.avatarClass
+                }`}>
+                  {user?.username?.[0]?.toUpperCase()}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="font-display font-black text-xl text-white">{user?.username}</p>
+                    <TitleBadge titleId={user?.equipped?.title} />
+                  </div>
+                  <p className="text-sm text-slate-400">{user?.email}</p>
+                  <span className={`mt-1 inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                    user?.role === 'admin'
+                      ? 'bg-brand-500/15 text-brand-400 border border-brand-500/20'
+                      : 'bg-slate-500/10 text-slate-400 border border-slate-600/30'
+                  }`}>
+                    <Shield size={9} />
+                    {user?.role === 'admin' ? 'Administrator' : 'Player'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Stats grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+                <StatCard icon={Zap} label="Credits" value={formatCredits(user?.balance)} sub="entertainment credits only" accent="bg-yellow-500/10" />
+                <StatCard icon={TrendingUp} label="Games Played" value={user?.gamesPlayed ?? 0} accent="bg-emerald-500/10" />
+                <StatCard icon={Users} label="Referrals" value={user?.referralCount ?? 0} sub="+50 credits each" accent="bg-purple-500/10" />
+              </div>
+            </motion.div>
+          );
+        })()}
+
+        {/* ── VIP Avatar & Cosmetics Shop Card ── */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="card p-6 space-y-4"
+          transition={{ delay: 0.07 }}
+          className="card p-6 space-y-4 border-2 border-purple-500/40 bg-gradient-to-br from-purple-950/40 via-slate-950 to-indigo-950/30 relative overflow-hidden shadow-xl"
         >
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-brand-gradient flex items-center justify-center text-2xl font-black text-white glow-brand">
-              {user?.username?.[0]?.toUpperCase()}
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white shadow-lg shadow-purple-500/30">
+                <Crown size={22} />
+              </div>
+              <div>
+                <h2 className="font-display font-black text-base text-white flex items-center gap-2">
+                  <span>VIP Cosmetics & Prestige Shop</span>
+                  <span className="text-[9px] bg-purple-500 text-white font-black px-2 py-0.2 rounded-full uppercase tracking-wider">
+                    NEW
+                  </span>
+                </h2>
+                <p className="text-xs text-slate-400">Spend credits on custom neon avatar frames & high-roller titles</p>
+              </div>
             </div>
-            <div>
-              <p className="font-display font-black text-xl text-white">{user?.username}</p>
-              <p className="text-sm text-slate-400">{user?.email}</p>
-              <span className={`mt-1 inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                user?.role === 'admin'
-                  ? 'bg-brand-500/15 text-brand-400 border border-brand-500/20'
-                  : 'bg-slate-500/10 text-slate-400 border border-slate-600/30'
-              }`}>
-                <Shield size={9} />
-                {user?.role === 'admin' ? 'Administrator' : 'Player'}
-              </span>
-            </div>
-          </div>
 
-          {/* Stats grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
-            <StatCard icon={Zap} label="Credits" value={formatCredits(user?.balance)} sub="entertainment credits only" accent="bg-yellow-500/10" />
-            <StatCard icon={TrendingUp} label="Games Played" value={user?.gamesPlayed ?? 0} accent="bg-emerald-500/10" />
-            <StatCard icon={Users} label="Referrals" value={user?.referralCount ?? 0} sub="+50 credits each" accent="bg-purple-500/10" />
+            <button
+              onClick={() => setShowCosmeticsModal(true)}
+              className="py-2.5 px-4 rounded-xl font-display font-black text-xs bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 text-white hover:brightness-110 transition-all flex items-center gap-2 shadow-lg shadow-purple-500/25"
+            >
+              <Sparkles size={14} />
+              <span>Open VIP Shop</span>
+              <ChevronRight size={14} />
+            </button>
           </div>
         </motion.div>
 
@@ -424,6 +474,15 @@ export default function Profile() {
       <TopWinnersModal
         open={showTopWinnersModal}
         onClose={() => setShowTopWinnersModal(false)}
+      />
+
+      {/* VIP Cosmetics & Prestige Shop Modal */}
+      <CosmeticsShopModal
+        isOpen={showCosmeticsModal}
+        onClose={() => {
+          setShowCosmeticsModal(false);
+          refreshUser();
+        }}
       />
     </div>
   );

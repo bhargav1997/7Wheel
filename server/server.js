@@ -17,6 +17,7 @@ const rouletteRoutes = require('./routes/roulette');
 const blackjackRoutes = require('./routes/blackjack');
 const plinkoRoutes = require('./routes/plinko');
 const kenoRoutes = require('./routes/keno');
+const shopRoutes = require('./routes/shop');
 const healthRoutes = require('./routes/health');
 const initGameSocket = require('./sockets/gameSocket');
 const { initFlipOrFlopSocket } = require('./sockets/flipOrFlopSocket');
@@ -84,6 +85,7 @@ app.use('/api/roulette', rouletteRoutes);
 app.use('/api/blackjack', blackjackRoutes);
 app.use('/api/plinko', plinkoRoutes);
 app.use('/api/keno', kenoRoutes);
+app.use('/api/shop', shopRoutes);
 app.use('/api/health', healthRoutes);
 
 // ─────────────────────────────────────────────

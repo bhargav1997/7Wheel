@@ -230,7 +230,10 @@ router.post('/login', loginLimiter, validateLogin, async (req, res) => {
 router.get('/me', verifyJWT, async (req, res) => {
   try {
     let user = await User.findById(req.user._id).select('-password');
-    if (user && !user.referralCode) {
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    let modified = false;
+    if (!user.referralCode) {
       let referralCode;
       let codeConflict = true;
       while (codeConflict) {
@@ -239,6 +242,19 @@ router.get('/me', verifyJWT, async (req, res) => {
         if (!existing) codeConflict = false;
       }
       user.referralCode = referralCode;
+      modified = true;
+    }
+
+    if (!user.inventory || user.inventory.length === 0) {
+      user.inventory = ['frame_default', 'title_novice'];
+      modified = true;
+    }
+    if (!user.equipped || !user.equipped.frame) {
+      user.equipped = { frame: 'frame_default', title: 'title_novice' };
+      modified = true;
+    }
+
+    if (modified) {
       await user.save();
     }
     res.json({ user });

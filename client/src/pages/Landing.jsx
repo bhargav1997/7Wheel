@@ -18,6 +18,17 @@ const GAMES_LIST = [
     multiplier: 'Up to 7.0x',
   },
   {
+    id: 'keno',
+    title: 'Keno 5000× Lottery',
+    tagline: 'Pick 1 to 10 lucky numbers from a 40-ball board & hit up to 5,000× jackpots.',
+    icon: Hash,
+    badge: '5000x JACKPOT',
+    badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
+    color: 'from-cyan-600 via-blue-600 to-teal-600',
+    path: '/keno',
+    multiplier: 'Up to 5,000x',
+  },
+  {
     id: 'roulette',
     title: 'European Roulette',
     tagline: '37-pocket single-zero wheel with deep emerald felt table.',
@@ -38,17 +49,6 @@ const GAMES_LIST = [
     color: 'from-emerald-600 via-teal-600 to-cyan-600',
     path: '/blackjack',
     multiplier: '2.5x Natural Win',
-  },
-  {
-    id: 'keno',
-    title: 'Keno Lottery',
-    tagline: 'Pick up to 10 numbers from a 40-grid & match drawn balls for huge payouts.',
-    icon: Sparkles,
-    badge: '5000x JACKPOT',
-    badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
-    color: 'from-cyan-600 via-blue-600 to-teal-600',
-    path: '/keno',
-    multiplier: 'Up to 5000x',
   },
   {
     id: 'plinko',
@@ -121,7 +121,7 @@ const Landing = () => {
 
   // Simulated live win feed
   const [recentWins, setRecentWins] = useState([
-    { id: 1, name: 'ZeusSpin', amount: 250.00, game: 'Plinko 1000x', time: 'Just now' },
+    { id: 1, name: 'KenoKing', amount: 1250.00, game: 'Keno 5000x', time: 'Just now' },
     { id: 2, name: 'Lucky777', amount: 180.00, game: 'Blackjack 21', time: '1m ago' },
     { id: 3, name: 'OverLord', amount: 360.00, game: 'Roulette 36x', time: '2m ago' },
     { id: 4, name: 'VegasKing', amount: 95.00, game: 'Crash 4.2x', time: '4m ago' },
@@ -129,14 +129,16 @@ const Landing = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const names = ['CryptoWin', 'SatoshiS', 'WheelBoss', 'HighRoller', 'LuckyLady', 'DiceMaster', 'LobbySpins'];
+      const names = ['CryptoWin', 'SatoshiS', 'WheelBoss', 'HighRoller', 'LuckyLady', 'DiceMaster', 'KenoChamp', 'LobbySpins'];
       const games = [
+        'Keno 5000x 10-Spot',
         'Plinko 33x',
         'Blackjack Natural',
         'Roulette Straight Up',
         'Crash 8.5x',
         'Mines Diamond Sweep',
         '7Wheel Exact 7',
+        'Vegas 777 Free Spins',
       ];
       const randomName = names[Math.floor(Math.random() * names.length)];
       const randomGame = games[Math.floor(Math.random() * games.length)];
@@ -152,12 +154,14 @@ const Landing = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#05050a] text-slate-100 flex flex-col selection:bg-brand-500 selection:text-white relative overflow-x-hidden font-sans pt-16">
+    <div className="min-h-screen bg-[#05050a] text-slate-100 flex flex-col selection:bg-brand-500 selection:text-white relative overflow-x-clip font-sans pt-16">
       
-      {/* Background ambient radial glows */}
-      <div className="absolute top-[-10%] left-[20%] w-[800px] h-[600px] rounded-full bg-brand-600/10 blur-[150px] pointer-events-none" />
-      <div className="absolute top-[30%] right-[-10%] w-[600px] h-[600px] rounded-full bg-purple-600/10 blur-[150px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[700px] h-[700px] rounded-full bg-amber-500/5 blur-[150px] pointer-events-none" />
+      {/* Background ambient radial glows strictly contained */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[20%] w-[800px] h-[600px] rounded-full bg-brand-600/10 blur-[150px]" />
+        <div className="absolute top-[30%] right-[-10%] w-[600px] h-[600px] rounded-full bg-purple-600/10 blur-[150px]" />
+        <div className="absolute bottom-0 left-[-10%] w-[700px] h-[700px] rounded-full bg-amber-500/5 blur-[150px]" />
+      </div>
 
       {/* Prominent Disclaimer Notice Banner — Auto disappears after 2 seconds */}
       <AnimatePresence>
@@ -257,7 +261,7 @@ const Landing = () => {
             </span>
           </h1>
           <p className="text-slate-400 text-sm sm:text-base md:text-lg max-w-2xl mx-auto font-medium leading-relaxed">
-            Play 7 Wheel, European Roulette, Blackjack 21, Plinko, Crash, Mines, and Flip or Flop purely for fun and entertainment with virtual game tokens.
+            Play 7 Wheel, Keno 5000× Lottery, European Roulette, Blackjack 21, Plinko Pyramid, Crash Rocket, Mines Sweeper, Vegas 777 Slots, and Flip or Flop purely for fun and entertainment with virtual game tokens.
           </p>
         </div>
 
@@ -274,7 +278,7 @@ const Landing = () => {
             href="#games"
             className="px-8 py-4 text-sm font-extrabold uppercase tracking-wider border border-slate-800 bg-slate-950/60 hover:bg-slate-900 rounded-2xl text-slate-300 hover:text-white transition-all w-full sm:w-auto flex items-center justify-center gap-2"
           >
-            Explore All 7 Games <ArrowRight size={16} />
+            Explore All 9 Games <ArrowRight size={16} />
           </a>
         </div>
 
@@ -289,7 +293,7 @@ const Landing = () => {
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Standard RTP Rate</span>
           </div>
           <div className="card p-4 text-center border border-slate-800 bg-slate-900/60 rounded-2xl">
-            <span className="font-display font-black text-2xl text-purple-400 block">7 Titles</span>
+            <span className="font-display font-black text-2xl text-purple-400 block">9 Titles</span>
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Social Casino Suite</span>
           </div>
           <div className="card p-4 text-center border border-slate-800 bg-slate-900/60 rounded-2xl">
@@ -316,7 +320,7 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* ALL 7 GAMES SHOWCASE SECTION */}
+      {/* ALL 9 GAMES SHOWCASE SECTION */}
       <section id="games" className="max-w-7xl mx-auto px-4 sm:px-6 py-16 w-full relative z-10 space-y-10 scroll-mt-24">
         
         <div className="text-center max-w-2xl mx-auto space-y-3">
@@ -324,7 +328,7 @@ const Landing = () => {
             <Zap size={14} /> Full Gaming Suite
           </div>
           <h2 className="font-display font-black text-3xl md:text-4xl text-white tracking-tight">
-            EXPLORE OUR 7 MINI-GAMES
+            EXPLORE OUR 9 CASINO MINI-GAMES
           </h2>
           <p className="text-slate-400 text-xs sm:text-sm font-semibold">
             Choose your game, set your virtual token stake, and multiply your credits with fair fun mechanics.
@@ -473,7 +477,7 @@ const Landing = () => {
           </h2>
 
           <p className="text-slate-400 text-sm max-w-xl mx-auto font-medium">
-            Join over 1,200 active social gaming players. Register in 10 seconds and start playing all 7 mini-games for free right now.
+            Join over 1,200 active social gaming players. Register in 10 seconds and start playing all 9 casino mini-games for free right now.
           </p>
 
           <div className="pt-2">
@@ -489,7 +493,7 @@ const Landing = () => {
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-slate-800/80 bg-slate-950 py-10 mt-auto relative z-10">
+      <footer className="border-t border-slate-800/80 bg-[#05050a] py-10 mt-auto relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 border-b border-slate-800/60 pb-8">
             <div className="flex items-center gap-3">

@@ -12,14 +12,14 @@ router.get('/', verifyJWT, async (req, res) => {
 
     const top = await User.find(
       { totalWon: { $gte: 0 } },
-      { username: 1, totalWon: 1, gamesPlayed: 1, balance: 1 }
+      { username: 1, totalWon: 1, gamesPlayed: 1, balance: 1, equipped: 1 }
     )
       .sort({ [sortField]: -1, totalWon: -1 })
       .limit(10)
       .lean();
 
     const userId = req.user._id;
-    const userDoc = await User.findById(userId).select('username totalWon gamesPlayed balance').lean();
+    const userDoc = await User.findById(userId).select('username totalWon gamesPlayed balance equipped').lean();
     const targetVal = type === 'weekly' ? (userDoc?.gamesPlayed || 0) : type === 'monthly' ? (userDoc?.balance || 0) : (userDoc?.totalWon || 0);
     const rankCount = await User.countDocuments({ [sortField]: { $gt: targetVal } });
     const userRank = rankCount + 1;

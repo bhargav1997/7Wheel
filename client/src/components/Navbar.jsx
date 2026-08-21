@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Zap, ChevronDown, Shield, Settings, History, Volume2, VolumeX,
   Flame, Gift, Dices, Disc, Gem, Bomb, Rocket, Layers, Coins,
-  Gamepad2, User, Trophy, Sparkles, X, ChevronRight, Check, LayoutGrid, LogOut
+  Gamepad2, User, Trophy, Sparkles, X, ChevronRight, Check, LayoutGrid, LogOut, Crown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -12,7 +12,9 @@ import LootCrateModal from './LootCrateModal';
 import DailyStreakModal from './DailyStreakModal';
 import RoundHistory from './RoundHistory';
 import BuyCreditsModal from './BuyCreditsModal';
+import CosmeticsShopModal from './CosmeticsShopModal';
 import { formatCredits } from '../utils/format';
+import { getEquippedFrame, getEquippedTitle, TitleBadge } from '../utils/cosmetics';
 
 const GAMES = [
   {
@@ -98,7 +100,11 @@ const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, logi
   const [showCrateModal, setShowCrateModal] = useState(false);
   const [showStreakModal, setShowStreakModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [showCosmeticsModal, setShowCosmeticsModal] = useState(false);
   const [showMobileGamesDrawer, setShowMobileGamesDrawer] = useState(false);
+
+  const equippedFrame = getEquippedFrame(user?.equipped?.frame);
+  const equippedTitle = getEquippedTitle(user?.equipped?.title);
 
   const gamesDropdownRef = useRef(null);
   const profileMenuRef = useRef(null);
@@ -289,39 +295,44 @@ const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, logi
 
             {/* User Profile Dropdown Pill (Guaranteed Space, Never Hidden) */}
             <div className="relative shrink-0" ref={profileMenuRef}>
-              <button
-                onClick={() => setShowMenu((v) => !v)}
-                className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-xl px-2 py-1 sm:px-2.5 sm:py-1.5 hover:border-slate-700 transition-colors shrink-0"
-                title="Account Menu"
-              >
-                <div className="w-6 h-6 rounded-lg bg-brand-gradient flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-sm">
-                  {user?.username?.[0]?.toUpperCase() || 'U'}
-                </div>
-                <span className="hidden md:inline font-bold text-xs text-slate-200 max-w-[85px] truncate">
-                  {user?.username}
-                </span>
-                <ChevronDown
-                  size={12}
-                  className={`text-slate-400 transition-transform duration-200 shrink-0 ${showMenu ? 'rotate-180' : ''}`}
-                />
-              </button>
-
-              {/* Profile Menu Popover */}
-              <AnimatePresence>
-                {showMenu && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -6, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -6, scale: 0.95 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-12 w-56 card shadow-2xl shadow-black/80 overflow-hidden border border-slate-800 bg-slate-950/98 backdrop-blur-2xl z-50 rounded-2xl"
+                  <button
+                    onClick={() => setShowMenu((v) => !v)}
+                    className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-xl px-2 py-1 sm:px-2.5 sm:py-1.5 hover:border-slate-700 transition-colors shrink-0"
+                    title="Account Menu"
                   >
-                    {/* User Header */}
-                    <div className="p-3 border-b border-slate-800/80 bg-slate-900/50">
-                      <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Logged in as</p>
-                      <p className="font-bold text-sm text-white truncate">{user?.username}</p>
-                      <p className="text-[11px] text-brand-300 font-mono mt-0.5">{formatCredits(user?.balance)} Credits</p>
+                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 transition-all ${
+                      equippedFrame.avatarClass
+                    }`}>
+                      {user?.username?.[0]?.toUpperCase() || 'U'}
                     </div>
+                    <span className="hidden md:inline font-bold text-xs text-slate-200 max-w-[85px] truncate">
+                      {user?.username}
+                    </span>
+                    <ChevronDown
+                      size={12}
+                      className={`text-slate-400 transition-transform duration-200 shrink-0 ${showMenu ? 'rotate-180' : ''}`}
+                    />
+                  </button>
+
+                  {/* Profile Menu Popover */}
+                  <AnimatePresence>
+                    {showMenu && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -6, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -6, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute right-0 top-12 w-56 card shadow-2xl shadow-black/80 overflow-hidden border border-slate-800 bg-slate-950/98 backdrop-blur-2xl z-50 rounded-2xl"
+                      >
+                        {/* User Header */}
+                        <div className="p-3 border-b border-slate-800/80 bg-slate-900/50">
+                          <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Logged in as</p>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <p className="font-bold text-sm text-white truncate">{user?.username}</p>
+                            <TitleBadge titleId={user?.equipped?.title} />
+                          </div>
+                          <p className="text-[11px] text-brand-300 font-mono mt-0.5">{formatCredits(user?.balance)} Credits</p>
+                        </div>
 
                     {/* Menu Options */}
                     <div className="p-2 space-y-1 text-xs">
@@ -333,6 +344,17 @@ const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, logi
                         <Settings size={14} className="text-slate-400" />
                         Profile & Settings
                       </Link>
+
+                      <button
+                        onClick={() => { setShowCosmeticsModal(true); setShowMenu(false); }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-purple-300 hover:bg-purple-500/15 hover:text-white transition-colors text-left font-semibold"
+                      >
+                        <Crown size={14} className="text-amber-400" />
+                        VIP Cosmetics Shop
+                        <span className="ml-auto text-[9px] bg-purple-500/30 text-purple-200 border border-purple-500/40 px-1.5 py-0.2 rounded-full uppercase font-extrabold">
+                          VIP
+                        </span>
+                      </button>
 
                       <button
                         onClick={() => { setShowStreakModal(true); onOpenStreak?.(); setShowMenu(false); }}
@@ -537,6 +559,7 @@ const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, logi
       <DailyStreakModal open={showStreakModal} onClose={() => setShowStreakModal(false)} />
       <RoundHistory open={showHistoryModal} onClose={() => setShowHistoryModal(false)} />
       <BuyCreditsModal isOpen={showBuyCreditsModal} onClose={() => setShowBuyCreditsModal(false)} />
+      <CosmeticsShopModal isOpen={showCosmeticsModal} onClose={() => setShowCosmeticsModal(false)} />
     </>
   );
 };
