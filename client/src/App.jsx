@@ -16,6 +16,7 @@ import Blackjack from './pages/Blackjack';
 import Plinko from './pages/Plinko';
 import Keno from './pages/Keno';
 import Tower from './pages/Tower';
+import HiLo from './pages/HiLo';
 import Landing from './pages/Landing';
 import PrivacyTerms from './pages/PrivacyTerms';
 import Profile from './pages/Profile';
@@ -133,6 +134,14 @@ const AppRoutes = () => (
       element={
         <ProtectedRoute>
           <Tower />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/hilo"
+      element={
+        <ProtectedRoute>
+          <HiLo />
         </ProtectedRoute>
       }
     />

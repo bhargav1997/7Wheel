@@ -116,6 +116,17 @@ const GAMES_LIST = [
     path: '/tower',
     multiplier: 'Up to 16,000x',
   },
+  {
+    id: 'hilo',
+    title: 'Hi-Lo Card Streak',
+    tagline: 'Predict Higher, Lower, Red, or Black cards to build progressive multipliers up to 10,000×.',
+    icon: Flame,
+    badge: '10,000× STREAK',
+    badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
+    color: 'from-rose-600 via-pink-600 to-amber-600',
+    path: '/hilo',
+    multiplier: 'Up to 10,000x',
+  },
 ];
 
 const Landing = () => {
@@ -272,7 +283,7 @@ const Landing = () => {
             </span>
           </h1>
           <p className="text-slate-400 text-sm sm:text-base md:text-lg max-w-2xl mx-auto font-medium leading-relaxed">
-            Play 7 Wheel, Tower of Fortune, Keno 50,000× Lottery, European Roulette, Blackjack 21, Plinko Pyramid, Crash Rocket, Mines Sweeper, Vegas 777 Slots, and Flip or Flop purely for fun and entertainment with virtual game tokens.
+            Play 7 Wheel, Tower of Fortune, Hi-Lo Card Streak, Keno 50,000× Lottery, European Roulette, Blackjack 21, Plinko Pyramid, Crash Rocket, Mines Sweeper, Vegas 777 Slots, and Flip or Flop purely for fun and entertainment with virtual game tokens.
           </p>
         </div>
 

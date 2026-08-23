@@ -219,7 +219,7 @@ router.post('/step', verifyJWT, async (req, res) => {
       // Record Win Transaction
       await Transaction.create({
         userId,
-        type: 'GAME_WIN',
+        type: 'BET_WON',
         amount: payout,
         balanceAfter: updatedUser.balance,
         description: `Tower of Fortune CONQUERED (${gameState.difficulty}) — won ${payout} 🪙 (${newMultiplier}×)`,
@@ -289,7 +289,7 @@ router.post('/cashout', verifyJWT, async (req, res) => {
     // Record Win Transaction
     await Transaction.create({
       userId,
-      type: 'GAME_WIN',
+      type: 'BET_WON',
       amount: payout,
       balanceAfter: updatedUser.balance,
       description: `Tower of Fortune cashout (${gameState.difficulty}, Floor ${gameState.currentFloor}) — won ${payout} 🪙 (${multiplier}×)`,

@@ -19,6 +19,7 @@ const transactionSchema = new mongoose.Schema(
         'BONUS_CREDITS',
         'BET_PLACED',
         'BET_WON',
+        'GAME_WIN',
         'REFUND',
         'REWARD',
         'CREDIT_TRANSFER_SENT',

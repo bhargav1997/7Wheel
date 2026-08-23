@@ -98,6 +98,14 @@ const GAMES = [
     badge: '16,000× MAX',
     color: 'from-purple-600 via-pink-600 to-indigo-600',
   },
+  {
+    path: '/hilo',
+    label: 'Hi-Lo Card Streak',
+    tagline: 'Higher/Lower Predict up to 10,000×',
+    icon: Flame,
+    badge: '10,000× MAX',
+    color: 'from-rose-600 via-pink-600 to-amber-600',
+  },
 ];
 
 const Navbar = ({ onOpenStreak, onOpenHistory, soundEnabled, onToggleSound, loginStreak }) => {
