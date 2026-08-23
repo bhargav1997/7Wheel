@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, ShieldCheck, Trophy, Coins, Users, ArrowRight, Star, AlertTriangle, Sparkles, TrendingUp, Zap, HelpCircle, Gift, Flame, Disc, Gem, Bomb, Rocket, Layers, Dices, Play, CheckCircle2, ChevronRight, Lock, Gamepad2, Info, Crosshair, Award, Hash } from 'lucide-react';
+import { Shield, ShieldCheck, Trophy, Coins, Users, ArrowRight, Star, AlertTriangle, Sparkles, TrendingUp, Zap, HelpCircle, Gift, Flame, Disc, Gem, Bomb, Rocket, Layers, Dices, Play, CheckCircle2, ChevronRight, Lock, Gamepad2, Info, Crosshair, Award, Hash, Castle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { formatCredits } from '../utils/format';
 
@@ -104,6 +104,17 @@ const GAMES_LIST = [
     color: 'from-purple-600 via-fuchsia-600 to-pink-600',
     path: '/slots',
     multiplier: 'Up to 500x',
+  },
+  {
+    id: 'tower',
+    title: 'Tower of Fortune',
+    tagline: 'Climb 9 vertical floors of mystery doors, avoid skull traps & cash out up to 16,000×.',
+    icon: Castle,
+    badge: '16,000× TOWER',
+    badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/40',
+    color: 'from-purple-600 via-pink-600 to-indigo-600',
+    path: '/tower',
+    multiplier: 'Up to 16,000x',
   },
 ];
 
@@ -261,7 +272,7 @@ const Landing = () => {
             </span>
           </h1>
           <p className="text-slate-400 text-sm sm:text-base md:text-lg max-w-2xl mx-auto font-medium leading-relaxed">
-            Play 7 Wheel, Keno 5000× Lottery, European Roulette, Blackjack 21, Plinko Pyramid, Crash Rocket, Mines Sweeper, Vegas 777 Slots, and Flip or Flop purely for fun and entertainment with virtual game tokens.
+            Play 7 Wheel, Tower of Fortune, Keno 50,000× Lottery, European Roulette, Blackjack 21, Plinko Pyramid, Crash Rocket, Mines Sweeper, Vegas 777 Slots, and Flip or Flop purely for fun and entertainment with virtual game tokens.
           </p>
         </div>
 

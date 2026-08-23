@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Zap, ChevronDown, Shield, Settings, History, Volume2, VolumeX,
-  Flame, Gift, Dices, Disc, Gem, Bomb, Rocket, Layers, Coins,
+  Flame, Gift, Dices, Disc, Gem, Bomb, Rocket, Layers, Coins, Castle,
   Gamepad2, User, Trophy, Sparkles, X, ChevronRight, Check, LayoutGrid, LogOut, Crown,
   HeartHandshake, Send
 } from 'lucide-react';
@@ -89,6 +89,14 @@ const GAMES = [
     icon: Dices,
     badge: '1000× MAX',
     color: 'from-pink-600 to-purple-600',
+  },
+  {
+    path: '/tower',
+    label: 'Tower of Fortune',
+    tagline: '9-Floor Climb up to 16,000×',
+    icon: Castle,
+    badge: '16,000× MAX',
+    color: 'from-purple-600 via-pink-600 to-indigo-600',
   },
 ];
 
