@@ -19,14 +19,14 @@ const GAMES_LIST = [
   },
   {
     id: 'keno',
-    title: 'Keno 5000× Lottery',
-    tagline: 'Pick 1 to 10 lucky numbers from a 40-ball board & hit up to 5,000× jackpots.',
+    title: 'Keno 50,000× Lottery',
+    tagline: 'Pick 1 to 10 lucky numbers from a 100-ball board & hit up to 50,000× jackpots.',
     icon: Hash,
-    badge: '5000x JACKPOT',
+    badge: '50000x JACKPOT',
     badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
     color: 'from-cyan-600 via-blue-600 to-teal-600',
     path: '/keno',
-    multiplier: 'Up to 5,000x',
+    multiplier: 'Up to 50,000x',
   },
   {
     id: 'roulette',

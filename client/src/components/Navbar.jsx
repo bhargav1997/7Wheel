@@ -77,9 +77,9 @@ const GAMES = [
   {
     path: '/keno',
     label: 'Keno',
-    tagline: 'Lottery 40-Ball Match up to 5000×',
+    tagline: '100-Ball Lottery Match up to 50,000×',
     icon: Sparkles,
-    badge: '5000× MAX',
+    badge: '50,000× MAX',
     color: 'from-cyan-500 to-blue-600',
   },
   {

@@ -84,18 +84,18 @@ function ConfettiCanvas({ active }) {
   );
 }
 
-// ── Paytable Data ────────────────────────────────────────────────────────────
+// ── Paytable Data (1-100 Numbers Grid, 20 Balls Drawn) ──────────────────────
 const KENO_PAYTABLE = {
-  1:  { 1: 3.5 },
-  2:  { 2: 8 },
-  3:  { 2: 2.5, 3: 25 },
-  4:  { 3: 5, 4: 60 },
-  5:  { 3: 3, 4: 18, 5: 150 },
-  6:  { 4: 6, 5: 40, 6: 300 },
-  7:  { 4: 4, 5: 20, 6: 100, 7: 500 },
-  8:  { 5: 5, 6: 30, 7: 200, 8: 1000 },
-  9:  { 5: 4, 6: 20, 7: 100, 8: 500, 9: 2000 },
-  10: { 6: 5, 7: 30, 8: 150, 9: 1000, 10: 5000 },
+  1:  { 1: 4.5 },
+  2:  { 2: 24 },
+  3:  { 2: 3, 3: 120 },
+  4:  { 2: 2, 3: 25, 4: 700 },
+  5:  { 2: 1.5, 3: 10, 4: 120, 5: 3500 },
+  6:  { 3: 5, 4: 50, 5: 600, 6: 5000 },
+  7:  { 3: 3, 4: 20, 5: 180, 6: 1500, 7: 8000 },
+  8:  { 4: 10, 5: 75, 6: 600, 7: 3500, 8: 10000 },
+  9:  { 4: 6, 5: 35, 6: 250, 7: 1800, 8: 8000, 9: 20000 },
+  10: { 4: 4, 5: 18, 6: 100, 7: 800, 8: 4000, 9: 15000, 10: 50000 },
 };
 
 // ── Main Keno Component ──────────────────────────────────────────────────────
@@ -154,7 +154,7 @@ export default function Keno() {
     playClick();
     const nums = new Set();
     while (nums.size < count) {
-      nums.add(Math.floor(Math.random() * 40) + 1);
+      nums.add(Math.floor(Math.random() * 100) + 1);
     }
     setSelectedNums(nums);
   };
@@ -321,9 +321,9 @@ export default function Keno() {
             </div>
           </div>
 
-          {/* 40-Number Grid (8 columns × 5 rows) */}
-          <div className="grid grid-cols-8 gap-1.5 sm:gap-2">
-            {Array.from({ length: 40 }, (_, i) => i + 1).map((num) => {
+          {/* 100-Number Grid (10 columns × 10 rows) */}
+          <div className="grid grid-cols-10 gap-1 sm:gap-1.5">
+            {Array.from({ length: 100 }, (_, i) => i + 1).map((num) => {
               const { isPicked, isDrawn, isHit, isMiss } = getBallState(num);
 
               return (
@@ -331,19 +331,19 @@ export default function Keno() {
                   key={num}
                   onClick={() => toggleNumber(num)}
                   disabled={gamePhase !== 'PICKING'}
-                  whileHover={gamePhase === 'PICKING' ? { scale: 1.08 } : {}}
-                  whileTap={gamePhase === 'PICKING' ? { scale: 0.92 } : {}}
-                  animate={isHit ? { scale: [1, 1.2, 1], transition: { duration: 0.3 } } : {}}
-                  className={`relative aspect-square rounded-xl sm:rounded-2xl font-display font-black text-sm sm:text-base flex items-center justify-center border-2 transition-all duration-200 ${
+                  whileHover={gamePhase === 'PICKING' ? { scale: 1.1 } : {}}
+                  whileTap={gamePhase === 'PICKING' ? { scale: 0.9 } : {}}
+                  animate={isHit ? { scale: [1, 1.25, 1], transition: { duration: 0.3 } } : {}}
+                  className={`relative aspect-square rounded-lg sm:rounded-xl font-display font-black text-[11px] sm:text-xs md:text-sm flex items-center justify-center border transition-all duration-150 ${
                     isHit
-                      ? 'bg-emerald-500/30 border-emerald-400 text-emerald-300 shadow-[0_0_14px_rgba(16,185,129,0.5)] ring-2 ring-emerald-400/30'
+                      ? 'bg-emerald-500/35 border-emerald-400 text-emerald-200 shadow-[0_0_12px_rgba(16,185,129,0.6)] ring-2 ring-emerald-400/40 z-10'
                       : isMiss
-                      ? 'bg-red-500/10 border-red-500/30 text-red-400/60'
+                      ? 'bg-red-500/10 border-red-500/30 text-red-400/50'
                       : isPicked
-                      ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-[0_0_10px_rgba(34,211,238,0.3)]'
+                      ? 'bg-cyan-500/25 border-cyan-400 text-cyan-200 shadow-[0_0_10px_rgba(34,211,238,0.4)] ring-1 ring-cyan-400/30 z-10'
                       : isDrawn
-                      ? 'bg-slate-800/50 border-slate-600 text-slate-400'
-                      : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:border-cyan-500/50 hover:bg-cyan-500/10 hover:text-cyan-300'
+                      ? 'bg-slate-800/60 border-slate-600 text-slate-400'
+                      : 'bg-slate-900/70 border-slate-800/80 text-slate-300 hover:border-cyan-500/50 hover:bg-cyan-500/10 hover:text-cyan-300'
                   } disabled:cursor-default`}
                 >
                   {num}
@@ -352,7 +352,7 @@ export default function Keno() {
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full border border-emerald-300 shadow-lg"
+                      className="absolute -top-0.5 -right-0.5 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-emerald-400 rounded-full border border-emerald-200 shadow-md"
                     />
                   )}
                 </motion.button>
@@ -618,7 +618,7 @@ export default function Keno() {
                 <div className="p-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 space-y-1">
                   <p className="font-bold text-white">How to Play Keno:</p>
                   <p className="text-[11px] leading-relaxed text-slate-300">
-                    Pick <strong>1 to 10 numbers</strong> from a grid of 40. The house draws <strong>20 random numbers</strong>. The more of your picks that match, the bigger the payout!
+                    Pick <strong>1 to 10 numbers</strong> from a grid of 100 (1 to 100). The house draws <strong>20 random numbers</strong>. The more of your picks that match, the bigger the payout!
                   </p>
                 </div>
 
@@ -654,14 +654,14 @@ export default function Keno() {
                   <p className="font-bold text-amber-300 text-[11px]">Tips:</p>
                   <ul className="text-[11px] text-slate-300 list-disc list-inside space-y-0.5">
                     <li>Picking fewer numbers gives better odds per hit but lower max payouts</li>
-                    <li>10 picks with 10 matches = <strong>5000× payout</strong></li>
-                    <li>Use Quick Pick for random selections</li>
+                    <li>10 picks with 10 matches = <strong>50,000× Mega Jackpot</strong></li>
+                    <li>Use Quick 5 or Quick 10 for instant random number picks</li>
                   </ul>
                 </div>
               </div>
 
               <div className="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400 text-center flex items-center justify-center gap-1.5">
-                <ShieldAlert size={11} className="text-slate-500" /> 20 of 40 numbers drawn cryptographically per round. ~96% RTP.
+                <ShieldAlert size={11} className="text-slate-500" /> 20 of 100 numbers drawn cryptographically per round. ~96% RTP.
               </div>
             </motion.div>
           </motion.div>
