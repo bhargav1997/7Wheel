@@ -180,12 +180,17 @@ const Register = () => {
           <form onSubmit={handleSubmit} className="space-y-4" id="register-form" noValidate>
 
             {/* Username */}
-            <div className="space-y-1">
-              <label htmlFor="reg-username" className="block text-xs font-extrabold text-slate-300">
-                Username
-              </label>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label htmlFor="reg-username" className="block text-sm font-bold text-slate-200">
+                  Username
+                </label>
+                {touched.username && usernameErr && (
+                  <span className="text-xs text-red-400 font-bold">{usernameErr}</span>
+                )}
+              </div>
               <div className="relative">
-                <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+                <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 <input
                   id="reg-username"
                   name="username"
@@ -195,19 +200,24 @@ const Register = () => {
                   value={form.username}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  className="input-field pl-11 text-xs py-3 bg-slate-900/90 border-slate-800 focus:border-brand-500 rounded-xl"
+                  className="input-field pl-12 pr-4 text-sm sm:text-base py-3.5 sm:py-4 bg-slate-900/90 border border-slate-700/80 focus:border-brand-500 rounded-2xl placeholder:text-sm sm:placeholder:text-base placeholder:text-slate-500 font-medium w-full"
                   placeholder="coolplayer99"
                 />
               </div>
             </div>
 
             {/* Email */}
-            <div className="space-y-1">
-              <label htmlFor="reg-email" className="block text-xs font-extrabold text-slate-300">
-                Email Address
-              </label>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label htmlFor="reg-email" className="block text-sm font-bold text-slate-200">
+                  Email Address
+                </label>
+                {touched.email && emailErr && (
+                  <span className="text-xs text-red-400 font-bold">{emailErr}</span>
+                )}
+              </div>
               <div className="relative">
-                <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 <input
                   id="reg-email"
                   name="email"
@@ -217,19 +227,19 @@ const Register = () => {
                   value={form.email}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  className="input-field pl-11 text-xs py-3 bg-slate-900/90 border-slate-800 focus:border-brand-500 rounded-xl"
+                  className="input-field pl-12 pr-4 text-sm sm:text-base py-3.5 sm:py-4 bg-slate-900/90 border border-slate-700/80 focus:border-brand-500 rounded-2xl placeholder:text-sm sm:placeholder:text-base placeholder:text-slate-500 font-medium w-full"
                   placeholder="you@example.com"
                 />
               </div>
             </div>
 
             {/* Password */}
-            <div className="space-y-1">
-              <label htmlFor="reg-password" className="block text-xs font-extrabold text-slate-300">
+            <div className="space-y-1.5">
+              <label htmlFor="reg-password" className="block text-sm font-bold text-slate-200">
                 Password
               </label>
               <div className="relative">
-                <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 <input
                   id="reg-password"
                   name="password"
@@ -239,22 +249,24 @@ const Register = () => {
                   value={form.password}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  className="input-field pl-11 pr-11 text-xs py-3 bg-slate-900/90 border-slate-800 focus:border-brand-500 rounded-xl"
+                  className="input-field pl-12 pr-12 text-sm sm:text-base py-3.5 sm:py-4 bg-slate-900/90 border border-slate-700/80 focus:border-brand-500 rounded-2xl placeholder:text-sm sm:placeholder:text-base placeholder:text-slate-500 font-medium w-full"
                   placeholder="Min. 8 characters"
                 />
                 <button
                   type="button"
+                  id="register-toggle-password-btn"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800/60 transition-colors"
+                  title={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
 
               {/* Password strength checklist */}
               {form.password && (
-                <div className="mt-2 space-y-1.5 p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                <div className="mt-2 space-y-1.5 p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
                     <PasswordRule met={passwordStrength.checks?.length}    label="8+ characters" />
                     <PasswordRule met={passwordStrength.checks?.uppercase}  label="Uppercase letter" />
                     <PasswordRule met={passwordStrength.checks?.lowercase}  label="Lowercase letter" />

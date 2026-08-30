@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, LogIn, AlertCircle, ArrowLeft, Sparkles, Shield, Coins } from 'lucide-react';
+import { Mail, Lock, LogIn, AlertCircle, ArrowLeft, Sparkles, Shield, Coins, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: '', password: '' });
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -78,12 +79,12 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="space-y-4" id="login-form">
             
             {/* Email Address */}
-            <div className="space-y-1.5">
-              <label htmlFor="login-email" className="block text-xs font-extrabold text-slate-300">
+            <div className="space-y-2">
+              <label htmlFor="login-email" className="block text-sm font-bold text-slate-200">
                 Email Address
               </label>
               <div className="relative">
-                <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 <input
                   id="login-email"
                   name="email"
@@ -92,38 +93,47 @@ const Login = () => {
                   required
                   value={form.email}
                   onChange={handleChange}
-                  className="input-field pl-11 text-xs py-3 bg-slate-900/90 border-slate-800 focus:border-brand-500 rounded-xl"
+                  className="input-field pl-12 pr-4 text-sm sm:text-base py-3.5 sm:py-4 bg-slate-900/90 border border-slate-700/80 focus:border-brand-500 rounded-2xl placeholder:text-sm sm:placeholder:text-base placeholder:text-slate-500 font-medium w-full"
                   placeholder="you@example.com"
                 />
               </div>
             </div>
 
             {/* Password */}
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label htmlFor="login-password" className="block text-xs font-extrabold text-slate-300">
+                <label htmlFor="login-password" className="block text-sm font-bold text-slate-200">
                   Password
                 </label>
                 <Link
                   to="/forgot-password"
-                  className="text-[11px] text-brand-400 hover:text-brand-300 transition-colors font-bold"
+                  className="text-xs text-brand-400 hover:text-brand-300 transition-colors font-bold"
                 >
                   Forgot password?
                 </Link>
               </div>
               <div className="relative">
-                <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 <input
                   id="login-password"
                   name="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   required
                   value={form.password}
                   onChange={handleChange}
-                  className="input-field pl-11 text-xs py-3 bg-slate-900/90 border-slate-800 focus:border-brand-500 rounded-xl"
+                  className="input-field pl-12 pr-12 text-sm sm:text-base py-3.5 sm:py-4 bg-slate-900/90 border border-slate-700/80 focus:border-brand-500 rounded-2xl placeholder:text-sm sm:placeholder:text-base placeholder:text-slate-500 font-medium w-full"
                   placeholder="••••••••"
                 />
+                <button
+                  type="button"
+                  id="login-toggle-password-btn"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800/60 transition-colors"
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
             </div>
 
